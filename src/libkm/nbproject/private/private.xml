@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <data xmlns="http://www.netbeans.org/ns/make-project-private/1">
+        <activeConfTypeElem>3</activeConfTypeElem>
+        <activeConfIndexElem>0</activeConfIndexElem>
+    </data>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1">
+        <file>
+            <url>src/SNPFactory.cpp</url>
+            <bookmark id="1">
+                <name/>
+                <line>206</line>
+                <key/>
+            </bookmark>
+        </file>
+    </editor-bookmarks>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group name="KillerMutations">
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/includes/svm.h</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/includes/SNPFactory.h</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/src/svm.cpp</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/includes/SVMPredict.h</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/src/SVMPredict.cpp</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/src/SNPFactory.cpp</file>
+        </group>
+    </open-files>
+</project-private>

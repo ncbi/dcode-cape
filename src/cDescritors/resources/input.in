@@ -1,0 +1,9 @@
+in  input_file_name.txt
+out output_file_name.out
+order   10
+chrs    /Users/veraalva/Work/Developer/C/ncbi/resources/hg19.fa.bin
+weight  /Users/veraalva/Work/Developer/C/ncbi/input2/mytest/cDescriptors/10mers_sigValue_sorted
+binary  0
+neighbors   100
+model   /Users/veraalva/Work/Developer/C/ncbi/input2/mytest/cDescriptors/alldsQTLcontrolSNP.linear.model
+probability   1

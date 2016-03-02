@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="97">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>includes/BedFactory.h</itemPath>
+      <itemPath>includes/FastaFactory.h</itemPath>
+      <itemPath>includes/Global.h</itemPath>
+      <itemPath>includes/KmersFactory.h</itemPath>
+      <itemPath>includes/SNPFactory.h</itemPath>
+      <itemPath>includes/SVMPredict.h</itemPath>
+      <itemPath>includes/TimeUtils.h</itemPath>
+      <itemPath>includes/berror.h</itemPath>
+      <itemPath>includes/bmath.h</itemPath>
+      <itemPath>includes/bmemory.h</itemPath>
+      <itemPath>includes/bstring.h</itemPath>
+      <itemPath>includes/svm.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+      <itemPath>resources/chr1.fa.masked</itemPath>
+      <itemPath>resources/multiple.fa.masked</itemPath>
+      <itemPath>resources/randControl.txt</itemPath>
+      <itemPath>resources/test.bed</itemPath>
+      <itemPath>resources/test.train.control.info.chr1</itemPath>
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>src/BedFactory.cpp</itemPath>
+      <itemPath>src/FastaFactory.cpp</itemPath>
+      <itemPath>src/KmersFactory.cpp</itemPath>
+      <itemPath>src/SNPFactory.cpp</itemPath>
+      <itemPath>src/SVMPredict.cpp</itemPath>
+      <itemPath>src/berror.c</itemPath>
+      <itemPath>src/bmemory.c</itemPath>
+      <itemPath>src/bstring.c</itemPath>
+      <itemPath>src/chebyshev.c</itemPath>
+      <itemPath>src/features.c</itemPath>
+      <itemPath>src/gamma.c</itemPath>
+      <itemPath>src/lgamma.c</itemPath>
+      <itemPath>src/lgammacor.c</itemPath>
+      <itemPath>src/phyper.c</itemPath>
+      <itemPath>src/stirlerr.c</itemPath>
+      <itemPath>src/svm.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+      <logicalFolder name="f1"
+                     displayName="BedFactoryTest"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/BedFactoryTest.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2"
+                     displayName="FastaFactoryTest"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/FastaFactoryTest.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3"
+                     displayName="KmerFactoryTest"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/KmerFactoryTest.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="PeakTest" projectFiles="true" kind="TEST">
+        <itemPath>tests/PeakTest.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f5"
+                     displayName="PhyperTest"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/PhyperTest.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f6"
+                     displayName="SNPFactoryTest"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/SNPFactoryTest.cpp</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>src</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Release" type="3">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>includes</pElem>
+          </incDir>
+          <commandLine>-g -Wall</commandLine>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <standard>11</standard>
+          <incDir>
+            <pElem>includes</pElem>
+          </incDir>
+          <commandLine>-g -Wall</commandLine>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <archiverTool>
+          <output>../../lib/libkm.a</output>
+        </archiverTool>
+      </compileType>
+      <packaging>
+        <packType>Tar</packType>
+        <output>${CND_DISTDIR}/${CND_CONF}/package/libkm.tar.gz</output>
+        <additionalOptions>-vz</additionalOptions>
+        <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}lib/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="644"
+                            owner="root"
+                            group="bin"/>
+        </packFileList>
+      </packaging>
+      <folder path="TestFiles">
+        <cTool>
+          <incDir>
+            <pElem>includes</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>includes</pElem>
+          </incDir>
+        </ccTool>
+      </folder>
+      <folder path="TestFiles/f1">
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/bedFactoryTest</output>
+          <stripSymbols>true</stripSymbols>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f2">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/fastaFactoryTest</output>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f3">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/kmerFactoryTest</output>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f4">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/peakTest</output>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f5">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/phyperTest</output>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f6">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/snpFactoryTest</output>
+        </linkerTool>
+      </folder>
+      <item path="includes/BedFactory.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/FastaFactory.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/Global.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/KmersFactory.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/SNPFactory.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/SVMPredict.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/TimeUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/berror.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/bmath.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/bmemory.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/bstring.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/svm.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/chr1.fa.masked" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/multiple.fa.masked" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/randControl.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/test.bed" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/test.train.control.info.chr1"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="src/BedFactory.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/FastaFactory.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/KmersFactory.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/SNPFactory.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/SVMPredict.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="src/berror.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/bmemory.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/bstring.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/chebyshev.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/features.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/gamma.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/lgamma.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/lgammacor.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/phyper.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/stirlerr.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/svm.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/BedFactoryTest.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/FastaFactoryTest.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/KmerFactoryTest.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/PeakTest.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/PhyperTest.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="tests/SNPFactoryTest.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
