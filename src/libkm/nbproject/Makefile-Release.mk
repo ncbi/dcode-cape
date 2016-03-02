@@ -61,8 +61,7 @@ TESTFILES= \
 	${TESTDIR}/TestFiles/fastaFactoryTest \
 	${TESTDIR}/TestFiles/kmerFactoryTest \
 	${TESTDIR}/TestFiles/peakTest \
-	${TESTDIR}/TestFiles/phyperTest \
-	${TESTDIR}/TestFiles/snpFactoryTest
+	${TESTDIR}/TestFiles/phyperTest
 
 # Test Object Files
 TESTOBJECTFILES= \
@@ -70,8 +69,7 @@ TESTOBJECTFILES= \
 	${TESTDIR}/tests/FastaFactoryTest.o \
 	${TESTDIR}/tests/KmerFactoryTest.o \
 	${TESTDIR}/tests/PeakTest.o \
-	${TESTDIR}/tests/PhyperTest.o \
-	${TESTDIR}/tests/SNPFactoryTest.o
+	${TESTDIR}/tests/PhyperTest.o
 
 # C Compiler Flags
 CFLAGS=-g -Wall
@@ -206,10 +204,6 @@ ${TESTDIR}/TestFiles/phyperTest: ${TESTDIR}/tests/PhyperTest.o ${OBJECTFILES:%.o
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.cc}   -o ${TESTDIR}/TestFiles/phyperTest $^ ${LDLIBSOPTIONS} 
 
-${TESTDIR}/TestFiles/snpFactoryTest: ${TESTDIR}/tests/SNPFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
-	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/snpFactoryTest $^ ${LDLIBSOPTIONS} 
-
 
 ${TESTDIR}/tests/BedFactoryTest.o: tests/BedFactoryTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
@@ -239,12 +233,6 @@ ${TESTDIR}/tests/PhyperTest.o: tests/PhyperTest.c
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -Iincludes -Iincludes -I. -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PhyperTest.o tests/PhyperTest.c
-
-
-${TESTDIR}/tests/SNPFactoryTest.o: tests/SNPFactoryTest.cpp 
-	${MKDIR} -p ${TESTDIR}/tests
-	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++14 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/SNPFactoryTest.o tests/SNPFactoryTest.cpp
 
 
 ${OBJECTDIR}/src/BedFactory_nomain.o: ${OBJECTDIR}/src/BedFactory.o src/BedFactory.cpp 
@@ -464,7 +452,6 @@ ${OBJECTDIR}/src/svm_nomain.o: ${OBJECTDIR}/src/svm.o src/svm.cpp
 	    ${TESTDIR}/TestFiles/kmerFactoryTest || true; \
 	    ${TESTDIR}/TestFiles/peakTest || true; \
 	    ${TESTDIR}/TestFiles/phyperTest || true; \
-	    ${TESTDIR}/TestFiles/snpFactoryTest || true; \
 	else  \
 	    ./${TEST} || true; \
 	fi

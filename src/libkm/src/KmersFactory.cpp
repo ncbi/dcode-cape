@@ -14,13 +14,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <math.h>
 #include <iostream>
 #include <string>
 #include <memory>
 #include <map>
 #include <set>
 #include <algorithm>
+#include <cmath>
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"

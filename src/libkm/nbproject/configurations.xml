@@ -23,6 +23,7 @@
       <itemPath>resources/chr1.fa.masked</itemPath>
       <itemPath>resources/multiple.fa.masked</itemPath>
       <itemPath>resources/randControl.txt</itemPath>
+      <itemPath>resources/snp.txt</itemPath>
       <itemPath>resources/test.bed</itemPath>
       <itemPath>resources/test.train.control.info.chr1</itemPath>
     </logicalFolder>
@@ -76,12 +77,6 @@
                      projectFiles="true"
                      kind="TEST">
         <itemPath>tests/PhyperTest.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f6"
-                     displayName="SNPFactoryTest"
-                     projectFiles="true"
-                     kind="TEST">
-        <itemPath>tests/SNPFactoryTest.cpp</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -219,21 +214,6 @@
           <output>${TESTDIR}/TestFiles/phyperTest</output>
         </linkerTool>
       </folder>
-      <folder path="TestFiles/f6">
-        <cTool>
-          <incDir>
-            <pElem>.</pElem>
-          </incDir>
-        </cTool>
-        <ccTool>
-          <incDir>
-            <pElem>.</pElem>
-          </incDir>
-        </ccTool>
-        <linkerTool>
-          <output>${TESTDIR}/TestFiles/snpFactoryTest</output>
-        </linkerTool>
-      </folder>
       <item path="includes/BedFactory.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="includes/FastaFactory.h" ex="false" tool="3" flavor2="0">
@@ -263,6 +243,8 @@
       <item path="resources/multiple.fa.masked" ex="false" tool="3" flavor2="0">
       </item>
       <item path="resources/randControl.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/snp.txt" ex="false" tool="3" flavor2="0">
       </item>
       <item path="resources/test.bed" ex="false" tool="3" flavor2="0">
       </item>
@@ -312,8 +294,6 @@
       <item path="tests/PeakTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="tests/PhyperTest.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="tests/SNPFactoryTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
   </confs>

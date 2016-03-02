@@ -15,13 +15,6 @@
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group name="KillerMutations">
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/includes/svm.h</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/includes/SNPFactory.h</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/src/svm.cpp</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/includes/SVMPredict.h</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/src/SVMPredict.cpp</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/KillerMutations/src/libkm/src/SNPFactory.cpp</file>
-        </group>
+        <group name="KillerMutations"/>
     </open-files>
 </project-private>
