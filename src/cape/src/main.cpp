@@ -77,7 +77,6 @@ int main(int argc, char** argv) {
     clock_t begin = clock();
     clock_t start = clock();
     int next_option, count;
-    unsigned long int hitNum;
     const char* const short_options = "vhci:";
     FILE *chrsBinName = NULL;
     char *inFileName = NULL;
@@ -108,7 +107,6 @@ int main(int argc, char** argv) {
         { NULL, 0, NULL, 0} /* Required at end of array.  */
     };
 
-    hitNum = 0;
     do {
         next_option = getopt_long(argc, argv, short_options, long_options, NULL);
 
