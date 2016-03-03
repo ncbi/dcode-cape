@@ -222,7 +222,7 @@ void FastaFactory::WriteSequencesToFile(char* fileName, bool binary) {
     unsigned long int i, len;
     FILE *outputFile = NULL;
     Fasta *f;
-    char t;
+    char t = '\0';
 
     if (binary) {
         outputFile = (FILE *) checkPointerError(fopen(fileName, "wb"), "Can't open output file", __FILE__, __LINE__, -1);

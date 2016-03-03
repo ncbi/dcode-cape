@@ -164,7 +164,7 @@ int SNPFactory::ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbo
                     snp->SetRef(fields[3][0]);
                     snp->SetAlt(fields[4][0]);
                     snpPos = atoi(fields[1]) - 1;
-                    if (snpPos - 1 >= 0 && snpPos - 1 < f->GetLength()) {
+                    if (snpPos - 1 >= 0 && snpPos - 1 < static_cast<int>(f->GetLength())) {
                         snp->SetChrPos(snpPos);
                     } else {
                         printLog(stderr, "SNP position out of range", __FILE__, __LINE__, -1);
