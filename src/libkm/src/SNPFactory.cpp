@@ -11,6 +11,7 @@
 #include <math.h>
 #include <iostream>
 #include <string>
+#include <cmath>
 #include <memory>
 #include <map>
 #include <unordered_map>
@@ -71,7 +72,7 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory) {
             this->seq[this->pos] = this->ref;
         } else {
             this->neighborKmer += kmersFactory.GetKmerSig(this->seq + i);
-            if (isinf(this->neighborKmer)) {
+            if (std::isinf(this->neighborKmer)) {
                 cout << this->GetId() << endl;
                 cout << (this->seq + i) << endl;
                 cout << "Sig: " << kmersFactory.GetKmerSig(this->seq + i) << endl;
