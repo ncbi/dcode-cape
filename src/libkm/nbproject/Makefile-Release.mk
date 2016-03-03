@@ -89,13 +89,13 @@ LDLIBSOPTIONS=
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ../../lib/libkm.a
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ./build/libkm.a
 
-../../lib/libkm.a: ${OBJECTFILES}
-	${MKDIR} -p ../../lib
-	${RM} ../../lib/libkm.a
-	${AR} -rv ../../lib/libkm.a ${OBJECTFILES} 
-	$(RANLIB) ../../lib/libkm.a
+./build/libkm.a: ${OBJECTFILES}
+	${MKDIR} -p ./build
+	${RM} ./build/libkm.a
+	${AR} -rv ./build/libkm.a ${OBJECTFILES} 
+	$(RANLIB) ./build/libkm.a
 
 ${OBJECTDIR}/src/BedFactory.o: src/BedFactory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -459,7 +459,7 @@ ${OBJECTDIR}/src/svm_nomain.o: ${OBJECTDIR}/src/svm.o src/svm.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ../../lib/libkm.a
+	${RM} ./build/libkm.a
 
 # Subprojects
 .clean-subprojects:

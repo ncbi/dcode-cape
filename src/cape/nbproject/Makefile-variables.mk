@@ -9,8 +9,8 @@ CND_DISTDIR=dist
 # Release configuration
 CND_PLATFORM_Release=GNU-MacOSX
 CND_ARTIFACT_DIR_Release=../../bin
-CND_ARTIFACT_NAME_Release=cDescritors
-CND_ARTIFACT_PATH_Release=../../bin/cDescritors
+CND_ARTIFACT_NAME_Release=cape
+CND_ARTIFACT_PATH_Release=../../bin/cape
 CND_PACKAGE_DIR_Release=dist/Release/package
 CND_PACKAGE_NAME_Release=cdescritors.tar.gz
 CND_PACKAGE_PATH_Release=dist/Release/package/cdescritors.tar.gz

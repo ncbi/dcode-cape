@@ -44,7 +44,6 @@
           <incDir>
             <pElem>includes</pElem>
             <pElem>../libkm/includes</pElem>
-            <pElem>../../../../../../../.homebrew/include</pElem>
           </incDir>
           <commandLine>-g -Wall</commandLine>
         </cTool>
@@ -54,7 +53,6 @@
           <incDir>
             <pElem>includes</pElem>
             <pElem>../libkm/includes</pElem>
-            <pElem>../../../../../../../.homebrew/include</pElem>
           </incDir>
           <commandLine>-g -Wall</commandLine>
         </ccTool>
@@ -65,12 +63,11 @@
           <developmentMode>5</developmentMode>
         </asmTool>
         <linkerTool>
-          <output>../../bin/cDescritors</output>
+          <output>../../bin/cape</output>
           <linkerAddLib>
-            <pElem>../../lib</pElem>
-            <pElem>../../../../../../../.homebrew/lib</pElem>
+            <pElem>../libkm/build</pElem>
           </linkerAddLib>
-          <commandLine>-lkm -lgsl -lm</commandLine>
+          <commandLine>-lkm -lm</commandLine>
         </linkerTool>
       </compileType>
       <packaging>

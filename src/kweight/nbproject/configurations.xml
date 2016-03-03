@@ -42,7 +42,7 @@
           <developmentMode>5</developmentMode>
           <incDir>
             <pElem>includes</pElem>
-            <pElem>../../includes</pElem>
+            <pElem>../libkm/includes</pElem>
           </incDir>
           <commandLine>-g -Wall</commandLine>
         </cTool>
@@ -64,7 +64,7 @@
         <linkerTool>
           <output>../../bin/kweight</output>
           <linkerAddLib>
-            <pElem>../../lib</pElem>
+            <pElem>../libkm/build</pElem>
           </linkerAddLib>
           <commandLine>-lm -lkm</commandLine>
         </linkerTool>

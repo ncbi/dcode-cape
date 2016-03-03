@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <gsl/gsl_statistics_double.h>
 #include <iostream>
 #include <memory>
 #include <getopt.h>

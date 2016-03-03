@@ -120,7 +120,7 @@
           <developmentMode>5</developmentMode>
         </asmTool>
         <archiverTool>
-          <output>../../lib/libkm.a</output>
+          <output>./build/libkm.a</output>
         </archiverTool>
       </compileType>
       <packaging>

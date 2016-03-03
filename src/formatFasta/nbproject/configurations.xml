@@ -59,7 +59,7 @@
         <linkerTool>
           <output>../../bin/formatFasta</output>
           <linkerAddLib>
-            <pElem>../../lib</pElem>
+            <pElem>../libkm/build</pElem>
           </linkerAddLib>
           <commandLine>-lkm -lm</commandLine>
         </linkerTool>

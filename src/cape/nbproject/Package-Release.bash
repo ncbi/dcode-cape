@@ -13,8 +13,8 @@ CND_BUILDDIR=build
 CND_DLIB_EXT=dylib
 NBTMPDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=../../bin/cDescritors
-OUTPUT_BASENAME=cDescritors
+OUTPUT_PATH=../../bin/cape
+OUTPUT_BASENAME=cape
 PACKAGE_TOP_DIR=cdescritors.tar/
 
 # Functions

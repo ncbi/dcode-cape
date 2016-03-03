@@ -52,7 +52,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L../../lib
+LDLIBSOPTIONS=-L../libkm/build
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}

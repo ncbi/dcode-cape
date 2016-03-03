@@ -52,20 +52,20 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L../../lib -L../../../../../../../.homebrew/lib
+LDLIBSOPTIONS=-L../libkm/build
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ../../bin/cDescritors
+	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ../../bin/cape
 
-../../bin/cDescritors: ${OBJECTFILES}
+../../bin/cape: ${OBJECTFILES}
 	${MKDIR} -p ../../bin
-	${LINK.cc} -o ../../bin/cDescritors ${OBJECTFILES} ${LDLIBSOPTIONS} -lkm -lgsl -lm
+	${LINK.cc} -o ../../bin/cape ${OBJECTFILES} ${LDLIBSOPTIONS} -lkm -lm
 
 ${OBJECTDIR}/src/main.o: src/main.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -I../libkm/includes -I../../../../../../../.homebrew/include -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
+	$(COMPILE.cc) -O2 -Iincludes -I../libkm/includes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
 
 # Subprojects
 .build-subprojects:
@@ -73,7 +73,7 @@ ${OBJECTDIR}/src/main.o: src/main.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ../../bin/cDescritors
+	${RM} ../../bin/cape
 
 # Subprojects
 .clean-subprojects:

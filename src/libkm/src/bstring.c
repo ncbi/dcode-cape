@@ -49,8 +49,15 @@ size_t splitString(char ***dest, char *src, const char *delimiter) {
  */
 int strbcmp(const char *haystack, const char *needle) {
     int length;
-    char *sub;
-    if (haystack && needle && strlen(haystack) >= (length = strlen(needle)) && (sub = strstr(haystack, needle)) && strlen(sub) == length) return 0;
+    const char *s = haystack;
+    const char *sub = NULL;
+    if (haystack && needle && strlen(haystack) >= (length = strlen(needle))) {
+        while ((s = strstr(s, needle)) != NULL) {
+            sub = s;
+            s += strlen(needle);
+        }
+        if (sub && strlen(sub) == length) return 0;
+    }
     return 1;
 }
 
