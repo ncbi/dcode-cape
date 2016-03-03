@@ -80,7 +80,7 @@ namespace fasta {
 
         void WriteSequencesToFile(char *fileName, bool binary);
 
-        std::vector<std::unique_ptr<Fasta> >& GetFastaVector() {
+        std::vector<Fasta *>& GetFastaVector() {
             return fastaVector;
         }
 
@@ -90,7 +90,7 @@ namespace fasta {
 
     private:
         std::unordered_map<std::string, long unsigned int> fastaUnorderedMap;
-        std::vector<std::unique_ptr<Fasta>> fastaVector;
+        std::vector<Fasta *> fastaVector;
 
     };
 

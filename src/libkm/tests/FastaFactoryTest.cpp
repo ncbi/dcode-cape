@@ -44,7 +44,7 @@ void testParseFastaFile(char *fileName) {
     if (fastaFactory.GetFastaVector().size() != 1 || seqRead != 1) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=It should read 1 sequence" << endl;
     }
-    fasta = (*fastaFactory.GetFastaVector().begin()).get();
+    fasta = (*fastaFactory.GetFastaVector().begin());
     if (fasta->GetId().compare("chr1") != 0) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence Id should be chr1" << endl;
     }
@@ -87,7 +87,7 @@ void testParseFastaMultipleFile(char *fileName) {
         }
         
         for (auto it = fFactory.GetFastaVector().begin(); it != fFactory.GetFastaVector().end(); ++it) {
-            f = (*it).get();
+            f = (*it);
             if (seqSize.find(f->GetId())->second != f->GetLength() || strlen(f->GetSeq()) != f->GetLength()) {
                 cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Wrong sequence size "
                         << seqSize.find(f->GetId())->second << " != " << f->GetLength() << endl;

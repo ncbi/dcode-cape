@@ -232,12 +232,12 @@ void KmersFactory::ReadKmersFromFile(char* fileName, bool binary) {
             fread(&value, sizeof (double), 1, poutputFile);
             k->SetSig(value);
             kr->SetSig(value);
-            if (isinf(k->GetSig())) {
+            if (std::isinf(k->GetSig())) {
                 infSig = (char **) reallocate(infSig, sizeof (char **) * (infSigSize + 1), __FILE__, __LINE__);
                 infSig[infSigSize] = strdup(seq);
                 infSigSize++;
             } else {
-                if (isnan(maxSig) || maxSig < k->GetSig()) maxSig = k->GetSig();
+                if (std::isnan(maxSig) || maxSig < k->GetSig()) maxSig = k->GetSig();
             }
 
             fread(&value, sizeof (double), 1, poutputFile);
@@ -287,12 +287,12 @@ void KmersFactory::ReadKmersFromFile(char* fileName, bool binary) {
 
             k->SetSig(strtod(fields[2], NULL));
             kr->SetSig(k->GetSig());
-            if (isinf(k->GetSig())) {
+            if (std::isinf(k->GetSig())) {
                 infSig = (char **) reallocate(infSig, sizeof (char **) * (infSigSize + 1), __FILE__, __LINE__);
                 infSig[infSigSize] = strdup(seq);
                 infSigSize++;
             } else {
-                if (isnan(maxSig) || maxSig < k->GetSig()) maxSig = k->GetSig();
+                if (std::isnan(maxSig) || maxSig < k->GetSig()) maxSig = k->GetSig();
             }
 
             k->SetPf(strtod(fields[3], NULL));
