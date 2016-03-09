@@ -14,7 +14,7 @@
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>Release</name>
+                    <name>GNU</name>
                     <type>1</type>
                 </confElem>
             </confList>

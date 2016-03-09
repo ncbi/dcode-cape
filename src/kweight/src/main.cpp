@@ -34,6 +34,15 @@ char *program_name;
 
 void print_usage(FILE *stream, int exit_code) {
     fprintf(stream, "\n********************************************************************************\n");
+    fprintf(stream, "This option will read the enhancers coordinates and generate the controls by shuffling the enhancers sequences\n");
+    fprintf(stream, "kweight --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes --prefix chr --subfix .fa.masked --poutput weight_file_kmers.txt\n\n");
+    fprintf(stream, "This option will read the enhancers coordinates and generate the controls from the chromosomes\n");
+    fprintf(stream, "kweight -g --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes --prefix chr --subfix .fa.masked --poutput weight_file_kmers.txt\n\n");    
+    fprintf(stream, "This option will read the enhancers coordinates and use the controls provided by the users\n");
+    fprintf(stream, "kweight --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes --control users_control.txt --prefix chr --subfix .fa.masked --poutput weight_file_kmers.txt\n");
+    fprintf(stream, "Control file format:\n");
+    fprintf(stream, "chr<tab>start_position<tab>length\n\n");
+    fprintf(stream, "\n********************************************************************************\n");
     fprintf(stream, "\nUsage: %s \n", program_name);
     fprintf(stream, "\n\n%s options:\n\n", program_name);
     fprintf(stream, "-v,   --verbose                     Print info\n");
@@ -42,12 +51,15 @@ void print_usage(FILE *stream, int exit_code) {
     fprintf(stream, "-g,   --genCtrl                     Generate control from chromosomes (Default: no).\n");
     fprintf(stream, "-n,   --hitNum                      Number of controls per peak (default: 10, if -g set default: 3).\n");
     fprintf(stream, "-c,   --control                     Bed file with the control coordinates. This option will use your own control for the calculations.\n");
-    fprintf(stream, "-b,   --bed                         Bed file.\n");
+    fprintf(stream, "-b,   --bed                         Coordination of enhancers or DHS peaks.\n");
     fprintf(stream, "-m,   --masked                      Directory with chromosomes masked fasta files. Format: chr#.fa.masked\n");
+    fprintf(stream, "      --prefix                      Prefix of the chromosomes file names. Example: chr\n");
+    fprintf(stream, "      --subfix                      Subfix of the chromosomes file names. Example: .fa.masked\n");
     fprintf(stream, "-p,   --poutput                     Output file with the p-value for all kmers\n");
-    fprintf(stream, "      --bin                         Print output in binary mode\n");
+    fprintf(stream, "      --bin                         Print output in binary mode\n");    
     fprintf(stream, "********************************************************************************\n");
-    fprintf(stream, "\n            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");
+    fprintf(stream, "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n");
+    fprintf(stream, "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");
     fprintf(stream, "********************************************************************************\n");
     exit(0);
 }
@@ -57,16 +69,18 @@ int main(int argc, char** argv) {
     clock_t start = clock();
     int next_option;
     unsigned long int hitNum;
-    const char* const short_options = "vhm:o:b:n:gc:p:i";
+    const char* const short_options = "vhm:o:b:n:gc:p:ir:u:";
     char *maskedDirName = NULL;
     char *bedFileName = NULL;
     char *controlFileName = NULL;
     char *poutputFileName = NULL;
+    char *prefix = NULL;
+    char *subfix = NULL;
     FastaFactory chrFactory;
     BedFactory bedFactory;
     bool genCtrl = false;
     bool binary = false;
-    
+
     program_name = argv[0];
 
     srand(time(NULL));
@@ -82,6 +96,8 @@ int main(int argc, char** argv) {
         { "genCtrl", 0, NULL, 'g'},
         { "control", 1, NULL, 'c'},
         { "poutput", 1, NULL, 'p'},
+        { "prefix", 1, NULL, 'r'},
+        { "subfix", 1, NULL, 'u'},
         { "bin", 0, NULL, 'i'},
         { NULL, 0, NULL, 0} /* Required at end of array.  */
     };
@@ -108,6 +124,14 @@ int main(int argc, char** argv) {
 
             case 'm':
                 maskedDirName = strdup(optarg);
+                break;
+
+            case 'r':
+                prefix = strdup(optarg);
+                break;
+
+            case 'u':
+                subfix = strdup(optarg);
                 break;
 
             case 'p':
@@ -166,8 +190,8 @@ int main(int argc, char** argv) {
 
     begin = clock();
     cout << "Reading masked sequences from files" << endl;
-    chrFactory.LoadFastaInDirectory(maskedDirName, "chr", ".fa.masked", false);
-    cout << chrFactory.size() << " chromosomes loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    chrFactory.LoadFastaInDirectory(maskedDirName, prefix, subfix, false);
+    cout << chrFactory.GetFastaMap().size() << " chromosomes loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
     cout << "Reading peaks from file" << endl;
@@ -196,7 +220,9 @@ int main(int argc, char** argv) {
     cout << kmersFactory.GetKmers().size() << " kmers generated in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
     kmersFactory.WriteKmersToFile(poutputFileName, binary);
-    
+
+    if (prefix) free(prefix);
+    if (subfix) free(subfix);
     if (maskedDirName) free(maskedDirName);
     if (bedFileName) free(bedFileName);
     if (poutputFileName) free(poutputFileName);

@@ -6,14 +6,14 @@
 CND_BASEDIR=`pwd`
 CND_BUILDDIR=build
 CND_DISTDIR=dist
-# Release configuration
-CND_PLATFORM_Release=GNU-MacOSX
-CND_ARTIFACT_DIR_Release=../../bin
-CND_ARTIFACT_NAME_Release=kweight
-CND_ARTIFACT_PATH_Release=../../bin/kweight
-CND_PACKAGE_DIR_Release=dist/Release/package
-CND_PACKAGE_NAME_Release=kweight.tar.gz
-CND_PACKAGE_PATH_Release=dist/Release/package/kweight.tar.gz
+# GNU configuration
+CND_PLATFORM_GNU=GNU-MacOSX
+CND_ARTIFACT_DIR_GNU=../../bin
+CND_ARTIFACT_NAME_GNU=kweight
+CND_ARTIFACT_PATH_GNU=../../bin/kweight
+CND_PACKAGE_DIR_GNU=dist/GNU/package
+CND_PACKAGE_NAME_GNU=kweight.tar.gz
+CND_PACKAGE_PATH_GNU=dist/GNU/package/kweight.tar.gz
 #
 # include compiler specific variables
 #
