@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <map>
 #include <set>
+#include <algorithm>
 
 #include "berror.h"
 #include "bmemory.h"
