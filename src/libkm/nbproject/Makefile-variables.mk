@@ -6,14 +6,14 @@
 CND_BASEDIR=`pwd`
 CND_BUILDDIR=build
 CND_DISTDIR=dist
-# Release configuration
-CND_PLATFORM_Release=GNU-MacOSX
-CND_ARTIFACT_DIR_Release=./build
-CND_ARTIFACT_NAME_Release=libkm.a
-CND_ARTIFACT_PATH_Release=./build/libkm.a
-CND_PACKAGE_DIR_Release=dist/Release/package
-CND_PACKAGE_NAME_Release=libkm.tar.gz
-CND_PACKAGE_PATH_Release=dist/Release/package/libkm.tar.gz
+# GNU configuration
+CND_PLATFORM_GNU=GNU-MacOSX
+CND_ARTIFACT_DIR_GNU=./build
+CND_ARTIFACT_NAME_GNU=libkm.a
+CND_ARTIFACT_PATH_GNU=./build/libkm.a
+CND_PACKAGE_DIR_GNU=dist/GNU/package
+CND_PACKAGE_NAME_GNU=libkm.tar.gz
+CND_PACKAGE_PATH_GNU=dist/GNU/package/libkm.tar.gz
 #
 # include compiler specific variables
 #

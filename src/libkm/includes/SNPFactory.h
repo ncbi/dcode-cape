@@ -90,28 +90,8 @@ namespace snp {
             this->length = strlen(this->seq);
         }
 
-        double GetScoreDrop() const {
-            return scoreDrop;
-        }
-
-        void SetScoreDrop(double scoreDrop) {
-            this->scoreDrop = scoreDrop;
-        }
-
-        double GetNeighborKmer() const {
-            return neighborKmer;
-        }
-
-        void SetNeighborKmer(double neighborKmer) {
-            this->neighborKmer = neighborKmer;
-        }
-
-        double GetOverlapKmer() const {
-            return overlapKmer;
-        }
-
-        void SetOverlapKmer(double overlapKmer) {
-            this->overlapKmer = overlapKmer;
+        std::vector<double>& GetDescriptors() {
+            return descriptors;
         }
 
         double GetProbPos() const {
@@ -122,7 +102,7 @@ namespace snp {
             probPos = ProbPos;
         }
 
-        void CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory);
+        void CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, int featNumber);
 
     private:
         std::string id;
@@ -133,9 +113,7 @@ namespace snp {
         unsigned long int chrPos;
         char ref;
         char alt;
-        double scoreDrop;
-        double neighborKmer;
-        double overlapKmer;
+        std::vector<double> descriptors;
         double probPos;
 
 
@@ -151,7 +129,7 @@ namespace snp {
             return snps;
         }
 
-        int ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbors, fasta::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict);
+        int ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbors, fasta::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict, fimo::FimoFactory & fimoFactory);
     private:
         std::vector<SNP *> snps;
 

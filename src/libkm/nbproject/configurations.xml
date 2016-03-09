@@ -6,6 +6,7 @@
                    projectFiles="true">
       <itemPath>includes/BedFactory.h</itemPath>
       <itemPath>includes/FastaFactory.h</itemPath>
+      <itemPath>includes/FimoFactory.h</itemPath>
       <itemPath>includes/Global.h</itemPath>
       <itemPath>includes/KmersFactory.h</itemPath>
       <itemPath>includes/SNPFactory.h</itemPath>
@@ -32,6 +33,7 @@
                    projectFiles="true">
       <itemPath>src/BedFactory.cpp</itemPath>
       <itemPath>src/FastaFactory.cpp</itemPath>
+      <itemPath>src/FimoFactory.cpp</itemPath>
       <itemPath>src/KmersFactory.cpp</itemPath>
       <itemPath>src/SNPFactory.cpp</itemPath>
       <itemPath>src/SVMPredict.cpp</itemPath>
@@ -63,6 +65,12 @@
                      kind="TEST">
         <itemPath>tests/FastaFactoryTest.cpp</itemPath>
       </logicalFolder>
+      <logicalFolder name="f6"
+                     displayName="FimoFactoryTest"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/FimoFactoryTest.cpp</itemPath>
+      </logicalFolder>
       <logicalFolder name="f3"
                      displayName="KmerFactoryTest"
                      projectFiles="true"
@@ -91,7 +99,7 @@
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="Release" type="3">
+    <conf name="GNU" type="3">
       <toolsSet>
         <compilerSet>default</compilerSet>
         <dependencyChecking>true</dependencyChecking>
@@ -214,9 +222,27 @@
           <output>${TESTDIR}/TestFiles/phyperTest</output>
         </linkerTool>
       </folder>
+      <folder path="TestFiles/f6">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>../../../../../../../.homebrew/include</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/fimoFactoryTest</output>
+        </linkerTool>
+      </folder>
       <item path="includes/BedFactory.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="includes/FastaFactory.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/FimoFactory.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="includes/Global.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -257,6 +283,8 @@
       </item>
       <item path="src/FastaFactory.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <item path="src/FimoFactory.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="src/KmersFactory.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/SNPFactory.cpp" ex="false" tool="1" flavor2="0">
@@ -288,6 +316,8 @@
       <item path="tests/BedFactoryTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="tests/FastaFactoryTest.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/FimoFactoryTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="tests/KmerFactoryTest.cpp" ex="false" tool="1" flavor2="0">
       </item>

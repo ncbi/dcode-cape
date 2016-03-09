@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -18,6 +19,7 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"
@@ -26,6 +28,7 @@
 #include "Global.h"
 #include "KmersFactory.h"
 #include "FastaFactory.h"
+#include "FimoFactory.h"
 #include "SNPFactory.h"
 #include "SVMPredict.h"
 
@@ -34,56 +37,59 @@ using namespace fasta;
 using namespace kmers;
 using namespace snp;
 using namespace svm;
+using namespace fimo;
 
 SNP::SNP() {
-    this->scoreDrop = 0.0;
-    this->neighborKmer = 0.0;
-    this->overlapKmer = 0.0;
+
 }
 
 SNP::~SNP() {
-    if (this->seq) free(seq);
+    if (seq) free(seq);
 }
 
-void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory) {
+void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, int featNumber) {
     unsigned long int i, startPos, endPos;
     double overlapMutated = 0;
     char t;
-    unsigned long int len = static_cast<unsigned long int> (strlen(this->seq));
+    unsigned long int len = static_cast<unsigned long int> (strlen(seq));
 
-    if (static_cast<int> (this->pos - Global::instance()->GetOrder() - 1) <= 0) {
+    for (i = 0; i < featNumber; i++) {
+        descriptors.push_back(0.0000);
+    }
+
+    if (static_cast<int> (pos - Global::instance()->GetOrder() - 1) <= 0) {
         startPos = 0;
     } else {
-        startPos = this->pos - Global::instance()->GetOrder() + 1;
+        startPos = pos - Global::instance()->GetOrder() + 1;
     }
-    if (this->pos + Global::instance()->GetOrder() >= len) {
+    if (pos + Global::instance()->GetOrder() >= len) {
         endPos = len - Global::instance()->GetOrder();
     } else {
-        endPos = this->pos;
+        endPos = pos;
     }
 
     for (i = 0; i <= len - Global::instance()->GetOrder(); i++) {
-        t = this->seq[i + Global::instance()->GetOrder()];
-        this->seq[i + Global::instance()->GetOrder()] = '\0';
+        t = seq[i + Global::instance()->GetOrder()];
+        seq[i + Global::instance()->GetOrder()] = '\0';
         if (i >= startPos && i <= endPos) {
-            this->overlapKmer += kmersFactory.GetKmerSig(this->seq + i);
-            this->seq[this->pos] = this->alt;
-            overlapMutated += kmersFactory.GetKmerSig(this->seq + i);
-            this->seq[this->pos] = this->ref;
+            descriptors[1] += kmersFactory.GetKmerSig(seq + i);
+            seq[pos] = alt;
+            overlapMutated += kmersFactory.GetKmerSig(seq + i);
+            seq[pos] = ref;
         } else {
-            this->neighborKmer += kmersFactory.GetKmerSig(this->seq + i);
-            if (std::isinf(this->neighborKmer)) {
-                cout << this->GetId() << endl;
-                cout << (this->seq + i) << endl;
-                cout << "Sig: " << kmersFactory.GetKmerSig(this->seq + i) << endl;
+            descriptors[2] += kmersFactory.GetKmerSig(seq + i);
+            if (std::isinf(descriptors[2])) {
+                cout << GetId() << endl;
+                cout << (seq + i) << endl;
+                cout << "Sig: " << kmersFactory.GetKmerSig(seq + i) << endl;
                 cout << endl;
                 exit(0);
             }
         }
-        this->seq[i + Global::instance()->GetOrder()] = t;
+        seq[i + Global::instance()->GetOrder()] = t;
     }
 
-    this->scoreDrop = this->overlapKmer - overlapMutated;
+    descriptors[0] = descriptors[1] - overlapMutated;
 }
 
 SNPFactory::SNPFactory() {
@@ -93,12 +99,12 @@ SNPFactory::SNPFactory(const SNPFactory& orig) {
 }
 
 SNPFactory::~SNPFactory() {
-    for (auto it = this->snps.begin(); it != this->snps.end(); ++it) {
+    for (auto it = snps.begin(); it != snps.end(); ++it) {
         delete (*it);
     }
 }
 
-int SNPFactory::ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbors, FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict) {
+int SNPFactory::ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbors, FastaFactory &chrFactory, KmersFactory& kmersFactory, SVMPredict& svmPredict, FimoFactory & fimoFactory) {
     FILE *snpFile = (FILE *) checkPointerError(fopen(snpFileName, "r"), "Can't open bed file", __FILE__, __LINE__, -1);
 
     int i, count = 0;
@@ -112,6 +118,11 @@ int SNPFactory::ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbo
 
     int featNumber = 3;
     double target_label = 0.0;
+
+    if (!fimoFactory.GetSnpIDMap().empty()) {
+        featNumber = 5;
+    }
+
     struct svm_node *x = (struct svm_node *) allocate(sizeof (struct svm_node) * (featNumber + 1), __FILE__, __LINE__);
     x[featNumber].index = -1;
 
@@ -164,7 +175,7 @@ int SNPFactory::ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbo
                     snp->SetRef(fields[3][0]);
                     snp->SetAlt(fields[4][0]);
                     snpPos = atoi(fields[1]) - 1;
-                    if (snpPos - 1 >= 0 && snpPos - 1 < static_cast<int>(f->GetLength())) {
+                    if (snpPos - 1 >= 0 && snpPos - 1 < static_cast<int> (f->GetLength())) {
                         snp->SetChrPos(snpPos);
                     } else {
                         printLog(stderr, "SNP position out of range", __FILE__, __LINE__, -1);
@@ -204,17 +215,22 @@ int SNPFactory::ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbo
                         delete snp;
                     } else {
                         count++;
-                        snp->CalculateKmerDescriptors(kmersFactory);
+                        snp->CalculateKmerDescriptors(kmersFactory, featNumber);
 
                         /*
                          * Calculating overall sum for mean and sd
                          */
-                        mean[0] += snp->GetScoreDrop();
-                        mean[1] += snp->GetOverlapKmer();
-                        mean[2] += snp->GetNeighborKmer();
-
-
-                        this->snps.push_back(move(snp));
+                        for (i = 0; i < 3; i++) {
+                            mean[0] += snp->GetDescriptors()[i];
+                        }
+                        if (featNumber == 5) {
+                            auto fimoMapIt = fimoFactory.GetSnpIDMap().find(snp->GetId());
+                            if (fimoMapIt != fimoFactory.GetSnpIDMap().end()) {
+                                mean[3] += fimoMapIt->second[0];
+                                mean[4] += fimoMapIt->second[1];
+                            }
+                        }
+                        snps.push_back(move(snp));
                     }
                 }
                 freeArrayofPointers((void **) fields, fieldsSize);
@@ -237,38 +253,35 @@ int SNPFactory::ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbo
      * Calculating final mean
      */
     for (i = 0; i < featNumber; i++) {
-        mean[i] = mean[i] / static_cast<double> (this->snps.size());
+        mean[i] = mean[i] / static_cast<double> (snps.size());
     }
 
     /*
      * Summing standard deviation 
      */
-    for (auto it = this->snps.begin(); it != this->snps.end(); ++it) {
+    for (auto it = snps.begin(); it != snps.end(); ++it) {
         SNP *s = *it;
-        sd[0] += (s->GetScoreDrop() - mean[0])*(s->GetScoreDrop() - mean[0]);
-        sd[1] += (s->GetOverlapKmer() - mean[1])*(s->GetOverlapKmer() - mean[1]);
-        sd[2] += (s->GetNeighborKmer() - mean[2])*(s->GetNeighborKmer() - mean[2]);
+        for (i = 0; i < featNumber; i++) {
+            sd[0] += (s->GetDescriptors()[i] - mean[i])*(s->GetDescriptors()[i] - mean[i]);
+        }
     }
 
     /*
      * Calculating final standard deviation
      */
     for (i = 0; i < featNumber; i++) {
-        sd[i] = sqrt(sd[i] / static_cast<double> (this->snps.size()));
+        sd[i] = sqrt(sd[i] / static_cast<double> (snps.size()));
     }
 
     /*
      * Calculating ZScore terms
      */
-    for (auto it = this->snps.begin(); it != this->snps.end(); ++it) {
+    for (auto it = snps.begin(); it != snps.end(); ++it) {
         SNP *s = *it;
-        x[0].index = 1;
-        x[0].value = (s->GetScoreDrop() - mean[0]) / sd[0];
-        x[1].index = 2;
-        x[1].value = (s->GetOverlapKmer() - mean[1]) / sd[1];
-        x[2].index = 3;
-        x[2].value = (s->GetNeighborKmer() - mean[2]) / sd[2];
-
+        for (i = 0; i < featNumber; i++) {
+            x[0].index = i + 1;
+            x[0].value = (s->GetDescriptors()[i] - mean[i]) / sd[i];
+        }
         svmPredict.SVMPredictCalulation(x, target_label);
         s->SetProbPos(svmPredict.GetProb_estimates()[0]);
     }

@@ -82,7 +82,7 @@ namespace peak {
             this->start = start;
         }
 
-        unsigned long int GetWidth() const {
+        unsigned long int GetLength() const {
             return end - start + 1;
         }
 

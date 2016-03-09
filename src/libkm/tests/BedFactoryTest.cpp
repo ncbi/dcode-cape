@@ -8,16 +8,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <iostream>
-#include <memory>
 #include <getopt.h>
 #include <stdbool.h>
+
+#include <iostream>
+#include <memory>
 #include <cstdlib>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <map>
 #include <set>
+
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"
@@ -88,9 +90,9 @@ void testCreatePeaksFromBedFile(const char *bFName, char *dirName, char *testNam
     for (auto it = bedFactory.GetPeaks().begin(); it != bedFactory.GetPeaks().end(); ++it) {
         Peak *p = *it;
         map<string, unsigned long int> inMap = testMap.find(p->GetStart())->second;
-        if (inMap.find("width")->second != p->GetWidth()) {
+        if (inMap.find("width")->second != p->GetLength()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong width: "
-                    << p->GetWidth() << "!=" << inMap.find("width")->second << endl;
+                    << p->GetLength() << "!=" << inMap.find("width")->second << endl;
         }
         if (inMap.find("gccount")->second != p->GetGCCount()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong GCCount: "
@@ -104,7 +106,7 @@ void testCreatePeaksFromBedFile(const char *bFName, char *dirName, char *testNam
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong NRCount: "
                     << p->GetNRCount() << "!=" << inMap.find("nrcount")->second << endl;
         }
-        if (strlen(p->GetSeq()) != p->GetWidth()) {
+        if (strlen(p->GetSeq()) != p->GetLength()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Sequence length not equal to width" << endl;
         }
         if (p->GetStart() == 237640 && p->GetEnd() == 237829) {

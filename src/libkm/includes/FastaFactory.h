@@ -80,18 +80,11 @@ namespace fasta {
 
         void WriteSequencesToFile(char *fileName, bool binary);
 
-        std::vector<Fasta *>& GetFastaVector() {
-            return fastaVector;
+        std::unordered_map<std::string, Fasta*>& GetFastaMap() {
+            return fastaMap;
         }
-
-        long unsigned int size() {
-            return fastaVector.size();
-        }
-
     private:
-        std::unordered_map<std::string, long unsigned int> fastaUnorderedMap;
-        std::vector<Fasta *> fastaVector;
-
+        std::unordered_map<std::string, Fasta *> fastaMap;
     };
 
 }

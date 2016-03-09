@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <stdbool.h>
 #include <dirent.h>
+
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"
@@ -62,14 +63,14 @@ void Peak::CalculateContent() {
         else if (*s == 'N') this->NCount++;
         s++;
     }
-    this->NRCount = this->GetWidth() - this->NCount;
-    this->NPercent = double(this->NCount) / double(this->GetWidth());
+    this->NRCount = this->GetLength() - this->NCount;
+    this->NPercent = double(this->NCount) / double(this->GetLength());
 }
 
 pair<int, int> Peak::GetGCNcontentBin() {
     int n_binID = 0;
-    double Ncontent = static_cast<double> (this->NCount) / static_cast<double> (this->GetWidth());
-    double GCcontent = static_cast<double> (this->GCCount) / static_cast<double> (this->GetWidth() - this->NCount);
+    double Ncontent = static_cast<double> (this->NCount) / static_cast<double> (this->GetLength());
+    double GCcontent = static_cast<double> (this->GCCount) / static_cast<double> (this->GetLength() - this->NCount);
     int gc_binID = int(GCcontent / Global::instance()->GetBin1());
     if (Ncontent != 0) {
         n_binID = int(Ncontent / Global::instance()->GetBin2()) + 1;
@@ -163,7 +164,7 @@ void BedFactory::CreatePeaksFromBedFile(FastaFactory& chrFactory, string genomeN
                         p->SetChr(fields[0]);
                         p->SetStart(atoi(fields[1]));
                         p->SetEnd(atoi(fields[2]) - 1);
-                        seq = f->GetSubStr(p->GetStart(), p->GetWidth());
+                        seq = f->GetSubStr(p->GetStart(), p->GetLength());
                         p->SetSeq(&seq);
                         p->CalculateContent();
                         if (p->GetNRCount() >= 50 && p->GetNPercent() < maxNPercent) {
@@ -173,16 +174,16 @@ void BedFactory::CreatePeaksFromBedFile(FastaFactory& chrFactory, string genomeN
                                 std::map<int, std::map < std::pair<int, int>, int>> wm;
                                 std::map<std::pair<int, int>, int> m;
                                 m.insert(pair<pair<int, int>, int>(k, 1));
-                                wm.insert(pair<int, std::map < std::pair<int, int>, int>>(p->GetWidth(), m));
+                                wm.insert(pair<int, std::map < std::pair<int, int>, int>>(p->GetLength(), m));
                                 this->GCNcontentBin.insert(pair<string, std::map<int, std::map < std::pair<int, int>, int>>>(f->GetId(), wm));
                             } else {
                                 std::map<int, std::map < std::pair<int, int>, int>> *wm = &this->GCNcontentBin.find(f->GetId())->second;
-                                if (wm->find(p->GetWidth()) == wm->end()) {
+                                if (wm->find(p->GetLength()) == wm->end()) {
                                     std::map<std::pair<int, int>, int> m;
                                     m.insert(pair<pair<int, int>, int>(k, 1));
-                                    wm->insert(pair<int, std::map < std::pair<int, int>, int>>(p->GetWidth(), m));
+                                    wm->insert(pair<int, std::map < std::pair<int, int>, int>>(p->GetLength(), m));
                                 } else {
-                                    std::map<std::pair<int, int>, int> *m = &wm->find(p->GetWidth())->second;
+                                    std::map<std::pair<int, int>, int> *m = &wm->find(p->GetLength())->second;
                                     if (m->find(k) == m->end()) {
                                         m->insert(pair<pair<int, int>, int>(k, 1));
                                     } else {

@@ -8,18 +8,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-#include <stdbool.h>
-#include <iostream>
-#include <memory>
 #include <getopt.h>
 #include <stdbool.h>
+
+#include <iostream>
+#include <memory>
 #include <cstdlib>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <map>
 #include <set>
+
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"

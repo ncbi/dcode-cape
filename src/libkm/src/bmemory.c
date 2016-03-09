@@ -46,5 +46,6 @@ void freeArrayofPointers(void **pointer, int index) {
             if (pointer[i]) free(pointer[i]);
         }
         free(pointer);
+        pointer = NULL;
     }
 }

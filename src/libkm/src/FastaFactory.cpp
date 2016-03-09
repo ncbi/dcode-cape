@@ -7,6 +7,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <dirent.h>
+
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -14,8 +17,7 @@
 #include <memory>
 #include <unordered_map>
 #include <utility>
-#include <stdbool.h>
-#include <dirent.h>
+
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"
@@ -27,17 +29,17 @@ using namespace std;
 using namespace fasta;
 
 Fasta::Fasta() {
-    this->seq = NULL;
-    this->length = 0;
+    seq = NULL;
+    length = 0;
 }
 
 Fasta::Fasta(const Fasta& orig) {
-    this->seq = NULL;
-    this->length = 0;
+    seq = NULL;
+    length = 0;
 }
 
 Fasta::~Fasta() {
-    if (this->seq) free(this->seq);
+    if (seq) free(seq);
 }
 
 FastaFactory::FastaFactory() {
@@ -50,11 +52,9 @@ FastaFactory::~FastaFactory() {
 }
 
 Fasta *FastaFactory::GetFastaFromID(string id) {
-    unordered_map<string, long unsigned int>::iterator it = this->fastaUnorderedMap.find(id);
-    if (it != this->fastaUnorderedMap.end()) {
-        if (this->fastaVector.size() > it->second) {
-            return this->fastaVector[it->second];
-        }
+    unordered_map<string, Fasta *>::iterator it = fastaMap.find(id);
+    if (it != fastaMap.end()) {
+        return it->second;
     }
     return nullptr;
 }
@@ -68,7 +68,7 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
     Fasta *fasta;
 
     if (cleanContainers) {
-        this->fastaVector.clear();
+        fastaMap.clear();
     }
 
     pos = ftello(fName);
@@ -88,8 +88,7 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
             fasta->SetSeq(&buffer);
             fasta->SetLength(len - 1);
             if (Global::instance()->isDebug3()) cerr << "\tDEBUG3 ==> Adding seq: " << fasta->GetId() << " with " << fasta->GetLength() << " bp" << endl;
-            this->fastaUnorderedMap.insert(pair<string, long unsigned int> (fasta->GetId(), this->fastaVector.size()));
-            this->fastaVector.push_back(move(fasta));
+            fastaMap.insert(pair<string, Fasta *> (fasta->GetId(), move(fasta)));
             if (++numberSeqCurrentRead == numberSeqTotalRead) {
                 break;
             }
@@ -116,8 +115,7 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
                             fasta->SetSeq(&seq);
                             fasta->SetLength(strlen(seq));
                             if (Global::instance()->isDebug3()) cerr << "\tDEBUG3 ==> Adding seq: " << fasta->GetId().c_str() << " with " << fasta->GetLength() << " bp" << endl;
-                            this->fastaUnorderedMap.insert(pair<string, long unsigned int> (fasta->GetId(), this->fastaVector.size()));
-                            this->fastaVector.push_back(move(fasta));
+                            fastaMap.insert(pair<string, Fasta *> (fasta->GetId(), move(fasta)));
                             if (++numberSeqCurrentRead == numberSeqTotalRead) {
                                 pos = pos + sizeof (char) * (readTotal + numLines);
                                 fseeko(fName, pos, SEEK_SET);
@@ -156,8 +154,7 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
             fasta->SetSeq(&seq);
             fasta->SetLength(seq_length);
             if (Global::instance()->isDebug3()) cerr << "\tDEBUG3 ==> Adding seq: " << fasta->GetId().c_str() << " with " << fasta->GetLength() << " bp" << endl;
-            this->fastaUnorderedMap.insert(pair<string, long unsigned int> (fasta->GetId(), this->fastaVector.size()));
-            this->fastaVector.push_back(move(fasta));
+            fastaMap.insert(pair<string, Fasta *> (fasta->GetId(), move(fasta)));
         }
         free(buffer);
     }
@@ -208,7 +205,7 @@ void FastaFactory::LoadFastaInDirectory(char* dirName, const char *prefix, const
             } else {
                 fName = (FILE *) checkPointerError(fopen(fileName, "r"), "Can't open input file", __FILE__, __LINE__, -1);
             }
-            seqs = this->ParseFastaFile(fName, -1, false, binary);
+            seqs = ParseFastaFile(fName, -1, false, binary);
             fclose(fName);
             read = false;
             if (Global::instance()->isInfo()) cout << "\tINFO ==> " << seqs << " sequences read in " << TimeUtils::instance()->GetTimeSec() << " sec" << endl;
@@ -226,10 +223,10 @@ void FastaFactory::WriteSequencesToFile(char* fileName, bool binary) {
 
     if (binary) {
         outputFile = (FILE *) checkPointerError(fopen(fileName, "wb"), "Can't open output file", __FILE__, __LINE__, -1);
-        i = this->fastaVector.size();
+        i = fastaMap.size();
         fwrite(&i, sizeof (unsigned long int), 1, outputFile);
-        for (auto it = this->fastaVector.begin(); it != this->fastaVector.end(); ++it) {
-            f = *it;
+        for (auto it = fastaMap.begin(); it != fastaMap.end(); ++it) {
+            f = it->second;
             len = f->GetId().size() + 1;
             fwrite(&len, sizeof (unsigned long int), 1, outputFile);
             fwrite(f->GetId().c_str(), sizeof (char), len, outputFile);
@@ -239,8 +236,8 @@ void FastaFactory::WriteSequencesToFile(char* fileName, bool binary) {
         }
     } else {
         outputFile = (FILE *) checkPointerError(fopen(fileName, "w"), "Can't open output file", __FILE__, __LINE__, -1);
-        for (auto it = this->fastaVector.begin(); it != this->fastaVector.end(); ++it) {
-            f = *it;
+        for (auto it = fastaMap.begin(); it != fastaMap.end(); ++it) {
+            f = it->second;
             fprintf(outputFile, ">%s\n", f->GetId().c_str());
             for (i = 0; i < f->GetLength(); i += 50) {
                 if (i + 50 < f->GetLength()) {
