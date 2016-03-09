@@ -10,8 +10,10 @@
 #include <string.h>
 #include <getopt.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include <iostream>
+#include <cmath>
 #include <memory>
 #include <cstdlib>
 #include <string>
@@ -55,52 +57,52 @@ void testKmersPValue() {
     kmer.SetPeakFreq(16);
     kmer.SetControlFreq(63);
     kmer.CalculatePValue(totalNRnt_peak, totalNRnt_control);
-    if (fabs(kmer.GetValue() - 0.866574039066821) >= 10e-15) {
+    if (std::fabs(kmer.GetValue() - 0.866574039066821) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong pValue. 0.866574 != " << kmer.GetValue() << endl;
     }
-    if (fabs(kmer.GetSig() - 0.0621943257550334) >= 10e-15) {
+    if (std::fabs(kmer.GetSig() - 0.0621943257550334) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong sig. 0.0621943257550334 != " << kmer.GetSig() << endl;
     }
-    if (fabs(kmer.GetPf() - 0.761905905021738) >= 10e-15) {
+    if (std::fabs(kmer.GetPf() - 0.761905905021738) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong pf. 0.761905905021738 != " << kmer.GetPf() << endl;
     }
 
     kmer.SetPeakFreq(30);
     kmer.SetControlFreq(123);
     kmer.CalculatePValue(totalNRnt_peak, totalNRnt_control);
-    if (fabs(kmer.GetValue() - 0.951928135758493) >= 10e-15) {
+    if (std::fabs(kmer.GetValue() - 0.951928135758493) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong pValue. 0.951928 != " << kmer.GetValue() << endl;
     }
-    if (fabs(kmer.GetSig() - 0.0213958367222335) >= 10e-15) {
+    if (std::fabs(kmer.GetSig() - 0.0213958367222335) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong sig. 0.0213958367222335 != " << kmer.GetSig() << endl;
     }
-    if (fabs(kmer.GetPf() - 0.731708414883682) >= 10e-15) {
+    if (std::fabs(kmer.GetPf() - 0.731708414883682) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong pf. 0.731708414883682 != " << kmer.GetPf() << endl;
     }
 
     kmer.SetPeakFreq(3);
     kmer.SetControlFreq(13);
     kmer.CalculatePValue(totalNRnt_peak, totalNRnt_control);
-    if (fabs(kmer.GetValue() - 0.80288828067583) >= 10e-15) {
+    if (std::fabs(kmer.GetValue() - 0.80288828067583) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong pValue. 0.802888 != " << kmer.GetValue() << endl;
     }
-    if (fabs(kmer.GetSig() - 0.0953448811988908) >= 10e-15) {
+    if (std::fabs(kmer.GetSig() - 0.0953448811988908) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong sig. 0.0953448811988908 != " << kmer.GetSig() << endl;
     }
-    if (fabs(kmer.GetPf() - 0.69230873100533) >= 10e-15) {
+    if (std::fabs(kmer.GetPf() - 0.69230873100533) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong pf. 0.69230873100533 != " << kmer.GetPf() << endl;
     }
 
     kmer.SetPeakFreq(40);
     kmer.SetControlFreq(152);
     kmer.CalculatePValue(totalNRnt_peak, totalNRnt_control);
-    if (fabs(kmer.GetValue() - 0.924001786259078) >= 10e-15) {
+    if (std::fabs(kmer.GetValue() - 0.924001786259078) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong pValue. 0.924001 != " << kmer.GetValue() << endl;
     }
-    if (fabs(kmer.GetSig() - 0.0343271892109419) >= 10e-15) {
+    if (std::fabs(kmer.GetSig() - 0.0343271892109419) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong sig. 0.0343271892109419 != " << kmer.GetSig() << endl;
     }
-    if (fabs(kmer.GetPf() - 0.789474868690288) >= 10e-15) {
+    if (std::fabs(kmer.GetPf() - 0.789474868690288) >= 10e-15) {
         cout << "%TEST_FAILED% time=0 testname=testKmersPValue (KmerFactoryTest) message=Wrong pf. 0.789474868690288 != " << kmer.GetPf() << endl;
     }
 }
@@ -240,11 +242,11 @@ void testReadKmersFromFile() {
 
     kmersFactory.ReadKmersFromFile("/tmp/kmers.bin", true);
     
-    if (fabs(kmersFactory.GetKmerSig("AAAAAAAAAA") - 20.48735117540051) >= 10E-15){
+    if (std::fabs(kmersFactory.GetKmerSig("AAAAAAAAAA") - 20.48735117540051) >= 10E-15){
         cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig. for kmer  != AAAAAAAAAA" << endl;
     }
     
-    if (fabs(kmersFactory.GetKmerSig("AAAAAAAAGC") - (20.48735117540051 + 10)) >= 10E-15){
+    if (std::fabs(kmersFactory.GetKmerSig("AAAAAAAAGC") - (20.48735117540051 + 10)) >= 10E-15){
         cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig. for kmer  != AAAAAAAAAA" << endl;
     }
 
@@ -261,13 +263,13 @@ void testReadKmersFromFile() {
         //                AAAAAAAAAA 3.25573332278254e-21 20.48735117540051 1.49479032886669
         if (kmer.compare("AAAAAAAAAA") == 0|| rc_kmer.compare("AAAAAAAAAA") == 0) {
             right = true;
-            if (fabs(k->GetValue() - 3.25573332278254e-21) >= 10E-15) {
+            if (std::fabs(k->GetValue() - 3.25573332278254e-21) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong p-value.  != " << k->GetValue() << endl;
             }
-            if (fabs(k->GetSig() - 20.48735117540051) >= 10E-15) {
+            if (std::fabs(k->GetSig() - 20.48735117540051) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig.  != " << k->GetSig() << endl;
             }
-            if (fabs(k->GetPf() - 1.49479032886669) >= 10E-15) {
+            if (std::fabs(k->GetPf() - 1.49479032886669) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong pf.  != " << k->GetPf() << endl;
             }
             if (k->GetControlFreq() != 11) {
@@ -287,13 +289,13 @@ void testReadKmersFromFile() {
         //                AAAAAAAAAC 3.66936367681041e-05 4.43540924245372 1.62318695308535
         if (kmer.compare("AAAAAAAAAC") == 0 || rc_kmer.compare("AAAAAAAAAC") == 0) {
             right = true;
-            if (fabs(k->GetValue() - 3.66936367681041e-05) >= 10E-15) {
+            if (std::fabs(k->GetValue() - 3.66936367681041e-05) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong p-value.  != " << k->GetValue() << endl;
             }
-            if (fabs(k->GetSig() - 4.43540924245372) >= 10E-15) {
+            if (std::fabs(k->GetSig() - 4.43540924245372) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig.  != " << k->GetSig() << endl;
             }
-            if (fabs(k->GetPf() - 1.62318695308535) >= 10E-15) {
+            if (std::fabs(k->GetPf() - 1.62318695308535) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong pf.  != " << k->GetPf() << endl;
             }
             if (k->GetControlFreq() != 21) {
@@ -312,13 +314,13 @@ void testReadKmersFromFile() {
         //                AAAAAAAAAG 1.56360980495561e-03 2.80587161489318 1.33064397039723
         if (kmer.compare("AAAAAAAAAG") == 0 || rc_kmer.compare("AAAAAAAAAG") == 0) {
             right = true;
-            if (fabs(k->GetValue() - 1.56360980495561e-03) >= 10E-15) {
+            if (std::fabs(k->GetValue() - 1.56360980495561e-03) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong p-value.  != " << k->GetValue() << endl;
             }
-            if (fabs(k->GetSig() - 2.80587161489318) >= 10E-15) {
+            if (std::fabs(k->GetSig() - 2.80587161489318) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig.  != " << k->GetSig() << endl;
             }
-            if (fabs(k->GetPf() - 1.33064397039723) >= 10E-15) {
+            if (std::fabs(k->GetPf() - 1.33064397039723) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong pf.  != " << k->GetPf() << endl;
             }
             if (k->GetControlFreq() != 31) {
@@ -337,13 +339,13 @@ void testReadKmersFromFile() {
         //                AAAAAAAAAT 2.19631497914574e-01 0.65830537647355 1.08933620086384
         if (kmer.compare("AAAAAAAAAT") == 0 || rc_kmer.compare("AAAAAAAAAT") == 0) {
             right = true;
-            if (fabs(k->GetValue() - 2.19631497914574e-01) >= 10E-15) {
+            if (std::fabs(k->GetValue() - 2.19631497914574e-01) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong p-value.  != " << k->GetValue() << endl;
             }
-            if (fabs(k->GetSig() - 0.65830537647355) >= 10E-15) {
+            if (std::fabs(k->GetSig() - 0.65830537647355) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig.  != " << k->GetSig() << endl;
             }
-            if (fabs(k->GetPf() - 1.08933620086384) >= 10E-15) {
+            if (std::fabs(k->GetPf() - 1.08933620086384) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong pf.  != " << k->GetPf() << endl;
             }
             if (k->GetControlFreq() != 41) {
@@ -362,13 +364,13 @@ void testReadKmersFromFile() {
         //                AAAAAAAACA 1.07873928249526e-02 1.96708350606356 1.41176344238936
         if (kmer.compare("AAAAAAAACA") == 0 || rc_kmer.compare("AAAAAAAACA") == 0) {
             right = true;
-            if (fabs(k->GetValue() - 1.07873928249526e-02) >= 10E-15) {
+            if (std::fabs(k->GetValue() - 1.07873928249526e-02) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong p-value.  != " << k->GetValue() << endl;
             }
-            if (fabs(k->GetSig() - 1.96708350606356) >= 10E-15) {
+            if (std::fabs(k->GetSig() - 1.96708350606356) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig.  != " << k->GetSig() << endl;
             }
-            if (fabs(k->GetPf() - 1.41176344238936) >= 10E-15) {
+            if (std::fabs(k->GetPf() - 1.41176344238936) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong pf.  != " << k->GetPf() << endl;
             }
             if (k->GetControlFreq() != 51) {
@@ -387,13 +389,13 @@ void testReadKmersFromFile() {
         //                AAAAAAAACC 1.05511751710985e-03 2.97669916672645 1.74193392488365
         if (kmer.compare("AAAAAAAACC") == 0 || rc_kmer.compare("AAAAAAAACC") == 0) {
             right = true;
-            if (fabs(k->GetValue() - 1.05511751710985e-03) >= 10E-15) {
+            if (std::fabs(k->GetValue() - 1.05511751710985e-03) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong p-value.  != " << k->GetValue() << endl;
             }
-            if (fabs(k->GetSig() - 2.97669916672645) >= 10E-15) {
+            if (std::fabs(k->GetSig() - 2.97669916672645) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig.  != " << k->GetSig() << endl;
             }
-            if (fabs(k->GetPf() - 1.74193392488365) >= 10E-15) {
+            if (std::fabs(k->GetPf() - 1.74193392488365) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong pf.  != " << k->GetPf() << endl;
             }
             if (k->GetControlFreq() != 61) {
@@ -412,13 +414,13 @@ void testReadKmersFromFile() {
         //                AAAAAAAACG 3.26401549435001e-01 0.48624778830827 1.28571313503317
         if (kmer.compare("AAAAAAAACG") == 0 || rc_kmer.compare("AAAAAAAACG") == 0) {
             right = true;
-            if (fabs(k->GetValue() - 3.26401549435001e-01) >= 10E-15) {
+            if (std::fabs(k->GetValue() - 3.26401549435001e-01) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong p-value.  != " << k->GetValue() << endl;
             }
-            if (fabs(k->GetSig() - 0.48624778830827) >= 10E-15) {
+            if (std::fabs(k->GetSig() - 0.48624778830827) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig.  != " << k->GetSig() << endl;
             }
-            if (fabs(k->GetPf() - 1.28571313503317) >= 10E-15) {
+            if (std::fabs(k->GetPf() - 1.28571313503317) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong pf.  != " << k->GetPf() << endl;
             }
             if (k->GetControlFreq() != 71) {
@@ -437,13 +439,13 @@ void testReadKmersFromFile() {
         //                AAAAAAAACT 1.48116148621570e-02 1.82939758918367 1.64515981794567
         if (kmer.compare("AAAAAAAACT") == 0 || rc_kmer.compare("AAAAAAAACT") == 0) {
             right = true;
-            if (fabs(k->GetValue() - 1.48116148621570e-02) >= 10E-15) {
+            if (std::fabs(k->GetValue() - 1.48116148621570e-02) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong p-value.  != " << k->GetValue() << endl;
             }
-            if (fabs(k->GetSig() - 1.82939758918367) >= 10E-15) {
+            if (std::fabs(k->GetSig() - 1.82939758918367) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig.  != " << k->GetSig() << endl;
             }
-            if (fabs(k->GetPf() - 1.64515981794567) >= 10E-15) {
+            if (std::fabs(k->GetPf() - 1.64515981794567) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong pf.  != " << k->GetPf() << endl;
             }
             if (k->GetControlFreq() != 81) {
@@ -462,13 +464,13 @@ void testReadKmersFromFile() {
         //                AAAAAAAAGA 2.70816098140979e-01 0.56732552342117 1.09793716170358
         if (kmer.compare("AAAAAAAAGA") == 0 || rc_kmer.compare("AAAAAAAAGA") == 0) {
             right = true;
-            if (fabs(k->GetValue() - 2.70816098140979e-01) >= 10E-15) {
+            if (std::fabs(k->GetValue() - 2.70816098140979e-01) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong p-value.  != " << k->GetValue() << endl;
             }
-            if (fabs(k->GetSig() - 0.56732552342117) >= 10E-15) {
+            if (std::fabs(k->GetSig() - 0.56732552342117) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig.  != " << k->GetSig() << endl;
             }
-            if (fabs(k->GetPf() - 1.09793716170358) >= 10E-15) {
+            if (std::fabs(k->GetPf() - 1.09793716170358) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong pf.  != " << k->GetPf() << endl;
             }
             if (k->GetControlFreq() != 91) {
@@ -487,13 +489,13 @@ void testReadKmersFromFile() {
         //                AAAAAAAAGC 1.88687646220172e-03 2.72425653308383 1.63888742212561
         if (kmer.compare("AAAAAAAAGC") == 0 || rc_kmer.compare("AAAAAAAAGC") == 0) {
             right = true;
-            if (fabs(k->GetValue() - 1.88687646220172e-03) >= 10E-15) {
+            if (std::fabs(k->GetValue() - 1.88687646220172e-03) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong p-value.  != " << k->GetValue() << endl;
             }
-            if (fabs(k->GetSig() - (20.48735117540051 + 10)) >= 10E-15) {
+            if (std::fabs(k->GetSig() - (20.48735117540051 + 10)) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig.  != " << k->GetSig() << endl;
             }
-            if (fabs(k->GetPf() - 1.63888742212561) >= 10E-15) {
+            if (std::fabs(k->GetPf() - 1.63888742212561) >= 10E-15) {
                 cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong pf.  != " << k->GetPf() << endl;
             }
             if (k->GetControlFreq() != 101) {
