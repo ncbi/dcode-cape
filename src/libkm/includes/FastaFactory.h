@@ -49,16 +49,16 @@ namespace fasta {
             return description;
         }
 
-        void SetDescription(std::string description) {
-            this->description = description;
+        void SetDescription(std::string desc) {
+            description = desc;
         }
 
         unsigned long int GetLength() {
             return length;
         }
 
-        void SetLength(unsigned long int length) {
-            this->length = length;
+        void SetLength(unsigned long int len) {
+            length = len;
         }
 
     private:

@@ -47,7 +47,7 @@ SNP::~SNP() {
     if (seq) free(seq);
 }
 
-void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, int featNumber) {
+void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned long int featNumber) {
     unsigned long int i, startPos, endPos;
     double overlapMutated = 0;
     char t;
@@ -116,7 +116,7 @@ int SNPFactory::ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbo
     SNP *snp;
     int snpPos, startPos, endPos;
 
-    int featNumber = 3;
+    unsigned long int featNumber = 3;
     double target_label = 0.0;
 
     if (!fimoFactory.GetSnpIDMap().empty()) {

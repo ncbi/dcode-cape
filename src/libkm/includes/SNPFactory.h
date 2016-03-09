@@ -102,7 +102,7 @@ namespace snp {
             probPos = ProbPos;
         }
 
-        void CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, int featNumber);
+        void CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned long int featNumber);
 
     private:
         std::string id;

@@ -62,7 +62,7 @@ void FimoFactory::CreateTissueIndexFromFiles(char *pwm_EnsembleID, char *tissue_
             }
             fields2Size = splitString(&fields2, fields[fieldsSize - 1], ";");
             set<string> a;
-            for (int i = 0; i < fields2Size; i++) {
+            for (size_t i = 0; i < fields2Size; i++) {
                 a.insert(fields2[i]);
 
                 tFNameReverseMapIt = tFNameReverseMap.find(fields2[i]);
@@ -98,7 +98,7 @@ void FimoFactory::CreateTissueIndexFromFiles(char *pwm_EnsembleID, char *tissue_
 
                     auto tissueMapIt = tissueIndex.find(*it1);
 
-                    for (int i = 1; i < fields2Size; i++) {
+                    for (size_t i = 1; i < fields2Size; i++) {
                         if (tissueMapIt == tissueIndex.end()) {
                             pair<string, double> tissueEnsemblePair(fields2[0], strtod(fields2[i], NULL));
                             unordered_map<string, pair<string, double>> tissues;
@@ -129,7 +129,7 @@ void FimoFactory::CreateTissueIndexFromFiles(char *pwm_EnsembleID, char *tissue_
     if (line) free(line);
 }
 
-void FimoFactory::CreateCutoffIndexFromFile(char* cutoffFileName, int column) {
+void FimoFactory::CreateCutoffIndexFromFile(char* cutoffFileName, size_t column) {
     FILE *cutoffFile = (FILE *) checkPointerError(fopen(cutoffFileName, "r"), "Can't open pwm_tFName file", __FILE__, __LINE__, -1);
 
     char *line = NULL;
@@ -155,7 +155,7 @@ void FimoFactory::CreateCutoffIndexFromFile(char* cutoffFileName, int column) {
 }
 
 void FimoFactory::ParseFimoOutput(char* fimoOuputName, char *tissueCode, unsigned long int snpPos) {
-    int i;
+    size_t i;
     FILE *fimoOuputFile = (FILE *) checkPointerError(fopen(fimoOuputName, "r"), "Can't open pwm_tFName file", __FILE__, __LINE__, -1);
     size_t bufferSize, read, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine;

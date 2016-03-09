@@ -144,7 +144,7 @@ namespace fimo {
         virtual ~FimoFactory();
 
         void CreateTissueIndexFromFiles(char *pwm_EnsembleID, char *tissue_file);
-        void CreateCutoffIndexFromFile(char *cutoffFileName, int column);
+        void CreateCutoffIndexFromFile(char *cutoffFileName, size_t column);
         void ParseFimoOutput(char *fimoOuputName, char *tissueCode, unsigned long int snpPos);
 
         std::pair<std::string, double> GetTissueValue(std::string motifName, std::string tissueName) {
