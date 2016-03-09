@@ -3,4 +3,4 @@
 #
 # NOCDDL
 #
-# Release configuration
+# GNU configuration

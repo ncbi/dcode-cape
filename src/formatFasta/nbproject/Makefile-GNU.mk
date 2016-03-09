@@ -23,7 +23,7 @@ AS=as
 # Macros
 CND_PLATFORM=GNU-MacOSX
 CND_DLIB_EXT=dylib
-CND_CONF=Release
+CND_CONF=GNU
 CND_DISTDIR=dist
 CND_BUILDDIR=build
 
@@ -52,7 +52,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L../libkm/build
+LDLIBSOPTIONS=-L../libkm/build -L../../../../../../../.homebrew/lib
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}

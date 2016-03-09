@@ -19,6 +19,7 @@
 #include <unordered_map>
 #include <map>
 #include <set>
+
 #include "Global.h"
 #include "TimeUtils.h"
 #include "FastaFactory.h"
@@ -39,7 +40,8 @@ void print_usage(FILE *stream, int exit_code) {
     fprintf(stream, "-o,   --out                         Output file.\n");
     fprintf(stream, "-d,   --dir                         Directory with fasta files. Extension: .fa (all files will be combined in one binary file)\n");
     fprintf(stream, "********************************************************************************\n");
-    fprintf(stream, "\n            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");
+    fprintf(stream, "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n");
+    fprintf(stream, "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");
     fprintf(stream, "********************************************************************************\n");
     exit(0);
 }
@@ -148,7 +150,7 @@ int main(int argc, char** argv) {
         fastaFactory.ParseFastaFile(inFile, -1, true, true);
         fclose(inFile);
     }
-    cout << fastaFactory.size() << " sequences loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    cout << fastaFactory.GetFastaMap().size() << " sequences loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
     cout << "Writing sequences in binary mode ";

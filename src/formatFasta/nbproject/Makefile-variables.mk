@@ -6,14 +6,14 @@
 CND_BASEDIR=`pwd`
 CND_BUILDDIR=build
 CND_DISTDIR=dist
-# Release configuration
-CND_PLATFORM_Release=GNU-MacOSX
-CND_ARTIFACT_DIR_Release=../../bin
-CND_ARTIFACT_NAME_Release=formatFasta
-CND_ARTIFACT_PATH_Release=../../bin/formatFasta
-CND_PACKAGE_DIR_Release=dist/Release/package
-CND_PACKAGE_NAME_Release=formatFasta.tar.gz
-CND_PACKAGE_PATH_Release=dist/Release/package/formatFasta.tar.gz
+# GNU configuration
+CND_PLATFORM_GNU=GNU-MacOSX
+CND_ARTIFACT_DIR_GNU=../../bin
+CND_ARTIFACT_NAME_GNU=formatFasta
+CND_ARTIFACT_PATH_GNU=../../bin/formatFasta
+CND_PACKAGE_DIR_GNU=dist/GNU/package
+CND_PACKAGE_NAME_GNU=formatFasta.tar.gz
+CND_PACKAGE_PATH_GNU=dist/GNU/package/formatFasta.tar.gz
 #
 # include compiler specific variables
 #
