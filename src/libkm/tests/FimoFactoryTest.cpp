@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <math.h>
 
 #include <iostream>
+#include <cmath>
 #include <fstream>
 #include <cstdlib>
 #include <string>
@@ -45,35 +45,35 @@ void testCreateIndexFromFiles(char *pwm_tFName, char *tissue_file, char* cutoffF
     cPair = fimoFactory.GetTissueValue("NFYA_f1", "E000");
     c = cPair.second;
     v = 17.511;
-    if (fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-15) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
     cPair = fimoFactory.GetTissueValue("ATF3_f1", "E000");
     c = cPair.second;
     v = 7.478;
-    if (fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-15) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
     cPair = fimoFactory.GetTissueValue("RXRA_f1", "E006");
     c = cPair.second;
     v = 12.171;
-    if (fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-15) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
     cPair = fimoFactory.GetTissueValue("M4681_1.02", "E006");
     c = cPair.second;
     v = 0.174;
-    if (fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-15) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
     cPair = fimoFactory.GetTissueValue("UP00066_1", "E000");
     c = cPair.second;
     v = 10.457;
-    if (fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-15) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
@@ -90,29 +90,29 @@ void testCreateIndexFromFiles(char *pwm_tFName, char *tissue_file, char* cutoffF
     if (cPair.first.compare("ENSG00000115677") != 0){
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result ENSG00000115677 " << " != " << cPair.first << endl;
     }
-    if (fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-15) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
     c = fimoFactory.GetCutoffValue("UP00066_1");
     v = 1E-04;
-    if (fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-15) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong cutoff value " << v << " != " << c << endl;
     }
     c = fimoFactory.GetCutoffValue("UP00066_1");
     v = 1E-04;
-    if (fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-15) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong cutoff value " << v << " != " << c << endl;
     }
 
     c = fimoFactory.GetCutoffValue("ATF5_si");
     v = 8.15E-05;
-    if (fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-15) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong cutoff value " << v << " != " << c << endl;
     }
     c = fimoFactory.GetCutoffValue("ALX1_si");
     v = 8.33E-05;
-    if (fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-15) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong cutoff value " << v << " != " << c << endl;
     }
 
