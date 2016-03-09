@@ -107,7 +107,7 @@ SNPFactory::~SNPFactory() {
 int SNPFactory::ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbors, FastaFactory &chrFactory, KmersFactory& kmersFactory, SVMPredict& svmPredict, FimoFactory & fimoFactory) {
     FILE *snpFile = (FILE *) checkPointerError(fopen(snpFileName, "r"), "Can't open bed file", __FILE__, __LINE__, -1);
 
-    int i, count = 0;
+    unsigned long int i, count = 0;
     size_t bufferSize, read, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine, *seq;
     char **fields = NULL;

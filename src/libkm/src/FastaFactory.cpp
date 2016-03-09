@@ -65,7 +65,7 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
     off_t pos;
     size_t bufferSize, read, readTotal, seq_length, numLines, str_length;
     char *buffer, *line, *s, *str, *seq, *seq_end;
-    Fasta *fasta;
+    Fasta *fasta = NULL;
 
     if (cleanContainers) {
         fastaMap.clear();
