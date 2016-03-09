@@ -1,9 +1,16 @@
 in  input_file_name.txt
 out output_file_name.out
 order   10
-chrs    /Users/veraalva/Work/Developer/C/ncbi/resources/hg19.fa.bin
-weight  /Users/veraalva/Work/Developer/C/ncbi/input2/mytest/cDescriptors/10mers_sigValue_sorted
+chrs    hg19.fa.bin
+weight  10mers_sigValue_sorted
 binary  0
 neighbors   100
-model   /Users/veraalva/Work/Developer/C/ncbi/input2/mytest/cDescriptors/alldsQTLcontrolSNP.linear.model
+model   alldsQTLcontrolSNP.linear.model
 probability   1
+fimo    fimo_output_file.txt
+pwm_EnsembleID pwm_EnsembleID_mapping
+expression  57epigenomes.RPKM.pc
+expression_code E116
+abbrev-mtf-mapped   abbrev-mtf-mapped-to-whole-label.all.info.renamed
+abbrev-mtf-mapped-column 5   # Column number in the map
+

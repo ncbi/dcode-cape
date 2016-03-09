@@ -10,17 +10,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <iostream>
-#include <memory>
 #include <getopt.h>
 #include <stdbool.h>
 #include <time.h>
+
+
+#include <iostream>
+#include <memory>
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <locale>
 #include <unordered_map>
 #include <map>
 #include <set>
+#include <vector>
+
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"
@@ -29,6 +34,7 @@
 #include "TimeUtils.h"
 #include "FastaFactory.h"
 #include "KmersFactory.h"
+#include "FimoFactory.h"
 #include "BedFactory.h"
 #include "SNPFactory.h"
 #include "SVMPredict.h"
@@ -39,6 +45,7 @@ using namespace peak;
 using namespace kmers;
 using namespace snp;
 using namespace svm;
+using namespace fimo;
 
 char *program_name;
 
@@ -59,15 +66,18 @@ void print_usage(FILE *stream, int exit_code) {
     fprintf(stream, "binary\t0\t\t\t\t\t# 1 if weight file is binary\n");
     fprintf(stream, "neighbors\t100\t\t\t\t# Pb to be added before and after the SNP position. Default 100\n");
     fprintf(stream, "model\t/path-to/svm.model\t\t\t# SVM Model\n");
-    fprintf(stream, "probability\t1\t\t\t\t# 1 if the model use probability estimates\n\n");
+    fprintf(stream, "probability\t1\t\t\t\t# 1 if the model use probability estimates\n");
+    fprintf(stream, "fimo\tfimo_output_file.txt\t\t\t# Use FIMO output. Set to: 0 for not using FIMO output\n");
+    fprintf(stream, "pwm_EnsembleID\tpwm_EnsembleID_mapping\t\t# File mapping TF names with Ensembl IDs. Provided in resources folder\n");
+    fprintf(stream, "expression\t57epigenomes.RPKM.pc\t\t# Expression file\n");
+    fprintf(stream, "expression_code\tE116\t\t\t\t# Tissue code used to extract expression data from the expression file.\n\t\t\t\t\t\t  Extract this code from the tissue ID mapping file EG.name.txt\n");
+    fprintf(stream, "abbrev-mtf-mapped\tabbrev-mtf-mapped-to-whole-label.all.info.renamed\t\t\t\t# TF name cutoff P-Value mapped by our group\n\n");
     fprintf(stream, "********************************************************************************\n");
-    fprintf(stream, "\n            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");
+    fprintf(stream, "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n");
+    fprintf(stream, "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");    
     fprintf(stream, "********************************************************************************\n");
     exit(0);
 }
-
-
-using namespace std;
 
 /*
  * 
@@ -83,11 +93,18 @@ int main(int argc, char** argv) {
     FILE *inFile = NULL;
     char *svmModelName = NULL;
     char *weightFileName = NULL;
+    char *fimoFileName = NULL;
+    char *pwmEnsembleIDFileName = NULL;
+    char *expressionFileName = NULL;
+    char *expressionCode = NULL;
+    char *abbrevmtfmappedFileName = NULL;
+    int abbrevmtfmappedColumn = 5;
     FILE *outputFile = NULL;
     unsigned long int neighbors = 100;
     FastaFactory chrFactory;
     SNPFactory snpFactory;
     KmersFactory kmersFactory;
+    FimoFactory fimoFactory;
     bool binary = false;
     SVMPredict svmPredict;
     char *line = NULL;
@@ -171,6 +188,23 @@ int main(int argc, char** argv) {
             if (strcmp(fields[0], "probability") == 0) {
                 svmPredict.SetPredict_probability(atoi(fields[1]));
             }
+            if (strcmp(fields[0], "fimo") == 0) {
+                if (strcmp(fields[1], "0") != 0) {
+                    fimoFileName = strdup(fields[1]);
+                }
+            }
+            if (strcmp(fields[0], "pwm_EnsembleID") == 0) {
+                pwmEnsembleIDFileName = strdup(fields[1]);
+            }
+            if (strcmp(fields[0], "expression") == 0) {
+                expressionFileName = strdup(fields[1]);
+            }
+            if (strcmp(fields[0], "expression_code") == 0) {
+                expressionCode = strdup(fields[1]);
+            }
+            if (strcmp(fields[0], "abbrev-mtf-mapped") == 0) {
+                abbrevmtfmappedFileName = strdup(fields[1]);
+            }
             freeArrayofPointers((void **) fields, fieldsSize);
         }
     }
@@ -196,6 +230,25 @@ int main(int argc, char** argv) {
         print_usage(stderr, -1);
     }
 
+    if (fimoFileName != NULL) {
+        if (!pwmEnsembleIDFileName) {
+            cerr << "\npwm_EnsembleID option is required in config file if FIMO ouput is provided." << endl;
+            print_usage(stderr, -1);
+        }
+        if (!expressionFileName) {
+            cerr << "\nexpression option  is required in config file if FIMO ouput is provided." << endl;
+            print_usage(stderr, -1);
+        }
+        if (!expressionCode) {
+            cerr << "\nexpression_code option  is required in config file if FIMO ouput is provided." << endl;
+            print_usage(stderr, -1);
+        }
+        if (!abbrevmtfmappedFileName) {
+            cerr << "\nabbrev-mtf-mapped option  is required in config file if FIMO ouput is provided." << endl;
+            print_usage(stderr, -1);
+        }
+    }
+
     TimeUtils::instance()->SetStartTime();
     Global::instance()->SetBin1(0.005);
     Global::instance()->SetBin2(0.01);
@@ -204,7 +257,16 @@ int main(int argc, char** argv) {
     begin = clock();
     cout << "Reading chromosome sequences from binary file" << endl;
     chrFactory.ParseFastaFile(chrsBinName, -1, true, true);
-    cout << chrFactory.size() << " chromosomes loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    cout << chrFactory.GetFastaMap().size() << " chromosomes loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+
+    if (fimoFileName) {
+        begin = clock();
+        cout << "Parsing FIMO output file" << endl;
+        fimoFactory.CreateTissueIndexFromFiles(pwmEnsembleIDFileName, expressionFileName);
+        fimoFactory.CreateCutoffIndexFromFile(abbrevmtfmappedFileName, abbrevmtfmappedColumn - 1);
+        fimoFactory.ParseFimoOutput(fimoFileName, expressionCode, neighbors);
+        cout << fimoFactory.GetSnpIDMap().size() << " SNP with FIMO expression loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    }
 
     begin = clock();
     cout << "Reading SVM model" << endl;
@@ -218,7 +280,7 @@ int main(int argc, char** argv) {
 
     begin = clock();
     cout << "Reading input SNP coordinates from files" << endl;
-    count = snpFactory.ProcessSNPFromFiles(inFileName, neighbors, chrFactory, kmersFactory, svmPredict);
+    count = snpFactory.ProcessSNPFromFiles(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory);
     cout << count << " SNP processed in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
     fprintf(outputFile, "#chrom\tpos\trsID\trefAle\taltAle\tscore\n");
@@ -235,6 +297,11 @@ int main(int argc, char** argv) {
     if (inFileName) free(inFileName);
     if (weightFileName) free(weightFileName);
     if (svmModelName) free(svmModelName);
+    if (fimoFileName) free(fimoFileName);
+    if (pwmEnsembleIDFileName) free(pwmEnsembleIDFileName);
+    if (expressionFileName) free(expressionFileName);
+    if (expressionCode) free(expressionCode);
+    if (abbrevmtfmappedFileName) free(abbrevmtfmappedFileName);
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->GetTimeSecFrom(start) << " seconds" << endl;
     return 0;
