@@ -8,17 +8,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <iostream>
-#include <memory>
 #include <getopt.h>
 #include <stdbool.h>
 #include <time.h>
+
+#include <iostream>
+#include <memory>
 #include <cstdlib>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <map>
 #include <set>
+
 #include "Global.h"
 #include "TimeUtils.h"
 #include "FastaFactory.h"
@@ -35,11 +37,11 @@ char *program_name;
 void print_usage(FILE *stream, int exit_code) {
     fprintf(stream, "\n********************************************************************************\n");
     fprintf(stream, "This option will read the enhancers coordinates and generate the controls by shuffling the enhancers sequences\n");
-    fprintf(stream, "kweight --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes --prefix chr --subfix .fa.masked --poutput weight_file_kmers.txt\n\n");
+    fprintf(stream, "kweight --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes/hg19_masked.fa.bin --poutput weight_file_kmers.txt --eoutput enhancers.fa\n\n");
     fprintf(stream, "This option will read the enhancers coordinates and generate the controls from the chromosomes\n");
-    fprintf(stream, "kweight -g --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes --prefix chr --subfix .fa.masked --poutput weight_file_kmers.txt\n\n");    
+    fprintf(stream, "kweight -g --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes/hg19_masked.fa.bin --poutput weight_file_kmers.txt --eoutput enhancers.fa\n\n");
     fprintf(stream, "This option will read the enhancers coordinates and use the controls provided by the users\n");
-    fprintf(stream, "kweight --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes --control users_control.txt --prefix chr --subfix .fa.masked --poutput weight_file_kmers.txt\n");
+    fprintf(stream, "kweight --bed enhancers_coordinates.bed -m ./directory/hg19/hg19_masked.fa.bin --control users_control.txt --poutput weight_file_kmers.txt --eoutput enhancers.fa\n");
     fprintf(stream, "Control file format:\n");
     fprintf(stream, "chr<tab>start_position<tab>length\n\n");
     fprintf(stream, "\n********************************************************************************\n");
@@ -47,16 +49,15 @@ void print_usage(FILE *stream, int exit_code) {
     fprintf(stream, "\n\n%s options:\n\n", program_name);
     fprintf(stream, "-v,   --verbose                     Print info\n");
     fprintf(stream, "-h,   --help                        Display this usage information.\n");
-    fprintf(stream, "-o,   --order                       Order (default: 10).\n");
-    fprintf(stream, "-g,   --genCtrl                     Generate control from chromosomes (Default: no).\n");
+    fprintf(stream, "-b,   --bed                         Coordination of enhancers or DHS peaks.\n");
+    fprintf(stream, "-m,   --masked                      Chromosomes masked binary fasta file. Created with formatFasta.\n");
+    fprintf(stream, "-p,   --poutput                     Output file with the p-value for all kmers\n");
+    
+    fprintf(stream, "-o,   --order                       Order (default: 10).\n");    
+    fprintf(stream, "-g,   --genCtrl                     Generate control from chromosomes. Default: NO.\n");
     fprintf(stream, "-n,   --hitNum                      Number of controls per peak (default: 10, if -g set default: 3).\n");
     fprintf(stream, "-c,   --control                     Bed file with the control coordinates. This option will use your own control for the calculations.\n");
-    fprintf(stream, "-b,   --bed                         Coordination of enhancers or DHS peaks.\n");
-    fprintf(stream, "-m,   --masked                      Directory with chromosomes masked fasta files. Format: chr#.fa.masked\n");
-    fprintf(stream, "      --prefix                      Prefix of the chromosomes file names. Example: chr\n");
-    fprintf(stream, "      --subfix                      Subfix of the chromosomes file names. Example: .fa.masked\n");
-    fprintf(stream, "-p,   --poutput                     Output file with the p-value for all kmers\n");
-    fprintf(stream, "      --bin                         Print output in binary mode\n");    
+    
     fprintf(stream, "********************************************************************************\n");
     fprintf(stream, "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n");
     fprintf(stream, "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");
@@ -70,7 +71,7 @@ int main(int argc, char** argv) {
     int next_option;
     unsigned long int hitNum;
     const char* const short_options = "vhm:o:b:n:gc:p:ir:u:";
-    char *maskedDirName = NULL;
+    FILE *chrsBinFile = NULL;
     char *bedFileName = NULL;
     char *controlFileName = NULL;
     char *poutputFileName = NULL;
@@ -123,7 +124,7 @@ int main(int argc, char** argv) {
                 break;
 
             case 'm':
-                maskedDirName = strdup(optarg);
+                chrsBinFile = fopen(optarg, "r");
                 break;
 
             case 'r':
@@ -137,7 +138,7 @@ int main(int argc, char** argv) {
             case 'p':
                 poutputFileName = strdup(optarg);
                 break;
-
+            
             case 'c':
                 controlFileName = strdup(optarg);
                 break;
@@ -167,8 +168,8 @@ int main(int argc, char** argv) {
         print_usage(stderr, -1);
     }
 
-    if (!maskedDirName) {
-        cerr << "\nMasked fasta directory is required. See -m option" << endl;
+    if (!chrsBinFile) {
+        cerr << "\nCan't open chromosomes masked binary fasta file. See -m option" << endl;
         print_usage(stderr, -1);
     }
 
@@ -189,13 +190,13 @@ int main(int argc, char** argv) {
     cout << kmersFactory.GetKmersGenome().size() << " kmers created in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
-    cout << "Reading masked sequences from files" << endl;
-    chrFactory.LoadFastaInDirectory(maskedDirName, prefix, subfix, false);
+    cout << "Reading chromosome sequences from binary file" << endl;
+    chrFactory.ParseFastaFile(chrsBinFile, -1, true, true);
     cout << chrFactory.GetFastaMap().size() << " chromosomes loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
     cout << "Reading peaks from file" << endl;
-    bedFactory.CreatePeaksFromBedFile(chrFactory, "ht19", bedFileName, 0.7, kmersFactory);
+    bedFactory.CreatePeaksFromBedFile(chrFactory, bedFileName, 0.7, kmersFactory);
     cout << bedFactory.GetPeaks().size() << " peaks loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
     cout << bedFactory.GetGCNcontentBin().size() << " chromosomes to analyze" << endl;
 
@@ -210,7 +211,7 @@ int main(int argc, char** argv) {
         }
     } else {
         cout << "Reading controls from file" << endl;
-        bedFactory.ReadingControlsFromFile(controlFileName, chrFactory, kmersFactory);
+        bedFactory.ReadControlsFromFile(controlFileName, chrFactory, kmersFactory);
     }
     cout << "Controls generated in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
@@ -223,7 +224,7 @@ int main(int argc, char** argv) {
 
     if (prefix) free(prefix);
     if (subfix) free(subfix);
-    if (maskedDirName) free(maskedDirName);
+    if (chrsBinFile) fclose(chrsBinFile);
     if (bedFileName) free(bedFileName);
     if (poutputFileName) free(poutputFileName);
     delete Global::instance();
