@@ -63,7 +63,6 @@ void print_usage(FILE *stream, int exit_code) {
     fprintf(stream, "order\t10\t\t\t\t\t# Order (default: 10)\n");
     fprintf(stream, "chrs\t/path-to/hg19.fa.bin\t\t\t# Chromosomes files in binary mode. Format: hg19.fa.bin. Binary files created by formatFasta\n");
     fprintf(stream, "weight\t/path-to/10mers_sigValue_sorted\t\t# Kmers weight file. Generated with kweight\n");
-    fprintf(stream, "binary\t0\t\t\t\t\t# 1 if weight file is binary\n");
     fprintf(stream, "neighbors\t100\t\t\t\t# Pb to be added before and after the SNP position. Default 100\n");
     fprintf(stream, "model\t/path-to/svm.model\t\t\t# SVM Model\n");
     fprintf(stream, "probability\t1\t\t\t\t# 1 if the model use probability estimates\n");
@@ -105,7 +104,6 @@ int main(int argc, char** argv) {
     SNPFactory snpFactory;
     KmersFactory kmersFactory;
     FimoFactory fimoFactory;
-    bool binary = false;
     SVMPredict svmPredict;
     char *line = NULL;
     size_t len = 0;
@@ -175,10 +173,6 @@ int main(int argc, char** argv) {
             if (strcmp(fields[0], "weight") == 0) {
                 weightFileName = strdup(fields[1]);
             }
-            if (strcmp(fields[0], "binary") == 0) {
-                if (atoi(fields[1]) == 1)
-                    binary = true;
-            }
             if (strcmp(fields[0], "neighbors") == 0) {
                 neighbors = static_cast<unsigned long int> (atoi(fields[1]));
             }
@@ -189,7 +183,7 @@ int main(int argc, char** argv) {
                 svmPredict.SetPredict_probability(atoi(fields[1]));
             }
             if (strcmp(fields[0], "fimo") == 0) {
-                if (strcmp(fields[1], "0") != 0) {
+                if (strncmp(fields[1], "0", strlen(fields[1])) != 0) {
                     fimoFileName = strdup(fields[1]);
                 }
             }
@@ -275,12 +269,12 @@ int main(int argc, char** argv) {
 
     begin = clock();
     cout << "Reading kmers weight" << endl;
-    kmersFactory.ReadKmersFromFile(weightFileName, binary);
+    kmersFactory.ReadKmersFromFile(weightFileName, false);
     cout << kmersFactory.GetKmers().size() << " kmers loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
     cout << "Reading input SNP coordinates from files" << endl;
-    count = snpFactory.ProcessSNPFromFiles(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory);
+    count = snpFactory.ProcessSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory);
     cout << count << " SNP processed in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
     fprintf(outputFile, "#chrom\tpos\trsID\trefAle\taltAle\tscore\n");
