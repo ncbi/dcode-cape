@@ -9,16 +9,12 @@
             <url>src/SNPFactory.cpp</url>
             <bookmark id="1">
                 <name/>
-                <line>211</line>
+                <line>218</line>
                 <key/>
             </bookmark>
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group name="KillerMutations">
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/tests/FimoFactoryTest.cpp</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/FimoFactory.h</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/FimoFactory.cpp</file>
-        </group>
+        <group name="KillerMutations"/>
     </open-files>
 </project-private>

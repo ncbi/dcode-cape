@@ -313,7 +313,7 @@ void KmersFactory::ReadKmersFromFile(char* fileName, bool binary) {
         if (Global::instance()->isInfo()) {
             streamsize initPrecision = std::cout.precision();
             std::cout.precision(12);
-            cout << "\tINFO ==> There are " << infSigSize << " infinities to fix uisng value: " << maxSig << endl;
+            cout << "\tINFO ==> There are " << infSigSize << " infinities to fix using value: " << maxSig << endl;
             std::cout.precision(initPrecision);
         }
         for (i = 0; i < infSigSize; i++) {

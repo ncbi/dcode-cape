@@ -106,10 +106,6 @@ namespace peak {
         BedFactory();
         virtual ~BedFactory();
 
-        std::string GetGenomeName() const {
-            return genomeName;
-        }
-
         std::vector<Peak*>& GetPeaks() {
             return peaks;
         }
@@ -118,18 +114,19 @@ namespace peak {
             return GCNcontentBin;
         }
 
-        void CreatePeaksFromBedFile(fasta::FastaFactory& chrFactory, std::string genomeName, std::string bedFileName, double maxNPercent, kmers::KmersFactory &kmersFactory);
+        void CreatePeaksFromBedFile(fasta::FastaFactory& chrFactory, char *bedFileName, double maxNPercent, kmers::KmersFactory &kmersFactory);
 
         void GeneratingControlsFromChromosomes(fasta::FastaFactory &chrFactory, unsigned long int hit_Num, kmers::KmersFactory &kmersFactory);
 
         void GeneratingControlsFromShufflingPeaks(unsigned long int hit_Num, kmers::KmersFactory &kmersFactory);
 
-        void ReadingControlsFromFile(char *controlFileName, fasta::FastaFactory &chrFactory, kmers::KmersFactory &kmersFactory);
+        void ReadControlsFromFile(char *controlFileName, fasta::FastaFactory &chrFactory, kmers::KmersFactory &kmersFactory);
+
+        void WritePeaksFastaFile(char *fastaFile, bool binary);
 
     private:
         unsigned long int NCount;
         unsigned long int GCCount;
-        std::string genomeName;
         std::vector<Peak *> peaks;
         std::map<std::string, std::map<int, std::map<std::pair<int, int>, int>>> GCNcontentBin;
 

@@ -129,7 +129,9 @@ namespace snp {
             return snps;
         }
 
-        int ProcessSNPFromFiles(char* snpFileName, unsigned long int neighbors, fasta::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict, fimo::FimoFactory & fimoFactory);
+        void ReadSNPFromFile(char* snpFileName, unsigned long int neighbors, fasta::FastaFactory &chrFactory);
+        void WriteEnhansersFastaFile(char* fastaFile, bool binary);
+        int ProcessSNPFromFile(char* snpFileName, unsigned long int neighbors, fasta::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict, fimo::FimoFactory & fimoFactory);
     private:
         std::vector<SNP *> snps;
 

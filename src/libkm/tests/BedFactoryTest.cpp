@@ -39,11 +39,9 @@ using namespace peak;
  * Simple C++ Test Suite
  */
 
-void testCreatePeaksFromBedFile(const char *bFName, char *dirName, char *testName) {
+void testCreatePeaksFromBedFile(char *bFName, char *dirName, char *testName) {
     int i = 0;
     fasta::FastaFactory chrFactory;
-    string genomeName("hg19");
-    string bedFileName(bFName);
     peak::BedFactory bedFactory;
     char *line = NULL;
     size_t len = 0;
@@ -80,7 +78,7 @@ void testCreatePeaksFromBedFile(const char *bFName, char *dirName, char *testNam
 
     chrFactory.LoadFastaInDirectory(dirName, prefix.c_str(), sufix.c_str(), false);
     
-    bedFactory.CreatePeaksFromBedFile(chrFactory, genomeName, bedFileName, 0.7, kmersFactory);
+    bedFactory.CreatePeaksFromBedFile(chrFactory, bFName, 0.7, kmersFactory);
     
     if (bedFactory.GetPeaks().size() != 88) {
         cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Peaks to print should be equal to 88 and it is " << i << endl;
@@ -125,7 +123,6 @@ void testCreatePeaksFromBedFile(const char *bFName, char *dirName, char *testNam
 
 void testReadingControlsFromFile(char *dirName, char *controlName){
     fasta::FastaFactory chrFactory;
-    string genomeName("hg19");
     peak::BedFactory bedFactory;
     string prefix("chr");
     string sufix(".fa.masked");
@@ -134,7 +131,7 @@ void testReadingControlsFromFile(char *dirName, char *controlName){
     
     chrFactory.LoadFastaInDirectory(dirName, prefix.c_str(), sufix.c_str(), false);
     
-    bedFactory.ReadingControlsFromFile(controlName, chrFactory, kmersFactory);
+    bedFactory.ReadControlsFromFile(controlName, chrFactory, kmersFactory);
     if (kmersFactory.GetTotalNRnt_control() != 1065){
         cout << "%TEST_FAILED% time=0 testname=testReadingControlsFromFile (BedFactoryTest) message=Wrong calculation of Total non N 1065 != " << kmersFactory.GetTotalNRnt_control() << endl;
     }

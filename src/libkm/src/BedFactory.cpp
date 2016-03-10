@@ -115,8 +115,8 @@ BedFactory::~BedFactory() {
     }
 }
 
-void BedFactory::CreatePeaksFromBedFile(FastaFactory& chrFactory, string genomeName, string bedFileName, double maxNPercent, KmersFactory &kmersFactory) {
-    FILE *bedFile = (FILE *) checkPointerError(fopen(bedFileName.c_str(), "r"), "Can't open bed file", __FILE__, __LINE__, -1);
+void BedFactory::CreatePeaksFromBedFile(FastaFactory& chrFactory, char *bedFileName, double maxNPercent, KmersFactory &kmersFactory) {
+    FILE *bedFile = (FILE *) checkPointerError(fopen(bedFileName, "r"), "Can't open bed file", __FILE__, __LINE__, -1);
 
     size_t bufferSize, read, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine, *seq;
@@ -128,7 +128,6 @@ void BedFactory::CreatePeaksFromBedFile(FastaFactory& chrFactory, string genomeN
     buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
     backupLine = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
 
-    this->genomeName = genomeName;
     kmersFactory.ClearKmerPeakData();
 
     *backupLine = '\0';
@@ -471,7 +470,7 @@ void BedFactory::GeneratingControlsFromShufflingPeaks(unsigned long int hit_Num,
     }
 }
 
-void BedFactory::ReadingControlsFromFile(char* controlFileName, FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory) {
+void BedFactory::ReadControlsFromFile(char* controlFileName, FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory) {
     FILE *bedFile = (FILE *) checkPointerError(fopen(controlFileName, "r"), "Can't open bed file", __FILE__, __LINE__, -1);
 
     size_t bufferSize, read, backupLineSize;
@@ -542,4 +541,24 @@ void BedFactory::ReadingControlsFromFile(char* controlFileName, FastaFactory &ch
     fclose(bedFile);
 }
 
+void BedFactory::WritePeaksFastaFile(char* fastaFile, bool binary) {
+    FastaFactory fastaFactory;
+    Fasta *f = NULL;
+    Peak *p = NULL;
+    char *seq = NULL;
+    string id;
+
+    for (auto it = peaks.begin(); it != peaks.end(); ++it) {
+        p = *it;
+        f = new Fasta();
+        id = p->GetChr() + ":" + to_string(p->GetStart()) + "-" + to_string(p->GetEnd());
+        f->SetId(id);
+        seq = strdup(p->GetSeq());        
+        f->SetLength(strlen(seq));
+        f->SetSeq(&seq);
+        fastaFactory.GetFastaMap().insert(pair<string, Fasta*>(id, move(f)));
+    }
+
+    fastaFactory.WriteSequencesToFile(fastaFile, binary);
+}
 
