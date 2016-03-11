@@ -195,6 +195,7 @@ void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors,
                     if (snp->GetSeq()[snp->GetPos()] != snp->GetRef()) {
                         fprintf(stderr, "\nERROR1:\n\n%c != %c\n\n", snp->GetSeq()[snp->GetPos()], fields[3][0]);
                         fprintf(stderr, "%c\t%c\t%lu\n\n", snp->GetRef(), snp->GetSeq()[snp->GetPos()], snp->GetPos());
+                        fprintf(stderr, "ID: %s\n", snp->GetId());
                         fprintf(stderr, "%s\n\n", snp->GetSeq());
                         if (Global::instance()->isDebug3()) {
                             printLog(stderr, "SNP is not in the chromosome position provided", __FILE__, __LINE__, -1);
