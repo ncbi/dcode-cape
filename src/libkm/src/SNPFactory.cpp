@@ -290,6 +290,7 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
         } 
         str = buffer;
         while ((newLine = strchr(str, '\n')) != NULL) {
+            *newLine = 0;
             if (*backupLine != 0) {
                 if (strlen(backupLine) + strlen(str) + 1 > backupLineSize) {
                     backupLineSize += backupLineSize;
