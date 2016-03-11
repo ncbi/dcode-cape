@@ -105,7 +105,7 @@ SNPFactory::~SNPFactory() {
 }
 
 void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors, FastaFactory &chrFactory) {
-    FILE *snpFile = (FILE *) checkPointerError(fopen(snpFileName, "r"), "Can't open bed file", __FILE__, __LINE__, -1);
+    FILE *snpFile = (FILE *) checkPointerError(fopen(snpFileName, "r"), "Can't open SNP file", __FILE__, __LINE__, -1);
     
     size_t bufferSize, read, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine, *seq;
@@ -119,15 +119,19 @@ void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors,
     buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
     backupLine = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
 
-    *backupLine = '\0';
+    *backupLine = 0;
     while (!feof(snpFile)) {
         read = fread(buffer, sizeof (char), bufferSize, snpFile);
-        buffer[read] = '\0';
+        buffer[read] = 0;
+        if (feof(snpFile)) {            
+            if (buffer[read - 1] != '\n') {
+                buffer[read] = '\n';
+                buffer[read + 1] = 0;
+            }
+        }    
         str = buffer;
-        while (*str != '\0') {
-            newLine = strchr(str, '\n');
-            if (newLine) *newLine = '\0';
-            if (*backupLine != '\0') {
+        while ((newLine = strchr(str, '\n')) != NULL) {
+            if (*backupLine != 0) {
                 if (strlen(backupLine) + strlen(str) + 1 > backupLineSize) {
                     backupLineSize += backupLineSize;
                     backupLine = (char *) reallocate(backupLine, sizeof (char) * (backupLineSize + 1), __FILE__, __LINE__);
@@ -201,9 +205,8 @@ void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors,
                 }
                 freeArrayofPointers((void **) fields, fieldsSize);
             }
-            *backupLine = '\0';
-            if (newLine) str = newLine + 1;
-            else str += strlen(str);
+            *backupLine = 0;
+            str = newLine + 1;
         }
 
         if (strlen(str) > 0) {
@@ -275,15 +278,19 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
     buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
     backupLine = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
 
-    *backupLine = '\0';
+    *backupLine = 0;
     while (!feof(snpFile)) {
         read = fread(buffer, sizeof (char), bufferSize, snpFile);
-        buffer[read] = '\0';
+        buffer[read] = 0;
+        if (feof(snpFile)) {            
+            if (buffer[read - 1] != '\n') {
+                buffer[read] = '\n';
+                buffer[read + 1] = 0;
+            }
+        } 
         str = buffer;
-        while (*str != '\0') {
-            newLine = strchr(str, '\n');
-            if (newLine) *newLine = '\0';
-            if (*backupLine != '\0') {
+        while ((newLine = strchr(str, '\n')) != NULL) {
+            if (*backupLine != 0) {
                 if (strlen(backupLine) + strlen(str) + 1 > backupLineSize) {
                     backupLineSize += backupLineSize;
                     backupLine = (char *) reallocate(backupLine, sizeof (char) * (backupLineSize + 1), __FILE__, __LINE__);
@@ -373,9 +380,8 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
                 }
                 freeArrayofPointers((void **) fields, fieldsSize);
             }
-            *backupLine = '\0';
-            if (newLine) str = newLine + 1;
-            else str += strlen(str);
+            *backupLine = 0;
+            str = newLine + 1;
         }
 
         if (strlen(str) > 0) {

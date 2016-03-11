@@ -174,15 +174,20 @@ void FimoFactory::ParseFimoOutput(char* fimoOuputName, char *tissueCode, unsigne
     buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
     backupLine = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
 
-    *backupLine = '\0';
+    *backupLine = 0;
     while (!feof(fimoOuputFile)) {
         read = fread(buffer, sizeof (char), bufferSize, fimoOuputFile);
-        buffer[read] = '\0';
+        buffer[read] = 0;
+        if (feof(fimoOuputFile)) {            
+            if (buffer[read - 1] != '\n') {
+                buffer[read] = '\n';
+                buffer[read + 1] = 0;
+            }
+        }   
         str = buffer;
-        while (*str != '\0') {
-            newLine = strchr(str, '\n');
-            if (newLine) *newLine = '\0';
-            if (*backupLine != '\0') {
+        while ((newLine = strchr(str, '\n')) != NULL) {
+            *newLine = 0;
+            if (*backupLine != 0) {
                 if (strlen(backupLine) + strlen(str) + 1 > backupLineSize) {
                     backupLineSize += backupLineSize;
                     backupLine = (char *) reallocate(backupLine, sizeof (char) * (backupLineSize + 1), __FILE__, __LINE__);
@@ -273,9 +278,8 @@ void FimoFactory::ParseFimoOutput(char* fimoOuputName, char *tissueCode, unsigne
                 freeArrayofPointers((void **) fields2, fields2Size);
                 freeArrayofPointers((void **) fields, fieldsSize);
             }
-            *backupLine = '\0';
-            if (newLine) str = newLine + 1;
-            else str += strlen(str);
+            *backupLine = 0;
+            str = newLine + 1;
         }
 
         if (strlen(str) > 0) {

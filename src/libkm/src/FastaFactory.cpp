@@ -101,17 +101,23 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
         readTotal = numLines = seq_length = 0;
         while (!feof(fName)) {
             read = fread(buffer, sizeof (char), bufferSize, fName);
-            buffer[read] = '\0';
+            buffer[read] = 0;
+            if (feof(fName)) {
+                if (buffer[read - 1] != '\n') {
+                    buffer[read] = '\n';
+                    buffer[read + 1] = 0;
+                }
+            }
             str = buffer;
             while (1) {
                 line = strchr(str, '\n');
-                if (line) *line = '\0';
-                if (*str != '\0' && *str != '\n') {
+                if (line) *line = 0;
+                if (*str != 0 && *str != '\n') {
                     str_length = strlen(str);
                     if (*str == '>') {
                         if (seq_end != seq) {
                             seq = (char *) reallocate(seq, sizeof (char) * (seq_length + 1), __FILE__, __LINE__);
-                            *(seq + seq_length) = '\0';
+                            *(seq + seq_length) = 0;
                             fasta->SetSeq(&seq);
                             fasta->SetLength(strlen(seq));
                             if (Global::instance()->isDebug3()) cerr << "\tDEBUG3 ==> Adding seq: " << fasta->GetId().c_str() << " with " << fasta->GetLength() << " bp" << endl;
@@ -150,7 +156,7 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
         if (numberSeqCurrentRead != numberSeqTotalRead && seq && strlen(seq) > 0) {
             numberSeqCurrentRead++;
             seq = (char *) reallocate(seq, sizeof (char) * (seq_length + 1), __FILE__, __LINE__);
-            *(seq + seq_length) = '\0';
+            *(seq + seq_length) = 0;
             fasta->SetSeq(&seq);
             fasta->SetLength(seq_length);
             if (Global::instance()->isDebug3()) cerr << "\tDEBUG3 ==> Adding seq: " << fasta->GetId().c_str() << " with " << fasta->GetLength() << " bp" << endl;
@@ -219,7 +225,7 @@ void FastaFactory::WriteSequencesToFile(char* fileName, bool binary) {
     unsigned long int i, len;
     FILE *outputFile = NULL;
     Fasta *f;
-    char t = '\0';
+    char t = 0;
 
     if (binary) {
         outputFile = (FILE *) checkPointerError(fopen(fileName, "wb"), "Can't open output file", __FILE__, __LINE__, -1);
@@ -242,7 +248,7 @@ void FastaFactory::WriteSequencesToFile(char* fileName, bool binary) {
             for (i = 0; i < f->GetLength(); i += 50) {
                 if (i + 50 < f->GetLength()) {
                     t = f->GetSeq()[i + 50];
-                    f->GetSeq()[i + 50] = '\0';
+                    f->GetSeq()[i + 50] = 0;
                 }
                 fprintf(outputFile, "%s\n", f->GetSeq() + i);
                 if (i + 50 < f->GetLength()) {
