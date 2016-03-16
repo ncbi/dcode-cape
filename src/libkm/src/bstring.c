@@ -76,10 +76,10 @@ char *strdupdel(char *src, char delimiter) {
         while (*(id++) != delimiter);
         val = val_src = (char *) checkPointerError(malloc(sizeof (char) * (strlen(id) + 1)), "Can't allocate memory", __FILE__, __LINE__, -1);
 
-        while (*id != delimiter && *id != '\0' && *id != '\n' && *id != '\r') {
+        while (*id != delimiter && *id != 0 && *id != '\n' && *id != '\r') {
             *(val++) = *(id++);
         }
-        *val = '\0';
+        *val = 0;
         result = strdup(val_src);
         free(val_src);
     }
@@ -97,9 +97,9 @@ int countCharacter(const char *str, const char *chracters) {
     int count = 0;
     const char *s = str;
     const char *c;
-    while (*s != '\0') {
+    while (*s != 0) {
         c = chracters;
-        while (*c != '\0') {
+        while (*c != 0) {
             if (*s == *c) count++;
             c++;
         }
@@ -120,7 +120,7 @@ char *complement(const char *input) {
     const char *i;
     i = input;
     o = output;
-    while (*i != '\0') {
+    while (*i != 0) {
         switch (*i) {
             case 'A': temp = 'T';
                 break;
@@ -148,7 +148,7 @@ char *complement(const char *input) {
         *o++ = temp;
         i++;
     }
-    *o = '\0';
+    *o = 0;
     return output;
 }
 
@@ -179,7 +179,7 @@ char *shuffle(const char *input) {
  */
 void toUpper(char **src) {
     char *s = *src;
-    while (*s != '\0') {
+    while (*s != 0) {
         *s = toupper(*s);
         s++;
     }

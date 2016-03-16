@@ -49,9 +49,12 @@ SNP::~SNP() {
 
 void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned long int featNumber) {
     unsigned long int i, startPos, endPos;
-    double overlapMutated = 0;
+    double overlapMutated = 0.0;
     char t;
     unsigned long int len = static_cast<unsigned long int> (strlen(seq));
+    FILE *overlapingKmersFile;
+    FILE *neighborsKmersFile;
+    FILE *overlapingKmersMutatedFile;
 
     for (i = 0; i < featNumber; i++) {
         descriptors.push_back(0.0000);
@@ -68,15 +71,38 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
         endPos = pos;
     }
 
+    if (Global::instance()->isDebug3()) {
+        overlapingKmersFile = fopen("CAPE_debug_3_overlaping_kmers.txt", "a+");
+        neighborsKmersFile = fopen("CAPE_debug_3_neighbors_kmers.txt", "a+");
+        overlapingKmersMutatedFile = fopen("CAPE_debug_3_overlaping_kmers_mutated.txt", "a+");
+
+        fprintf(stderr, "\tDEBUG3 ==> %s\t%zu\t%s\n", id.c_str(), strlen(seq), seq);
+        fprintf(stderr, "\tDEBUG3 ==> \tPosition: %lu\t base: %c\n", pos, seq[pos]);
+    }
+
     for (i = 0; i <= len - Global::instance()->GetOrder(); i++) {
         t = seq[i + Global::instance()->GetOrder()];
-        seq[i + Global::instance()->GetOrder()] = '\0';
+        seq[i + Global::instance()->GetOrder()] = 0;
+
         if (i >= startPos && i <= endPos) {
+
             descriptors[1] += kmersFactory.GetKmerSig(seq + i);
+            if (Global::instance()->isDebug3()) {
+                fprintf(overlapingKmersFile, "%lu\t%s\t%.15f\t%.15f\n", i, seq + i, kmersFactory.GetKmerSig(seq + i), descriptors[1]);
+            }
+            
             seq[pos] = alt;
             overlapMutated += kmersFactory.GetKmerSig(seq + i);
+
+            if (Global::instance()->isDebug3()) {
+                fprintf(overlapingKmersMutatedFile, "%lu\t%s\t%.15f\t%.15f\n", i, seq + i, kmersFactory.GetKmerSig(seq + i), overlapMutated);
+            }
+
             seq[pos] = ref;
         } else {
+            if (Global::instance()->isDebug3()) {
+                fprintf(neighborsKmersFile, "%lu\t%s\t%.5f\n", i, seq + i, kmersFactory.GetKmerSig(seq + i));
+            }
             descriptors[2] += kmersFactory.GetKmerSig(seq + i);
             if (std::isinf(descriptors[2])) {
                 cout << GetId() << endl;
@@ -88,8 +114,20 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
         }
         seq[i + Global::instance()->GetOrder()] = t;
     }
+    if (Global::instance()->isDebug3()) {
+        fprintf(overlapingKmersFile, "91-100\tsum\t%.15f\n", descriptors[1]);
+        fprintf(overlapingKmersMutatedFile, "91-100\tsum\t%.15f\n", overlapMutated);
+        fprintf(stderr, "\tDEBUG3 ==> Overlap: %.15f\tMut: %.15f\tNeigh: %.15f\tsig: %.15f\n",
+                descriptors[1],
+                overlapMutated,
+                descriptors[2],
+                std::fabs(descriptors[1] - overlapMutated));
 
-    descriptors[0] = descriptors[1] - overlapMutated;
+        fclose(overlapingKmersFile);
+        fclose(neighborsKmersFile);
+        fclose(overlapingKmersMutatedFile);
+    }
+    descriptors[0] = std::fabs(descriptors[1] - overlapMutated);
 }
 
 SNPFactory::SNPFactory() {
@@ -106,7 +144,7 @@ SNPFactory::~SNPFactory() {
 
 void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors, FastaFactory &chrFactory) {
     FILE *snpFile = (FILE *) checkPointerError(fopen(snpFileName, "r"), "Can't open SNP file", __FILE__, __LINE__, -1);
-    
+
     size_t bufferSize, read, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine, *seq;
     char **fields = NULL;
@@ -114,7 +152,7 @@ void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors,
     Fasta *f = NULL;
     SNP *snp;
     int snpPos, startPos, endPos;
-    
+
     backupLineSize = bufferSize = 100000000;
     buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
     backupLine = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
@@ -123,12 +161,12 @@ void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors,
     while (!feof(snpFile)) {
         read = fread(buffer, sizeof (char), bufferSize, snpFile);
         buffer[read] = 0;
-        if (feof(snpFile)) {            
+        if (feof(snpFile)) {
             if (buffer[read - 1] != '\n') {
                 buffer[read] = '\n';
                 buffer[read + 1] = 0;
             }
-        }    
+        }
         str = buffer;
         while ((newLine = strchr(str, '\n')) != NULL) {
             *newLine = 0;
@@ -201,7 +239,7 @@ void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors,
                             printLog(stderr, "SNP is not in the chromosome position provided", __FILE__, __LINE__, -1);
                         }
                         delete snp;
-                    } else {                        
+                    } else {
                         snps.push_back(move(snp));
                     }
                 }
@@ -219,7 +257,7 @@ void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors,
             strcat(backupLine, str);
         }
     }
-    
+
     free(buffer);
     free(backupLine);
     fclose(snpFile);
@@ -237,7 +275,7 @@ void SNPFactory::WriteEnhansersFastaFile(char* fastaFile, bool binary) {
         f = new Fasta();
         id = snp->GetId();
         f->SetId(id);
-        seq = strdup(snp->GetSeq());        
+        seq = strdup(snp->GetSeq());
         f->SetLength(strlen(seq));
         f->SetSeq(&seq);
         fastaFactory.GetFastaMap().insert(pair<string, Fasta*>(id, move(f)));
@@ -245,7 +283,6 @@ void SNPFactory::WriteEnhansersFastaFile(char* fastaFile, bool binary) {
 
     fastaFactory.WriteSequencesToFile(fastaFile, binary);
 }
-
 
 int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbors, FastaFactory &chrFactory, KmersFactory& kmersFactory, SVMPredict& svmPredict, FimoFactory & fimoFactory) {
     FILE *snpFile = (FILE *) checkPointerError(fopen(snpFileName, "r"), "Can't open bed file", __FILE__, __LINE__, -1);
@@ -258,9 +295,16 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
     Fasta *f = NULL;
     SNP *snp;
     int snpPos, startPos, endPos;
+    FILE *featuresFile;
+    FILE *zscoreFile;
 
     unsigned long int featNumber = 3;
     double target_label = 0.0;
+
+    if (Global::instance()->isDebug3()) {
+        featuresFile = fopen("CAPE_debug_3_features.txt", "w");
+        zscoreFile = fopen("CAPE_debug_3_zscores.txt", "w");
+    }
 
     if (!fimoFactory.GetSnpIDMap().empty()) {
         featNumber = 5;
@@ -284,12 +328,12 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
     while (!feof(snpFile)) {
         read = fread(buffer, sizeof (char), bufferSize, snpFile);
         buffer[read] = 0;
-        if (feof(snpFile)) {            
+        if (feof(snpFile)) {
             if (buffer[read - 1] != '\n') {
                 buffer[read] = '\n';
                 buffer[read + 1] = 0;
             }
-        } 
+        }
         str = buffer;
         while ((newLine = strchr(str, '\n')) != NULL) {
             *newLine = 0;
@@ -313,9 +357,6 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
                     f = chrFactory.GetFastaFromID(fields[0]);
                 }
                 if (f) {
-                    if (Global::instance()->isDebug3()) {
-                        cout << completeLine << endl;
-                    }
                     snp = new SNP();
                     snp->SetId(fields[2]);
                     snp->SetChr(fields[0]);
@@ -344,14 +385,6 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
                     seq = f->GetSubStr(startPos, endPos - startPos + 1);
                     toUpper(&seq);
                     snp->SetSeq(&seq);
-
-                    if (Global::instance()->isDebug3()) {
-                        cout << snp->GetRef() << " " << snp->GetSeq()[snp->GetPos()]
-                                << " " << snp->GetPos()
-                                << " " << snp->GetLength()
-                                << " " << snp->GetSeq()
-                                << endl;
-                    }
 
                     if (snp->GetSeq()[snp->GetPos()] != snp->GetRef()) {
                         fprintf(stderr, "\nERROR1:\n\n%c != %c\n\n", snp->GetSeq()[snp->GetPos()], fields[3][0]);
@@ -425,14 +458,31 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
      */
     for (auto it = snps.begin(); it != snps.end(); ++it) {
         SNP *s = *it;
+
+        if (Global::instance()->isDebug3()) {
+            fprintf(featuresFile, "%s\t", s->GetId().c_str());
+            fprintf(zscoreFile, "%s\t", s->GetId().c_str());
+        }
         for (i = 0; i < featNumber; i++) {
             x[i].index = i + 1;
             x[i].value = (s->GetDescriptors()[i] - mean[i]) / sd[i];
+            if (Global::instance()->isDebug3()) {
+                fprintf(featuresFile, "%.4f\t", s->GetDescriptors()[i]);
+                fprintf(zscoreFile, "%.4f\t", x[i].value);
+            }
+        }
+        if (Global::instance()->isDebug3()) {
+            fprintf(featuresFile, "\n");
+            fprintf(zscoreFile, "\n");
         }
         svmPredict.SVMPredictCalulation(x, target_label);
         s->SetProbPos(svmPredict.GetProb_estimates()[0]);
     }
 
+    if (Global::instance()->isDebug3()) {
+        fclose(featuresFile);
+        fclose(zscoreFile);
+    }
     free(x);
     free(mean);
     free(sd);
