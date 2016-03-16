@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
     clock_t begin = clock();
     clock_t start = clock();
     int next_option, count;
-    const char* const short_options = "vhci:";
+    const char* const short_options = "vhci:d";
     FILE *chrsBinName = NULL;
     char *inFileName = NULL;
     FILE *inFile = NULL;
@@ -135,6 +135,10 @@ int main(int argc, char** argv) {
 
             case 'i':
                 inFileName = strdup(optarg);
+                break;
+                
+            case 'd':
+                Global::instance()->SetVerbose(3);
                 break;
         }
     } while (next_option != -1);
