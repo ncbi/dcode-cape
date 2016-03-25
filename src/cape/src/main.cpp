@@ -262,7 +262,7 @@ int main(int argc, char** argv) {
             cerr << "\nabbrev-mtf-mapped option  is required in config file if FIMO ouput is provided." << endl;
             print_usage(stderr, -1);
         }
-    } else {
+    } else if (tFBSIdxDirName || tibInfoFileName){
         if (!expressionCode) {
             cerr << "\nexpression_code option  is required in config file if FIMO indexes are provided." << endl;
             print_usage(stderr, -1);
