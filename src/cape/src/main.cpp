@@ -168,57 +168,54 @@ int main(int argc, char** argv) {
         if (*line != '#') {
             if (*(line + strlen(line) - 1) == '\n') *(line + strlen(line) - 1) = '\0';
             fieldsSize = splitString(&fields, line, "\t");
-            if (fieldsSize < 2) {
-                printLog(stderr, "Input config file with a wrong format", __FILE__, __LINE__, 0);
-                print_usage(stderr, -1);
-                exit(-1);
-            }
-            if (strcmp(fields[0], "in") == 0) {
-                inFileName = strdup(fields[1]);
-            }
-            if (strcmp(fields[0], "out") == 0) {
-                outputFile = (FILE *) checkPointerError(fopen(fields[1], "w"), "\nCan't open output file. See -i option\n", __FILE__, __LINE__, -1);
-            }
-            if (strcmp(fields[0], "order") == 0) {
-                Global::instance()->SetOrder(static_cast<unsigned long int> (atoi(fields[1])));
-            }
-            if (strcmp(fields[0], "chrs") == 0) {
-                chrsBinName = (FILE *) checkPointerError(fopen(fields[1], "rb"), "\nCan't open chromosome binary file. See -i option\n", __FILE__, __LINE__, -1);
-            }
-            if (strcmp(fields[0], "weight") == 0) {
-                weightFileName = strdup(fields[1]);
-            }
-            if (strcmp(fields[0], "neighbors") == 0) {
-                neighbors = static_cast<unsigned long int> (atoi(fields[1]));
-            }
-            if (strcmp(fields[0], "model") == 0) {
-                svmModelName = strdup(fields[1]);
-            }
-            if (strcmp(fields[0], "probability") == 0) {
-                svmPredict.SetPredict_probability(atoi(fields[1]));
-            }
-            if (strcmp(fields[0], "fimo") == 0) {
-                if (strncmp(fields[1], "0", strlen(fields[1])) != 0) {
-                    fimoFileName = strdup(fields[1]);
+            if (fieldsSize > 2) {
+                if (strcmp(fields[0], "in") == 0) {
+                    inFileName = strdup(fields[1]);
                 }
-            }
-            if (strcmp(fields[0], "pwm_EnsembleID") == 0) {
-                pwmEnsembleIDFileName = strdup(fields[1]);
-            }
-            if (strcmp(fields[0], "expression") == 0) {
-                expressionFileName = strdup(fields[1]);
-            }
-            if (strcmp(fields[0], "expression_code") == 0) {
-                expressionCode = strdup(fields[1]);
-            }
-            if (strcmp(fields[0], "abbrev-mtf-mapped") == 0) {
-                abbrevmtfmappedFileName = strdup(fields[1]);
-            }
-            if (strcmp(fields[0], "TibInfoFileName") == 0) {
-                tibInfoFileName = strdup(fields[1]);
-            }
-            if (strcmp(fields[0], "TFBSIdxDirName") == 0) {
-                tFBSIdxDirName = strdup(fields[1]);
+                if (strcmp(fields[0], "out") == 0) {
+                    outputFile = (FILE *) checkPointerError(fopen(fields[1], "w"), "\nCan't open output file. See -i option\n", __FILE__, __LINE__, -1);
+                }
+                if (strcmp(fields[0], "order") == 0) {
+                    Global::instance()->SetOrder(static_cast<unsigned long int> (atoi(fields[1])));
+                }
+                if (strcmp(fields[0], "chrs") == 0) {
+                    chrsBinName = (FILE *) checkPointerError(fopen(fields[1], "rb"), "\nCan't open chromosome binary file. See -i option\n", __FILE__, __LINE__, -1);
+                }
+                if (strcmp(fields[0], "weight") == 0) {
+                    weightFileName = strdup(fields[1]);
+                }
+                if (strcmp(fields[0], "neighbors") == 0) {
+                    neighbors = static_cast<unsigned long int> (atoi(fields[1]));
+                }
+                if (strcmp(fields[0], "model") == 0) {
+                    svmModelName = strdup(fields[1]);
+                }
+                if (strcmp(fields[0], "probability") == 0) {
+                    svmPredict.SetPredict_probability(atoi(fields[1]));
+                }
+                if (strcmp(fields[0], "fimo") == 0) {
+                    if (strncmp(fields[1], "0", strlen(fields[1])) != 0) {
+                        fimoFileName = strdup(fields[1]);
+                    }
+                }
+                if (strcmp(fields[0], "pwm_EnsembleID") == 0) {
+                    pwmEnsembleIDFileName = strdup(fields[1]);
+                }
+                if (strcmp(fields[0], "expression") == 0) {
+                    expressionFileName = strdup(fields[1]);
+                }
+                if (strcmp(fields[0], "expression_code") == 0) {
+                    expressionCode = strdup(fields[1]);
+                }
+                if (strcmp(fields[0], "abbrev-mtf-mapped") == 0) {
+                    abbrevmtfmappedFileName = strdup(fields[1]);
+                }
+                if (strcmp(fields[0], "TibInfoFileName") == 0) {
+                    tibInfoFileName = strdup(fields[1]);
+                }
+                if (strcmp(fields[0], "TFBSIdxDirName") == 0) {
+                    tFBSIdxDirName = strdup(fields[1]);
+                }
             }
             freeArrayofPointers((void **) fields, fieldsSize);
         }
@@ -262,7 +259,7 @@ int main(int argc, char** argv) {
             cerr << "\nabbrev-mtf-mapped option  is required in config file if FIMO ouput is provided." << endl;
             print_usage(stderr, -1);
         }
-    } else if (tFBSIdxDirName || tibInfoFileName){
+    } else if (tFBSIdxDirName || tibInfoFileName) {
         if (!expressionCode) {
             cerr << "\nexpression_code option  is required in config file if FIMO indexes are provided." << endl;
             print_usage(stderr, -1);
@@ -338,7 +335,7 @@ int main(int argc, char** argv) {
     if (expressionFileName) free(expressionFileName);
     if (expressionCode) free(expressionCode);
     if (abbrevmtfmappedFileName) free(abbrevmtfmappedFileName);
-    
+
     if (tibInfoFileName) free(tibInfoFileName);
     if (tFBSIdxDirName) free(tFBSIdxDirName);
 
