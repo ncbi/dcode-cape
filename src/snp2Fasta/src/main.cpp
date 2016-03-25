@@ -31,6 +31,7 @@
 #include "KmersFactory.h"
 #include "FimoFactory.h"
 #include "BedFactory.h"
+#include "TFBSFactory.h"
 #include "SNPFactory.h"
 #include "SVMPredict.h"
 
