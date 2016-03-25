@@ -5,12 +5,14 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>includes/BedFactory.h</itemPath>
+      <itemPath>includes/Exceptions.h</itemPath>
       <itemPath>includes/FastaFactory.h</itemPath>
       <itemPath>includes/FimoFactory.h</itemPath>
       <itemPath>includes/Global.h</itemPath>
       <itemPath>includes/KmersFactory.h</itemPath>
       <itemPath>includes/SNPFactory.h</itemPath>
       <itemPath>includes/SVMPredict.h</itemPath>
+      <itemPath>includes/TFBSFactory.h</itemPath>
       <itemPath>includes/TimeUtils.h</itemPath>
       <itemPath>includes/berror.h</itemPath>
       <itemPath>includes/bmath.h</itemPath>
@@ -37,6 +39,7 @@
       <itemPath>src/KmersFactory.cpp</itemPath>
       <itemPath>src/SNPFactory.cpp</itemPath>
       <itemPath>src/SVMPredict.cpp</itemPath>
+      <itemPath>src/TFBSFactory.cpp</itemPath>
       <itemPath>src/berror.c</itemPath>
       <itemPath>src/bmemory.c</itemPath>
       <itemPath>src/bstring.c</itemPath>
@@ -85,6 +88,12 @@
                      projectFiles="true"
                      kind="TEST">
         <itemPath>tests/PhyperTest.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f7"
+                     displayName="TFBSFactoryTest"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/TFBSFactoryTest.cpp</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -238,7 +247,24 @@
           <output>${TESTDIR}/TestFiles/fimoFactoryTest</output>
         </linkerTool>
       </folder>
+      <folder path="TestFiles/f7">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/tFBSFactoryTest</output>
+        </linkerTool>
+      </folder>
       <item path="includes/BedFactory.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/Exceptions.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="includes/FastaFactory.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -251,6 +277,8 @@
       <item path="includes/SNPFactory.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="includes/SVMPredict.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/TFBSFactory.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="includes/TimeUtils.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -291,6 +319,8 @@
       </item>
       <item path="src/SVMPredict.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <item path="src/TFBSFactory.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="src/berror.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/bmemory.c" ex="false" tool="0" flavor2="0">
@@ -324,6 +354,8 @@
       <item path="tests/PeakTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="tests/PhyperTest.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="tests/TFBSFactoryTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
   </confs>

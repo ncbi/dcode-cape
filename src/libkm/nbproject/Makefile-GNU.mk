@@ -41,6 +41,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/src/KmersFactory.o \
 	${OBJECTDIR}/src/SNPFactory.o \
 	${OBJECTDIR}/src/SVMPredict.o \
+	${OBJECTDIR}/src/TFBSFactory.o \
 	${OBJECTDIR}/src/berror.o \
 	${OBJECTDIR}/src/bmemory.o \
 	${OBJECTDIR}/src/bstring.o \
@@ -63,7 +64,8 @@ TESTFILES= \
 	${TESTDIR}/TestFiles/fimoFactoryTest \
 	${TESTDIR}/TestFiles/kmerFactoryTest \
 	${TESTDIR}/TestFiles/peakTest \
-	${TESTDIR}/TestFiles/phyperTest
+	${TESTDIR}/TestFiles/phyperTest \
+	${TESTDIR}/TestFiles/tFBSFactoryTest
 
 # Test Object Files
 TESTOBJECTFILES= \
@@ -72,7 +74,8 @@ TESTOBJECTFILES= \
 	${TESTDIR}/tests/FimoFactoryTest.o \
 	${TESTDIR}/tests/KmerFactoryTest.o \
 	${TESTDIR}/tests/PeakTest.o \
-	${TESTDIR}/tests/PhyperTest.o
+	${TESTDIR}/tests/PhyperTest.o \
+	${TESTDIR}/tests/TFBSFactoryTest.o
 
 # C Compiler Flags
 CFLAGS=-g -Wall
@@ -129,6 +132,11 @@ ${OBJECTDIR}/src/SVMPredict.o: src/SVMPredict.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SVMPredict.o src/SVMPredict.cpp
+
+${OBJECTDIR}/src/TFBSFactory.o: src/TFBSFactory.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/TFBSFactory.o src/TFBSFactory.cpp
 
 ${OBJECTDIR}/src/berror.o: src/berror.c 
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -216,6 +224,10 @@ ${TESTDIR}/TestFiles/phyperTest: ${TESTDIR}/tests/PhyperTest.o ${OBJECTFILES:%.o
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.cc}   -o ${TESTDIR}/TestFiles/phyperTest $^ ${LDLIBSOPTIONS} 
 
+${TESTDIR}/TestFiles/tFBSFactoryTest: ${TESTDIR}/tests/TFBSFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
+	${MKDIR} -p ${TESTDIR}/TestFiles
+	${LINK.cc}   -o ${TESTDIR}/TestFiles/tFBSFactoryTest $^ ${LDLIBSOPTIONS} 
+
 
 ${TESTDIR}/tests/BedFactoryTest.o: tests/BedFactoryTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
@@ -251,6 +263,12 @@ ${TESTDIR}/tests/PhyperTest.o: tests/PhyperTest.c
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -Iincludes -Iincludes -I. -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PhyperTest.o tests/PhyperTest.c
+
+
+${TESTDIR}/tests/TFBSFactoryTest.o: tests/TFBSFactoryTest.cpp 
+	${MKDIR} -p ${TESTDIR}/tests
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/TFBSFactoryTest.o tests/TFBSFactoryTest.cpp
 
 
 ${OBJECTDIR}/src/BedFactory_nomain.o: ${OBJECTDIR}/src/BedFactory.o src/BedFactory.cpp 
@@ -329,6 +347,19 @@ ${OBJECTDIR}/src/SVMPredict_nomain.o: ${OBJECTDIR}/src/SVMPredict.o src/SVMPredi
 	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SVMPredict_nomain.o src/SVMPredict.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/SVMPredict.o ${OBJECTDIR}/src/SVMPredict_nomain.o;\
+	fi
+
+${OBJECTDIR}/src/TFBSFactory_nomain.o: ${OBJECTDIR}/src/TFBSFactory.o src/TFBSFactory.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/src/TFBSFactory.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/TFBSFactory_nomain.o src/TFBSFactory.cpp;\
+	else  \
+	    ${CP} ${OBJECTDIR}/src/TFBSFactory.o ${OBJECTDIR}/src/TFBSFactory_nomain.o;\
 	fi
 
 ${OBJECTDIR}/src/berror_nomain.o: ${OBJECTDIR}/src/berror.o src/berror.c 
@@ -484,6 +515,7 @@ ${OBJECTDIR}/src/svm_nomain.o: ${OBJECTDIR}/src/svm.o src/svm.cpp
 	    ${TESTDIR}/TestFiles/kmerFactoryTest || true; \
 	    ${TESTDIR}/TestFiles/peakTest || true; \
 	    ${TESTDIR}/TestFiles/phyperTest || true; \
+	    ${TESTDIR}/TestFiles/tFBSFactoryTest || true; \
 	else  \
 	    ./${TEST} || true; \
 	fi

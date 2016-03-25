@@ -236,9 +236,6 @@ void FimoFactory::ParseFimoOutput(char* fimoOuputName, char *tissueCode, unsigne
                                     v.push_back(10E-10);
                                     v.push_back(motifExpression.second);
                                     ensemblMapIt->second.insert(motifExpression.first);
-                                    if (f->GetId().compare("rs10000101-A-C") == 0) {
-                                        cout << "First " << *f << endl;
-                                    }
                                 }
                                 snpIDMap.insert(pair<string, vector<double>>(fields[1], v));
 
@@ -262,9 +259,6 @@ void FimoFactory::ParseFimoOutput(char* fimoOuputName, char *tissueCode, unsigne
                                         if (ensemblMapIt->second.find(motifExpression.first) == ensemblMapIt->second.end()) {
                                             ensemblMapIt->second.insert(motifExpression.first);
                                             snpMapIt->second[1] += motifExpression.second;
-                                            if (f->GetId().compare("rs10000101-A-C") == 0) {
-                                                cout << "Second " << *f << endl;
-                                            }
                                         }
                                     }
                                     f = NULL;

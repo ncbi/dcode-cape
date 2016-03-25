@@ -128,11 +128,20 @@ namespace snp {
         std::vector<SNP*>& GetSnps() {
             return snps;
         }
+        
+        std::string GetExpressionCode() const {
+            return expressionCode;
+        }
+
+        void SetExpressionCode(std::string expressionCode) {
+            this->expressionCode = expressionCode;
+        }
 
         void ReadSNPFromFile(char* snpFileName, unsigned long int neighbors, fasta::FastaFactory &chrFactory);
         void WriteEnhansersFastaFile(char* fastaFile, bool binary);
-        int ProcessSNPFromFile(char* snpFileName, unsigned long int neighbors, fasta::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict, fimo::FimoFactory & fimoFactory);
+        int ProcessSNPFromFile(char* snpFileName, unsigned long int neighbors, fasta::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict, fimo::FimoFactory & fimoFactory, tfbs::TFBSFactory & tFBSFactory);
     private:
+        std::string expressionCode;
         std::vector<SNP *> snps;
 
     };

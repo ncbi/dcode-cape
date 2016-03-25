@@ -29,6 +29,7 @@
 #include "KmersFactory.h"
 #include "FastaFactory.h"
 #include "FimoFactory.h"
+#include "TFBSFactory.h"
 #include "SNPFactory.h"
 #include "SVMPredict.h"
 
@@ -38,6 +39,7 @@ using namespace kmers;
 using namespace snp;
 using namespace svm;
 using namespace fimo;
+using namespace tfbs;
 
 SNP::SNP() {
 
@@ -75,9 +77,6 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
         overlapingKmersFile = fopen("CAPE_debug_3_overlaping_kmers.txt", "a+");
         neighborsKmersFile = fopen("CAPE_debug_3_neighbors_kmers.txt", "a+");
         overlapingKmersMutatedFile = fopen("CAPE_debug_3_overlaping_kmers_mutated.txt", "a+");
-
-        fprintf(stderr, "\tDEBUG3 ==> %s\t%zu\t%s\n", id.c_str(), strlen(seq), seq);
-        fprintf(stderr, "\tDEBUG3 ==> \tPosition: %lu\t base: %c\n", pos, seq[pos]);
     }
 
     for (i = 0; i <= len - Global::instance()->GetOrder(); i++) {
@@ -90,7 +89,7 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
             if (Global::instance()->isDebug3()) {
                 fprintf(overlapingKmersFile, "%lu\t%s\t%.15f\t%.15f\n", i, seq + i, kmersFactory.GetKmerSig(seq + i), descriptors[1]);
             }
-            
+
             seq[pos] = alt;
             overlapMutated += kmersFactory.GetKmerSig(seq + i);
 
@@ -117,12 +116,6 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
     if (Global::instance()->isDebug3()) {
         fprintf(overlapingKmersFile, "91-100\tsum\t%.15f\n", descriptors[1]);
         fprintf(overlapingKmersMutatedFile, "91-100\tsum\t%.15f\n", overlapMutated);
-        fprintf(stderr, "\tDEBUG3 ==> Overlap: %.15f\tMut: %.15f\tNeigh: %.15f\tsig: %.15f\n",
-                descriptors[1],
-                overlapMutated,
-                descriptors[2],
-                std::fabs(descriptors[1] - overlapMutated));
-
         fclose(overlapingKmersFile);
         fclose(neighborsKmersFile);
         fclose(overlapingKmersMutatedFile);
@@ -284,9 +277,10 @@ void SNPFactory::WriteEnhansersFastaFile(char* fastaFile, bool binary) {
     fastaFactory.WriteSequencesToFile(fastaFile, binary);
 }
 
-int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbors, FastaFactory &chrFactory, KmersFactory& kmersFactory, SVMPredict& svmPredict, FimoFactory & fimoFactory) {
+int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbors, FastaFactory &chrFactory, KmersFactory& kmersFactory, SVMPredict& svmPredict, FimoFactory & fimoFactory, TFBSFactory & tFBSFactory) {
     FILE *snpFile = (FILE *) checkPointerError(fopen(snpFileName, "r"), "Can't open bed file", __FILE__, __LINE__, -1);
 
+    double overlapValue, neighborSum;
     unsigned long int i, count = 0;
     size_t bufferSize, read, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine, *seq;
@@ -298,6 +292,8 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
     FILE *featuresFile;
     FILE *zscoreFile;
 
+    std::pair<std::string, double> cPair;
+
     unsigned long int featNumber = 3;
     double target_label = 0.0;
 
@@ -306,7 +302,7 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
         zscoreFile = fopen("CAPE_debug_3_zscores.txt", "w");
     }
 
-    if (!fimoFactory.GetSnpIDMap().empty()) {
+    if (!fimoFactory.GetSnpIDMap().empty() || tFBSFactory.isReady()) {
         featNumber = 5;
     }
 
@@ -324,6 +320,7 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
     buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
     backupLine = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
 
+    cout.precision(4);
     *backupLine = 0;
     while (!feof(snpFile)) {
         read = fread(buffer, sizeof (char), bufferSize, snpFile);
@@ -404,12 +401,35 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
                         for (i = 0; i < 3; i++) {
                             mean[i] += snp->GetDescriptors()[i];
                         }
+
                         if (featNumber == 5) {
-                            auto fimoMapIt = fimoFactory.GetSnpIDMap().find(snp->GetId());
-                            if (fimoMapIt != fimoFactory.GetSnpIDMap().end()) {
-                                mean[3] += fimoMapIt->second[0];
-                                mean[4] += fimoMapIt->second[1];
+                            if (!fimoFactory.GetSnpIDMap().empty()) {
+                                auto fimoMapIt = fimoFactory.GetSnpIDMap().find(snp->GetId());
+                                if (fimoMapIt != fimoFactory.GetSnpIDMap().end()) {
+                                    snp->GetDescriptors()[3] = fimoMapIt->second[0];
+                                    snp->GetDescriptors()[4] = fimoMapIt->second[1];
+                                }
+                            } else {
+                                overlapValue = neighborSum = 0;
+                                tFBSFactory.ExtractTFBSFromFile(startPos, endPos, f);
+                                for (auto it = tFBSFactory.GetTfbs().begin(); it != tFBSFactory.GetTfbs().end(); ++it) {
+                                    TFBS *t = *it;
+                                    cPair = fimoFactory.GetTissueValue(tFBSFactory.GetPwmIndex()[t->GetIndex() - 1]->GetName(), expressionCode);
+                                    if (fabs(cPair.second) >= 1.0) {
+                                        if (t->GetStart() <= snpPos && t->GetEnd() >= snpPos) {
+                                            if (overlapValue < cPair.second) {
+                                                overlapValue = cPair.second;
+                                            }
+                                        } else {
+                                            neighborSum += cPair.second;
+                                        }
+                                    }
+                                }
+                                snp->GetDescriptors()[3] = overlapValue;
+                                snp->GetDescriptors()[4] = neighborSum;
                             }
+                            mean[3] += snp->GetDescriptors()[3];
+                            mean[4] += snp->GetDescriptors()[4];
                         }
                         snps.push_back(move(snp));
                     }
@@ -489,6 +509,9 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
     free(buffer);
     free(backupLine);
     fclose(snpFile);
+
+    cout.precision(2);
+
     return count;
 }
 

@@ -32,13 +32,14 @@ SVMPredict::SVMPredict() {
     this->sumpp = 0;
     this->sumtt = 0;
     this->sumpt = 0;
+    this->model = NULL;
 }
 
 SVMPredict::SVMPredict(const SVMPredict& orig) {
 }
 
 SVMPredict::~SVMPredict() {
-    svm_free_and_destroy_model(&this->model);
+    if (this->model) svm_free_and_destroy_model(&this->model);
 }
 
 void SVMPredict::SVMLoadModel(char* fileName) {
