@@ -262,7 +262,7 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
     }
 
     rFrom = from - longestPWM - 1;
-    rTo = to + 100;
+    rTo = to + longestPWM;
     if (rFrom < 1) {
         rFrom = 1;
     }
