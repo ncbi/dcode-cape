@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
         if (*line != '#') {
             if (*(line + strlen(line) - 1) == '\n') *(line + strlen(line) - 1) = '\0';
             fieldsSize = splitString(&fields, line, "\t");
-            if (fieldsSize > 2) {
+            if (fieldsSize >= 2) {
                 if (strcmp(fields[0], "in") == 0) {
                     inFileName = strdup(fields[1]);
                 }
