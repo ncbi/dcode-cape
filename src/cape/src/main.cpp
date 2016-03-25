@@ -36,6 +36,7 @@
 #include "KmersFactory.h"
 #include "FimoFactory.h"
 #include "BedFactory.h"
+#include "TFBSFactory.h"
 #include "SNPFactory.h"
 #include "SVMPredict.h"
 
@@ -46,6 +47,7 @@ using namespace kmers;
 using namespace snp;
 using namespace svm;
 using namespace fimo;
+using namespace tfbs;
 
 char *program_name;
 
@@ -72,8 +74,14 @@ void print_usage(FILE *stream, int exit_code) {
     fprintf(stream, "expression_code\tE116\t\t\t\t# Tissue code used to extract expression data from the expression file.\n\t\t\t\t\t\t  Extract this code from the tissue ID mapping file EG.name.txt\n");
     fprintf(stream, "abbrev-mtf-mapped\tabbrev-mtf-mapped-to-whole-label.all.info.renamed\t\t\t\t# TF name cutoff P-Value mapped by our group\n\n");
     fprintf(stream, "********************************************************************************\n");
+    fprintf(stream, "For internal use at NCBI:\n\n");
+    fprintf(stream, "\tThese parameters can be include into the input conf file to use FIMO\n\toutput through NCBI internal index files\n");
+    fprintf(stream, "\tPlease, note that \"fimo\" option should be set to \"0\" or simple\n\tdelete it from the input file\n\n");
+    fprintf(stream, "TibInfoFileName\ttib/hg19/tib.info\n");
+    fprintf(stream, "TFBSIdxDirName\tcommon/tib/hg19/5\t\t\t# The program reads files with name chrN.idx and chrN.tib\n\n");
+    fprintf(stream, "********************************************************************************\n");
     fprintf(stream, "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n");
-    fprintf(stream, "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");    
+    fprintf(stream, "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");
     fprintf(stream, "********************************************************************************\n");
     exit(0);
 }
@@ -97,6 +105,8 @@ int main(int argc, char** argv) {
     char *expressionFileName = NULL;
     char *expressionCode = NULL;
     char *abbrevmtfmappedFileName = NULL;
+    char *tibInfoFileName = NULL;
+    char *tFBSIdxDirName = NULL;
     int abbrevmtfmappedColumn = 5;
     FILE *outputFile = NULL;
     unsigned long int neighbors = 100;
@@ -105,6 +115,7 @@ int main(int argc, char** argv) {
     KmersFactory kmersFactory;
     FimoFactory fimoFactory;
     SVMPredict svmPredict;
+    TFBSFactory tFBSFactory;
     char *line = NULL;
     size_t len = 0;
     char **fields = NULL;
@@ -136,7 +147,7 @@ int main(int argc, char** argv) {
             case 'i':
                 inFileName = strdup(optarg);
                 break;
-                
+
             case 'd':
                 Global::instance()->SetVerbose(3);
                 break;
@@ -203,6 +214,12 @@ int main(int argc, char** argv) {
             if (strcmp(fields[0], "abbrev-mtf-mapped") == 0) {
                 abbrevmtfmappedFileName = strdup(fields[1]);
             }
+            if (strcmp(fields[0], "TibInfoFileName") == 0) {
+                tibInfoFileName = strdup(fields[1]);
+            }
+            if (strcmp(fields[0], "TFBSIdxDirName") == 0) {
+                tFBSIdxDirName = strdup(fields[1]);
+            }
             freeArrayofPointers((void **) fields, fieldsSize);
         }
     }
@@ -228,7 +245,7 @@ int main(int argc, char** argv) {
         print_usage(stderr, -1);
     }
 
-    if (fimoFileName != NULL) {
+    if (fimoFileName) {
         if (!pwmEnsembleIDFileName) {
             cerr << "\npwm_EnsembleID option is required in config file if FIMO ouput is provided." << endl;
             print_usage(stderr, -1);
@@ -245,6 +262,24 @@ int main(int argc, char** argv) {
             cerr << "\nabbrev-mtf-mapped option  is required in config file if FIMO ouput is provided." << endl;
             print_usage(stderr, -1);
         }
+    } else {
+        if (!expressionCode) {
+            cerr << "\nexpression_code option  is required in config file if FIMO indexes are provided." << endl;
+            print_usage(stderr, -1);
+        }
+        if (!tFBSIdxDirName) {
+            cerr << "\tTFBSIdxDirName option  is required in config file if FIMO indexes are provided." << endl;
+            print_usage(stderr, -1);
+        }
+        if (!tibInfoFileName) {
+            cerr << "\tTibInfoFileName option  is required in config file if FIMO indexes are provided." << endl;
+            print_usage(stderr, -1);
+        }
+
+        snpFactory.SetExpressionCode(expressionCode);
+
+        tFBSFactory.CreateTFBSFileIndexMap(tFBSIdxDirName, "chr", ".idx", ".tib");
+        tFBSFactory.CreatePWMIndexFromTibInfoFile(tibInfoFileName);
     }
 
     TimeUtils::instance()->SetStartTime();
@@ -257,10 +292,13 @@ int main(int argc, char** argv) {
     chrFactory.ParseFastaFile(chrsBinName, -1, true, true);
     cout << chrFactory.GetFastaMap().size() << " chromosomes loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
+    if (pwmEnsembleIDFileName && expressionFileName) {
+        fimoFactory.CreateTissueIndexFromFiles(pwmEnsembleIDFileName, expressionFileName);
+    }
+
     if (fimoFileName) {
         begin = clock();
         cout << "Parsing FIMO output file" << endl;
-        fimoFactory.CreateTissueIndexFromFiles(pwmEnsembleIDFileName, expressionFileName);
         fimoFactory.CreateCutoffIndexFromFile(abbrevmtfmappedFileName, abbrevmtfmappedColumn - 1);
         fimoFactory.ParseFimoOutput(fimoFileName, expressionCode, neighbors);
         cout << fimoFactory.GetSnpIDMap().size() << " SNP with FIMO expression loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
@@ -278,7 +316,7 @@ int main(int argc, char** argv) {
 
     begin = clock();
     cout << "Reading input SNP coordinates from files" << endl;
-    count = snpFactory.ProcessSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory);
+    count = snpFactory.ProcessSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory, tFBSFactory);
     cout << count << " SNP processed in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
 
     fprintf(outputFile, "#chrom\tpos\trsID\trefAle\taltAle\tscore\n");
@@ -300,6 +338,10 @@ int main(int argc, char** argv) {
     if (expressionFileName) free(expressionFileName);
     if (expressionCode) free(expressionCode);
     if (abbrevmtfmappedFileName) free(abbrevmtfmappedFileName);
+    
+    if (tibInfoFileName) free(tibInfoFileName);
+    if (tFBSIdxDirName) free(tFBSIdxDirName);
+
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->GetTimeSecFrom(start) << " seconds" << endl;
     return 0;
