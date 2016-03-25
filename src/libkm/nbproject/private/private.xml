@@ -9,7 +9,7 @@
             <url>src/SNPFactory.cpp</url>
             <bookmark id="1">
                 <name/>
-                <line>392</line>
+                <line>387</line>
                 <key/>
             </bookmark>
         </file>
@@ -18,11 +18,10 @@
         <group name="KillerMutations">
             <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/TFBSFactory.cpp</file>
             <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/FimoFactory.h</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/SNPFactory.h</file>
             <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/FimoFactory.cpp</file>
             <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/TFBSFactory.h</file>
             <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/SNPFactory.cpp</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/tests/TFBSFactoryTest.cpp</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/FastaFactory.cpp</file>
         </group>
     </open-files>
 </project-private>
