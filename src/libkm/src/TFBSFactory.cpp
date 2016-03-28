@@ -87,9 +87,9 @@ void TFBSFactory::CreateTFBSFileIndexMap(char* dirName, const char *prefix, cons
     DIR *dirp = (DIR *) checkPointerError(opendir(dirName), "Can't open input directory", __FILE__, __LINE__, -1);
 
     while ((dp = readdir(dirp)) != NULL) {
-        if (Global::instance()->isDebug3()) {
-            cout << "\tDEBUG3 ==> Found file: " << dp->d_name << endl;
-        }
+//        if (Global::instance()->isDebug3()) {
+//            cout << "\tDEBUG3 ==> Found file: " << dp->d_name << endl;
+//        }
         if (dp->d_name[0] != '.') {
             if (!prefix && !idxExtension) {
                 read = true;
@@ -109,22 +109,22 @@ void TFBSFactory::CreateTFBSFileIndexMap(char* dirName, const char *prefix, cons
                 fileName = (char *) reallocate(fileName, sizeof (char) * len, __FILE__, __LINE__);
             }
             sprintf(fileName, "%s/%s", dirName, dp->d_name);
-            if (Global::instance()->isDebug3()) {
-                cout << "\tDEBUG3 ==> Opening file: " << fileName << endl;
-            }
+//            if (Global::instance()->isDebug3()) {
+//                cout << "\tDEBUG3 ==> Opening file: " << fileName << endl;
+//            }
             cPair.first = (FILE *) checkPointerError(fopen(fileName, "rb"), "Can't open input file", __FILE__, __LINE__, -1);
             index = strstr(dp->d_name, idxExtension);
             strncpy(index, tibExtension, strlen(tibExtension));
             sprintf(fileName, "%s/%s", dirName, dp->d_name);
-            if (Global::instance()->isDebug3()) {
-                cout << "\tDEBUG3 ==> Opening file: " << fileName << endl;
-            }
+//            if (Global::instance()->isDebug3()) {
+//                cout << "\tDEBUG3 ==> Opening file: " << fileName << endl;
+//            }
             cPair.second = (FILE *) checkPointerError(fopen(fileName, "rb"), "Can't open input file", __FILE__, __LINE__, -1);
 
             *index = 0;
-            if (Global::instance()->isInfo()) {
-                cout << "\tDEBUG3 ==> Chr file name: " << dp->d_name << endl;
-            }
+//            if (Global::instance()->isInfo()) {
+//                cout << "\tDEBUG3 ==> Chr file name: " << dp->d_name << endl;
+//            }
 
             if (!cPair.first || !cPair.second) {
                 cerr << "ERROR!!" << endl;
@@ -135,9 +135,9 @@ void TFBSFactory::CreateTFBSFileIndexMap(char* dirName, const char *prefix, cons
             tfbsFileIndex.insert(pair<string, pair < FILE *, FILE*>>(dp->d_name, cPair));
             
             strncpy(index, idxExtension, strlen(idxExtension));
-            if (Global::instance()->isDebug3()) {
-                cout << "\tDEBUG3 ==> Setting index file name to the initial state: " << dp->d_name << endl;
-            }
+//            if (Global::instance()->isDebug3()) {
+//                cout << "\tDEBUG3 ==> Setting index file name to the initial state: " << dp->d_name << endl;
+//            }
 
             read = false;
         }
@@ -331,9 +331,9 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
                 tfbsElement->SetStart(start);
                 tfbsElement->SetEnd(end);
                 tfbs.push_back(move(tfbsElement));
-                if (Global::instance()->isDebug3()) {
-                    cerr << "\tDEBUG3 ==> \tTFBS\t" << pwmIndex[tfbsElement->GetIndex() - 1]->GetName() << "\t" << start << "\t" << end << "\t" << tfbsElement->GetStrand() << endl;
-                }
+//                if (Global::instance()->isDebug3()) {
+//                    cerr << "\tDEBUG3 ==> \tTFBS\t" << pwmIndex[tfbsElement->GetIndex() - 1]->GetName() << "\t" << start << "\t" << end << "\t" << tfbsElement->GetStrand() << endl;
+//                }
             } else {
                 delete (*tfbsPtrIt);
             }
