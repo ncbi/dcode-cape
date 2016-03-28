@@ -56,6 +56,7 @@ TFBS::~TFBS() {
 }
 
 TFBSFactory::TFBSFactory() {
+    longestPWM = 0;
     this->chrIdxFile = NULL;
     this->chrTibFile = NULL;
 }

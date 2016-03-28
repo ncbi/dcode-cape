@@ -46,20 +46,17 @@ void testRandomizePeakSeq() {
     seq = strdup("NNNAAGCAAATGGCNNAAGATGAG");
     peak.SetSeq(&seq);
     result = peak.RandomizePeakSeq();
-    printf("%s\n%s\n",peak.GetSeq(), result);    
     free(result);
     
     
     seq = strdup("AAGCAAATGGCNNAAGATGAGNNN");
     peak.SetSeq(&seq);
     result = peak.RandomizePeakSeq();
-    printf("%s\n%s\n",peak.GetSeq(), result);    
     free(result);
     
     seq = strdup("AAGCAAATGGCNNAAGATGAGNNNAAGCAAATGGCNNAAGATGAGNNN");
     peak.SetSeq(&seq);
     result = peak.RandomizePeakSeq();
-    printf("%s\n%s\n",peak.GetSeq(), result);    
     free(result);
 }
 
