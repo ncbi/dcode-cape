@@ -239,6 +239,7 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
     long int i, j, k;
     uint8_t b[4], c[2];
     unsigned long int *offset = NULL;
+    short int intFromByte;
     bool seek_performed = false;
     long int start, end, rFrom, rTo;
     TFBS *tfbsElement;
@@ -303,7 +304,8 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
                             checkPointerError(NULL, "Error while reading the tib file", __FILE__, __LINE__, -1);
                         }
 
-                        tfbsElement = new TFBS(i - rFrom, *(short int *) c);
+                        intFromByte = *(uint16_t *) c;                        
+                        tfbsElement = new TFBS(i - rFrom, intFromByte);
                         tfbsPtr->GetElements().push_back(move(tfbsElement));
                     }
 

@@ -23,12 +23,21 @@
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
                    projectFiles="true">
+      <itemPath>resources/57epigenomes.RPKM.pc</itemPath>
+      <itemPath>resources/abbrev-mtf-mapped-to-whole-label.all.info.renamed</itemPath>
       <itemPath>resources/chr1.fa.masked</itemPath>
+      <itemPath>resources/chr1.fa.masked.bin</itemPath>
+      <itemPath>resources/chr1.fimo.txt</itemPath>
+      <itemPath>resources/chr1.idx</itemPath>
+      <itemPath>resources/chr1.tib</itemPath>
+      <itemPath>resources/fimo_motif_index.bin</itemPath>
       <itemPath>resources/multiple.fa.masked</itemPath>
+      <itemPath>resources/pwm_EnsembleID_mapping</itemPath>
       <itemPath>resources/randControl.txt</itemPath>
       <itemPath>resources/snp.txt</itemPath>
       <itemPath>resources/test.bed</itemPath>
       <itemPath>resources/test.train.control.info.chr1</itemPath>
+      <itemPath>resources/tib.info</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -292,9 +301,28 @@
       </item>
       <item path="includes/svm.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="resources/57epigenomes.RPKM.pc" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/abbrev-mtf-mapped-to-whole-label.all.info.renamed"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
       <item path="resources/chr1.fa.masked" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="resources/chr1.fa.masked.bin" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/chr1.fimo.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/chr1.idx" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/chr1.tib" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/fimo_motif_index.bin" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="resources/multiple.fa.masked" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="resources/pwm_EnsembleID_mapping" ex="false" tool="3" flavor2="0">
       </item>
       <item path="resources/randControl.txt" ex="false" tool="3" flavor2="0">
       </item>
@@ -306,6 +334,8 @@
             ex="false"
             tool="3"
             flavor2="0">
+      </item>
+      <item path="resources/tib.info" ex="false" tool="3" flavor2="0">
       </item>
       <item path="src/BedFactory.cpp" ex="false" tool="1" flavor2="0">
       </item>
