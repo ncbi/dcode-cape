@@ -54,9 +54,9 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
     double overlapMutated = 0.0;
     char t;
     unsigned long int len = static_cast<unsigned long int> (strlen(seq));
-    FILE *overlapingKmersFile;
-    FILE *neighborsKmersFile;
-    FILE *overlapingKmersMutatedFile;
+    FILE *overlapingKmersFile = stderr;
+    FILE *neighborsKmersFile = stderr;
+    FILE *overlapingKmersMutatedFile = stderr;
 
     for (i = 0; i < featNumber; i++) {
         descriptors.push_back(0.0000);
@@ -289,8 +289,8 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
     Fasta *f = NULL;
     SNP *snp;
     int snpPos, startPos, endPos;
-    FILE *featuresFile;
-    FILE *zscoreFile;
+    FILE *featuresFile = stderr;
+    FILE *zscoreFile = stderr;
 
     std::pair<std::string, double> cPair;
 

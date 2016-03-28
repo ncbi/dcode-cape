@@ -267,7 +267,7 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
     if (rFrom < 1) {
         rFrom = 1;
     }
-    if (rTo > chr->GetLength()) {
+    if (rTo > static_cast<long int>(chr->GetLength())) {
         rTo = chr->GetLength();
     }
 
@@ -298,7 +298,7 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
             for (j = i + 1; j <= rTo; j++) {
                 if (offset[ j - rFrom ] > 0) {
                     tfbsPtr = new TFBSList();
-                    for (k = 0; k < offset[ j - rFrom ] - offset[ i - rFrom ]; k++) {
+                    for (k = 0; k < static_cast<long int>(offset[ j - rFrom ] - offset[ i - rFrom ]); k++) {
                         fread(&intFromByte, 2, 1, chrTibFile);
                         if (ferror(chrTibFile)) {
                             checkPointerError(NULL, "Error while reading the tib file", __FILE__, __LINE__, -1);
