@@ -49,6 +49,9 @@ FastaFactory::FastaFactory(const FastaFactory& orig) {
 }
 
 FastaFactory::~FastaFactory() {
+    for (auto it = fastaMap.begin(); it != fastaMap.end(); ++it) {
+        delete it->second;
+    }
 }
 
 Fasta *FastaFactory::GetFastaFromID(string id) {

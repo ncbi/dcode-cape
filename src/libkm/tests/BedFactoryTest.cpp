@@ -174,6 +174,7 @@ int main(int argc, char** argv) {
     if (dirName) free(dirName);
     if (testName) free(testName);
     if (controlName) free(controlName);
+    delete Global::instance();
     return (EXIT_SUCCESS);
 }
 

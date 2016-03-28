@@ -138,6 +138,8 @@ int main(int argc, char** argv) {
     if (tissue_file) free(tissue_file);
     if (cutoffFileName) free(cutoffFileName);
     if (fimoOutput) free(fimoOutput);
+    
+    delete Global::instance();
     return (EXIT_SUCCESS);
 }
 

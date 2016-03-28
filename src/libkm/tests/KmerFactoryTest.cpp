@@ -548,6 +548,7 @@ int main(int argc, char** argv) {
 
     cout << "%SUITE_FINISHED% time=0" << endl;
 
+    delete Global::instance();
     return (EXIT_SUCCESS);
 }
 

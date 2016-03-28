@@ -70,6 +70,7 @@ int main(int argc, char** argv) {
 
     std::cout << "%SUITE_FINISHED% time=0" << std::endl;
 
+    delete Global::instance();
     return (EXIT_SUCCESS);
 }
 

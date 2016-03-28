@@ -370,6 +370,7 @@ int main(int argc, char** argv) {
     free(tibInfoFileName);
     free(tFBSIdxDirName);
     free(fastaFile);
+    delete Global::instance();
     return (EXIT_SUCCESS);
 }
 

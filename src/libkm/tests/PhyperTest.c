@@ -36,6 +36,5 @@ int main(int argc, char** argv) {
     printf("%%TEST_FINISHED%% time=0 test1 (PhyperTest) \n");
 
     printf("%%SUITE_FINISHED%% time=0\n");
-
     return (EXIT_SUCCESS);
 }
