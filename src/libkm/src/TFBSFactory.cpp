@@ -237,9 +237,9 @@ TFBSList::~TFBSList() {
 
 void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
     long int i, j, k;
-    uint8_t b[4], c[2];
     unsigned long int *offset = NULL;
-    short int intFromByte;
+    uint32_t b;
+    uint16_t intFromByte;
     bool seek_performed = false;
     long int start, end, rFrom, rTo;
     TFBS *tfbsElement;
@@ -281,11 +281,11 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
     }
 
     for (i = rFrom; i <= rTo; i++) {
-        fread(b, 4, 1, chrIdxFile);
+        fread(&b, 4, 1, chrIdxFile);
         if (ferror(chrIdxFile)) {
             checkPointerError(NULL, "Error while reading the index file", __FILE__, __LINE__, -1);
         }
-        offset[i - rFrom] = *(uint32_t *) b;
+        offset[i - rFrom] = b;
     }
 
     for (i = rFrom; i <= rTo; i++) {
@@ -299,12 +299,11 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
                 if (offset[ j - rFrom ] > 0) {
                     tfbsPtr = new TFBSList();
                     for (k = 0; k < offset[ j - rFrom ] - offset[ i - rFrom ]; k++) {
-                        fread(c, 2, 1, chrTibFile);
+                        fread(&intFromByte, 2, 1, chrTibFile);
                         if (ferror(chrTibFile)) {
                             checkPointerError(NULL, "Error while reading the tib file", __FILE__, __LINE__, -1);
                         }
 
-                        intFromByte = *(uint16_t *) c;                        
                         tfbsElement = new TFBS(i - rFrom, intFromByte);
                         tfbsPtr->GetElements().push_back(move(tfbsElement));
                     }
