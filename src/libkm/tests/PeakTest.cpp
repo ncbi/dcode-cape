@@ -39,20 +39,21 @@ void testRandomizePeakSeq() {
     peak.SetChr("chr1");
     char *seq = strdup("NNNAAGCAAATGGC");
     peak.SetSeq(&seq);
-    char* result = peak.RandomizePeakSeq();
-    printf("%s\n%s\n",peak.GetSeq(), result);    
-    free(result);    
+    char* result = peak.RandomizePeakSeq();   
+    free(result); 
+    free(seq);
     
     seq = strdup("NNNAAGCAAATGGCNNAAGATGAG");
     peak.SetSeq(&seq);
     result = peak.RandomizePeakSeq();
     free(result);
-    
+    free(seq);
     
     seq = strdup("AAGCAAATGGCNNAAGATGAGNNN");
     peak.SetSeq(&seq);
     result = peak.RandomizePeakSeq();
     free(result);
+    free(seq);
     
     seq = strdup("AAGCAAATGGCNNAAGATGAGNNNAAGCAAATGGCNNAAGATGAGNNN");
     peak.SetSeq(&seq);
