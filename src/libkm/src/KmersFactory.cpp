@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
+
 #include <iostream>
 #include <string>
 #include <memory>
@@ -21,6 +23,7 @@
 #include <set>
 #include <algorithm>
 #include <cmath>
+
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"
@@ -237,7 +240,7 @@ void KmersFactory::ReadKmersFromFile(char* fileName, bool binary) {
                 infSig[infSigSize] = strdup(seq);
                 infSigSize++;
             } else {
-                if (std::isnan(maxSig) || maxSig < k->GetSig()) maxSig = k->GetSig();
+                if (std::isnan(maxSig) || maxSig < std::fabs(k->GetSig())) maxSig = std::fabs(k->GetSig());
             }
 
             fread(&value, sizeof (double), 1, poutputFile);
@@ -292,7 +295,7 @@ void KmersFactory::ReadKmersFromFile(char* fileName, bool binary) {
                 infSig[infSigSize] = strdup(seq);
                 infSigSize++;
             } else {
-                if (std::isnan(maxSig) || maxSig < k->GetSig()) maxSig = k->GetSig();
+                if (std::isnan(maxSig) || maxSig < std::fabs(k->GetSig())) maxSig = std::fabs(k->GetSig());
             }
 
             k->SetPf(strtod(fields[3], NULL));
