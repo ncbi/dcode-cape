@@ -54,9 +54,6 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
     double overlapMutated = 0.0;
     char t;
     unsigned long int len = static_cast<unsigned long int> (strlen(seq));
-    FILE *overlapingKmersFile = stderr;
-    FILE *neighborsKmersFile = stderr;
-    FILE *overlapingKmersMutatedFile = stderr;
 
     for (i = 0; i < featNumber; i++) {
         descriptors.push_back(0.0000);
@@ -73,12 +70,6 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
         endPos = pos;
     }
 
-    if (Global::instance()->isDebug3()) {
-        overlapingKmersFile = fopen("CAPE_debug_3_overlaping_kmers.txt", "a+");
-        neighborsKmersFile = fopen("CAPE_debug_3_neighbors_kmers.txt", "a+");
-        overlapingKmersMutatedFile = fopen("CAPE_debug_3_overlaping_kmers_mutated.txt", "a+");
-    }
-
     for (i = 0; i <= len - Global::instance()->GetOrder(); i++) {
         t = seq[i + Global::instance()->GetOrder()];
         seq[i + Global::instance()->GetOrder()] = 0;
@@ -86,39 +77,13 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
         if (i >= startPos && i <= endPos) {
 
             descriptors[1] += kmersFactory.GetKmerSig(seq + i);
-            if (Global::instance()->isDebug3()) {
-                fprintf(overlapingKmersFile, "%lu\t%s\t%.15f\t%.15f\n", i, seq + i, kmersFactory.GetKmerSig(seq + i), descriptors[1]);
-            }
-
             seq[pos] = alt;
             overlapMutated += kmersFactory.GetKmerSig(seq + i);
-
-            if (Global::instance()->isDebug3()) {
-                fprintf(overlapingKmersMutatedFile, "%lu\t%s\t%.15f\t%.15f\n", i, seq + i, kmersFactory.GetKmerSig(seq + i), overlapMutated);
-            }
-
             seq[pos] = ref;
         } else {
-            if (Global::instance()->isDebug3()) {
-                fprintf(neighborsKmersFile, "%lu\t%s\t%.5f\n", i, seq + i, kmersFactory.GetKmerSig(seq + i));
-            }
             descriptors[2] += kmersFactory.GetKmerSig(seq + i);
-            if (std::isinf(descriptors[2])) {
-                cout << GetId() << endl;
-                cout << (seq + i) << endl;
-                cout << "Sig: " << kmersFactory.GetKmerSig(seq + i) << endl;
-                cout << endl;
-                exit(0);
-            }
         }
         seq[i + Global::instance()->GetOrder()] = t;
-    }
-    if (Global::instance()->isDebug3()) {
-        fprintf(overlapingKmersFile, "91-100\tsum\t%.15f\n", descriptors[1]);
-        fprintf(overlapingKmersMutatedFile, "91-100\tsum\t%.15f\n", overlapMutated);
-        fclose(overlapingKmersFile);
-        fclose(neighborsKmersFile);
-        fclose(overlapingKmersMutatedFile);
     }
     descriptors[0] = std::fabs(descriptors[1] - overlapMutated);
 }
