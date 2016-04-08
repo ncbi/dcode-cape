@@ -4,7 +4,7 @@
  *
  * Created on April 15, 2014, 3:05 PM
  */
-
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,13 +23,10 @@
  * @return a array with the splited strings
  */
 size_t splitString(char ***dest, char *src, const char *delimiter) {
-    size_t count = 0;
-    char *token;
-    char *srccpy;
-
-    srccpy = strdup(src);
     *dest = NULL;
-    token = strtok(srccpy, delimiter);
+    size_t count = 0;
+    char *srccpy = strdup(src);
+    char *token = strtok(srccpy, delimiter);
     while (token) {
         *dest = (char **) checkPointerError(realloc(*dest, sizeof (char **) * (count + 1)), "Can't allocate memory", __FILE__, __LINE__, -1);
         (*dest)[count] = strdup(token);
@@ -49,7 +46,7 @@ size_t splitString(char ***dest, char *src, const char *delimiter) {
  */
 int strbcmp(const char *haystack, const char *needle) {
     int length;
-    const char *s = haystack;    
+    const char *s = haystack;
     if (haystack && needle && strlen(haystack) >= (length = strlen(needle))) {
         const char *sub = NULL;
         while ((s = strstr(s, needle)) != NULL) {

@@ -77,7 +77,7 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
     numberSeqCurrentRead = 0;
     if (binary) {
         fread(&i, sizeof (unsigned long int), 1, fName);
-        for (int j = 0; j < i; j++) {
+        for (unsigned long int j = 0; j < i; j++) {
             fasta = new Fasta();
 
             fread(&len, sizeof (unsigned long int), 1, fName);
