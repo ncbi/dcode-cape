@@ -31,9 +31,8 @@ using namespace exceptions;
 using namespace fasta;
 using namespace tfbs;
 
-Tib::Tib(const char* n, long int l) {
-    name = n;
-    len = l;
+Tib::Tib() {
+    this->len = 0;
 }
 
 Tib::~Tib() {
@@ -41,6 +40,8 @@ Tib::~Tib() {
 }
 
 TFBS::TFBS(unsigned long int d, short int i) {
+    this->start = 0;
+    this->end = 0;
     delta = d;
     if (i < 0) {
         index = -1 * i;
@@ -87,9 +88,9 @@ void TFBSFactory::CreateTFBSFileIndexMap(char* dirName, const char *prefix, cons
     DIR *dirp = (DIR *) checkPointerError(opendir(dirName), "Can't open input directory", __FILE__, __LINE__, -1);
 
     while ((dp = readdir(dirp)) != NULL) {
-//        if (Global::instance()->isDebug3()) {
-//            cout << "\tDEBUG3 ==> Found file: " << dp->d_name << endl;
-//        }
+        //        if (Global::instance()->isDebug3()) {
+        //            cout << "\tDEBUG3 ==> Found file: " << dp->d_name << endl;
+        //        }
         if (dp->d_name[0] != '.') {
             if (!prefix && !idxExtension) {
                 read = true;
@@ -109,22 +110,22 @@ void TFBSFactory::CreateTFBSFileIndexMap(char* dirName, const char *prefix, cons
                 fileName = (char *) reallocate(fileName, sizeof (char) * len, __FILE__, __LINE__);
             }
             sprintf(fileName, "%s/%s", dirName, dp->d_name);
-//            if (Global::instance()->isDebug3()) {
-//                cout << "\tDEBUG3 ==> Opening file: " << fileName << endl;
-//            }
+            //            if (Global::instance()->isDebug3()) {
+            //                cout << "\tDEBUG3 ==> Opening file: " << fileName << endl;
+            //            }
             cPair.first = (FILE *) checkPointerError(fopen(fileName, "rb"), "Can't open input file", __FILE__, __LINE__, -1);
             index = strstr(dp->d_name, idxExtension);
             strncpy(index, tibExtension, strlen(tibExtension));
             sprintf(fileName, "%s/%s", dirName, dp->d_name);
-//            if (Global::instance()->isDebug3()) {
-//                cout << "\tDEBUG3 ==> Opening file: " << fileName << endl;
-//            }
+            //            if (Global::instance()->isDebug3()) {
+            //                cout << "\tDEBUG3 ==> Opening file: " << fileName << endl;
+            //            }
             cPair.second = (FILE *) checkPointerError(fopen(fileName, "rb"), "Can't open input file", __FILE__, __LINE__, -1);
 
             *index = 0;
-//            if (Global::instance()->isInfo()) {
-//                cout << "\tDEBUG3 ==> Chr file name: " << dp->d_name << endl;
-//            }
+            //            if (Global::instance()->isInfo()) {
+            //                cout << "\tDEBUG3 ==> Chr file name: " << dp->d_name << endl;
+            //            }
 
             if (!cPair.first || !cPair.second) {
                 cerr << "ERROR!!" << endl;
@@ -133,11 +134,11 @@ void TFBSFactory::CreateTFBSFileIndexMap(char* dirName, const char *prefix, cons
             }
 
             tfbsFileIndex.insert(pair<string, pair < FILE *, FILE*>>(dp->d_name, cPair));
-            
+
             strncpy(index, idxExtension, strlen(idxExtension));
-//            if (Global::instance()->isDebug3()) {
-//                cout << "\tDEBUG3 ==> Setting index file name to the initial state: " << dp->d_name << endl;
-//            }
+            //            if (Global::instance()->isDebug3()) {
+            //                cout << "\tDEBUG3 ==> Setting index file name to the initial state: " << dp->d_name << endl;
+            //            }
 
             read = false;
         }
@@ -149,7 +150,7 @@ void TFBSFactory::CreateTFBSFileIndexMap(char* dirName, const char *prefix, cons
 void TFBSFactory::CreatePWMIndexFromTibInfoFile(const char* tibInfoFileName) {
     FILE *tibInfoFile = (FILE *) checkPointerError(fopen(tibInfoFileName, "r"), "Can't open Tib info file", __FILE__, __LINE__, -1);
 
-    size_t bufferSize, read, backupLineSize;
+    size_t bufferSize, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine;
     char **fields = NULL;
     size_t fieldsSize = 0;
@@ -161,7 +162,7 @@ void TFBSFactory::CreatePWMIndexFromTibInfoFile(const char* tibInfoFileName) {
 
     *backupLine = 0;
     while (!feof(tibInfoFile)) {
-        read = fread(buffer, sizeof (char), bufferSize, tibInfoFile);
+        size_t read = fread(buffer, sizeof (char), bufferSize, tibInfoFile);
         buffer[read] = 0;
         if (feof(tibInfoFile)) {
             if (buffer[read - 1] != '\n') {
@@ -189,7 +190,9 @@ void TFBSFactory::CreatePWMIndexFromTibInfoFile(const char* tibInfoFileName) {
                     fprintf(stderr, "%s\n", completeLine);
                     printLog(stderr, "Tib info file with a wrong format ", __FILE__, __LINE__, -1);
                 }
-                tib = new Tib(fields[2], atol(fields[1]));
+                tib = new Tib();
+                tib->SetName(fields[2]);
+                tib->SetLen(atol(fields[1]));
                 if (longestPWM < tib->GetLen()) {
                     longestPWM = tib->GetLen();
                 }
@@ -268,7 +271,7 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
     if (rFrom < 1) {
         rFrom = 1;
     }
-    if (rTo > static_cast<long int>(chr->GetLength())) {
+    if (rTo > static_cast<long int> (chr->GetLength())) {
         rTo = chr->GetLength();
     }
 
@@ -299,7 +302,7 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
             for (j = i + 1; j <= rTo; j++) {
                 if (offset[ j - rFrom ] > 0) {
                     tfbsPtr = new TFBSList();
-                    for (k = 0; k < static_cast<long int>(offset[ j - rFrom ] - offset[ i - rFrom ]); k++) {
+                    for (k = 0; k < static_cast<long int> (offset[ j - rFrom ] - offset[ i - rFrom ]); k++) {
                         fread(&intFromByte, 2, 1, chrTibFile);
                         if (ferror(chrTibFile)) {
                             checkPointerError(NULL, "Error while reading the tib file", __FILE__, __LINE__, -1);
@@ -331,9 +334,9 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
                 tfbsElement->SetStart(start);
                 tfbsElement->SetEnd(end);
                 tfbs.push_back(move(tfbsElement));
-//                if (Global::instance()->isDebug3()) {
-//                    cerr << "\tDEBUG3 ==> \tTFBS\t" << pwmIndex[tfbsElement->GetIndex() - 1]->GetName() << "\t" << start << "\t" << end << "\t" << tfbsElement->GetStrand() << endl;
-//                }
+                //                if (Global::instance()->isDebug3()) {
+                //                    cerr << "\tDEBUG3 ==> \tTFBS\t" << pwmIndex[tfbsElement->GetIndex() - 1]->GetName() << "\t" << start << "\t" << end << "\t" << tfbsElement->GetStrand() << endl;
+                //                }
             } else {
                 delete (*tfbsPtrIt);
             }

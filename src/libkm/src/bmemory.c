@@ -40,12 +40,10 @@ void *reallocate(void *self, size_t size, const char *file, int line){
  * @param index the number of strings
  */
 void freeArrayofPointers(void **pointer, int index) {
-    int i = 0;
     if (pointer) {
-        for (i = 0; i < index; i++) {
+        for (int i = 0; i < index; i++) {
             if (pointer[i]) free(pointer[i]);
         }
         free(pointer);
-        pointer = NULL;
     }
 }

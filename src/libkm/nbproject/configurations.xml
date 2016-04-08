@@ -96,7 +96,7 @@
                      displayName="PhyperTest"
                      projectFiles="true"
                      kind="TEST">
-        <itemPath>tests/PhyperTest.c</itemPath>
+        <itemPath>tests/PhyperTest.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f7"
                      displayName="TFBSFactoryTest"
@@ -126,6 +126,7 @@
       <compileType>
         <cTool>
           <developmentMode>5</developmentMode>
+          <standard>10</standard>
           <incDir>
             <pElem>includes</pElem>
           </incDir>
@@ -237,7 +238,7 @@
           </incDir>
         </ccTool>
         <linkerTool>
-          <output>${TESTDIR}/TestFiles/phyperTest</output>
+          <output>${TESTDIR}/TestFiles/f5</output>
         </linkerTool>
       </folder>
       <folder path="TestFiles/f6">
@@ -383,7 +384,7 @@
       </item>
       <item path="tests/PeakTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="tests/PhyperTest.c" ex="false" tool="0" flavor2="0">
+      <item path="tests/PhyperTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="tests/TFBSFactoryTest.cpp" ex="false" tool="1" flavor2="0">
       </item>

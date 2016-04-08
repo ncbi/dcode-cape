@@ -42,7 +42,13 @@ using namespace fimo;
 using namespace tfbs;
 
 SNP::SNP() {
-
+    this->length = 0;
+    this->seq = NULL;
+    this->pos = 0;
+    this->chrPos = 0;
+    this->ref = 0;
+    this->alt = 0;
+    this->probPos = 0.0;
 }
 
 SNP::~SNP() {
@@ -52,7 +58,6 @@ SNP::~SNP() {
 void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned long int featNumber) {
     unsigned long int i, startPos, endPos;
     double overlapMutated = 0.0;
-    char t;
     unsigned long int len = static_cast<unsigned long int> (strlen(seq));
 
     for (i = 0; i < featNumber; i++) {
@@ -71,7 +76,7 @@ void SNP::CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
     }
 
     for (i = 0; i <= len - Global::instance()->GetOrder(); i++) {
-        t = seq[i + Global::instance()->GetOrder()];
+        char t = seq[i + Global::instance()->GetOrder()];
         seq[i + Global::instance()->GetOrder()] = 0;
 
         if (i >= startPos && i <= endPos) {
@@ -103,7 +108,7 @@ SNPFactory::~SNPFactory() {
 void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors, FastaFactory &chrFactory) {
     FILE *snpFile = (FILE *) checkPointerError(fopen(snpFileName, "r"), "Can't open SNP file", __FILE__, __LINE__, -1);
 
-    size_t bufferSize, read, backupLineSize;
+    size_t bufferSize, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine, *seq;
     char **fields = NULL;
     size_t fieldsSize = 0;
@@ -117,7 +122,7 @@ void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors,
 
     *backupLine = 0;
     while (!feof(snpFile)) {
-        read = fread(buffer, sizeof (char), bufferSize, snpFile);
+        size_t read = fread(buffer, sizeof (char), bufferSize, snpFile);
         buffer[read] = 0;
         if (feof(snpFile)) {
             if (buffer[read - 1] != '\n') {
@@ -223,14 +228,13 @@ void SNPFactory::ReadSNPFromFile(char* snpFileName, unsigned long int neighbors,
 
 void SNPFactory::WriteEnhansersFastaFile(char* fastaFile, bool binary) {
     FastaFactory fastaFactory;
-    Fasta *f = NULL;
     SNP *snp = NULL;
     char *seq = NULL;
     string id;
 
     for (auto it = snps.begin(); it != snps.end(); ++it) {
         snp = *it;
-        f = new Fasta();
+        Fasta *f = new Fasta();
         id = snp->GetId();
         f->SetId(id);
         seq = strdup(snp->GetSeq());
@@ -247,7 +251,7 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
 
     double overlapValue, neighborSum;
     unsigned long int i, count = 0;
-    size_t bufferSize, read, backupLineSize;
+    size_t bufferSize, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine, *seq;
     char **fields = NULL;
     size_t fieldsSize = 0;
@@ -288,7 +292,7 @@ int SNPFactory::ProcessSNPFromFile(char* snpFileName, unsigned long int neighbor
     cout.precision(4);
     *backupLine = 0;
     while (!feof(snpFile)) {
-        read = fread(buffer, sizeof (char), bufferSize, snpFile);
+        size_t read = fread(buffer, sizeof (char), bufferSize, snpFile);
         buffer[read] = 0;
         if (feof(snpFile)) {
             if (buffer[read - 1] != '\n') {

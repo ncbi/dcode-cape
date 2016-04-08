@@ -48,9 +48,9 @@ double gammafn(double x) {
         -.5793070335782135784625493333333e-31
     };
 
-    int i, n;
+    int i;
     double y;
-    double sinpiy, value;
+    double value;
 
 #ifdef NOMORE_FOR_THREADS
     static int ngam = 0;
@@ -94,7 +94,7 @@ double gammafn(double x) {
          * Reduce the interval and find gamma(1 + y) for 0 <= y < 1
          * first of all. */
 
-        n = (int) x;
+        int n = (int) x;
         if (x < 0) --n;
         y = x - n; /* n = floor(x)  ==>	y in [ 0, 1 ) */
         --n;
@@ -165,7 +165,7 @@ double gammafn(double x) {
             fprintf(stderr, "gammafn\n");
         }
 
-        sinpiy = sin(M_PI * y);
+        double sinpiy = sin(M_PI * y);
         if (sinpiy == 0) { /* Negative integer arg - overflow */
             fprintf(stderr, "gammafn\n");
             return INFINITY;

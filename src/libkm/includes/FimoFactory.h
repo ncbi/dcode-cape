@@ -13,6 +13,18 @@ namespace fimo {
     class Fimo {
     public:
 
+        Fimo() {
+            this->end = 0;
+            this->expression = 0.0;
+            this->pValue = 0.0;
+            this->score = 0.0;
+            this->start = 0;
+            this->strand = 0;
+        }
+
+        virtual ~Fimo() {
+        }
+
         unsigned long int GetEnd() const {
             return end;
         }
@@ -84,7 +96,7 @@ namespace fimo {
         void SetExpression(double expression) {
             this->expression = expression;
         }
-        
+
         std::string GetExpEnsembl() const {
             return expEnsembl;
         }
@@ -163,7 +175,7 @@ namespace fimo {
             }
             return -1.0;
         }
-        
+
         std::unordered_map<std::string, std::vector<double> >& GetSnpIDMap() {
             return snpIDMap;
         }

@@ -49,6 +49,9 @@ using namespace svm;
 using namespace fimo;
 using namespace tfbs;
 
+Global *Global::s_instance = 0;
+TimeUtils *TimeUtils::s_instance = 0;
+
 char *program_name;
 
 void print_usage(FILE *stream, int exit_code) {
@@ -107,7 +110,6 @@ int main(int argc, char** argv) {
     char *abbrevmtfmappedFileName = NULL;
     char *tibInfoFileName = NULL;
     char *tFBSIdxDirName = NULL;
-    int abbrevmtfmappedColumn = 5;
     FILE *outputFile = NULL;
     unsigned long int neighbors = 100;
     FastaFactory chrFactory;
@@ -296,7 +298,7 @@ int main(int argc, char** argv) {
     if (fimoFileName) {
         begin = clock();
         cout << "Parsing FIMO output file" << endl;
-        fimoFactory.CreateCutoffIndexFromFile(abbrevmtfmappedFileName, abbrevmtfmappedColumn - 1);
+        fimoFactory.CreateCutoffIndexFromFile(abbrevmtfmappedFileName, 4);
         fimoFactory.ParseFimoOutput(fimoFileName, expressionCode, neighbors);
         cout << fimoFactory.GetSnpIDMap().size() << " SNP with FIMO expression loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
     }

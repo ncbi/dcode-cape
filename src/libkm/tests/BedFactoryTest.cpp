@@ -34,6 +34,8 @@ using namespace kmers;
 using namespace fasta;
 using namespace peak;
 
+Global *Global::s_instance = 0;
+TimeUtils *TimeUtils::s_instance = 0;
 
 /*
  * Simple C++ Test Suite
@@ -49,7 +51,6 @@ void testCreatePeaksFromBedFile(char *bFName, char *dirName, char *testName) {
     string sufix(".fa.masked");
     map<unsigned long int, map<string, unsigned long int>> testMap;
     char **fields = NULL;
-    size_t fieldsSize = 0;
     KmersFactory kmersFactory;
     kmersFactory.CreateGenomeWideKmers();
 
@@ -57,7 +58,7 @@ void testCreatePeaksFromBedFile(char *bFName, char *dirName, char *testName) {
 
     FILE *fd = (FILE *) checkPointerError(fopen(testName, "r"), "Can't open test file", __FILE__, __LINE__, -1);
     while (getline(&line, &len, fd) != -1) {
-        fieldsSize = splitString(&fields, line, "\t");
+        size_t fieldsSize = splitString(&fields, line, "\t");
         map<string, unsigned long int> inMap;
         char *n = strchr(fields[2], '-');
         *n = '\0';
@@ -77,14 +78,14 @@ void testCreatePeaksFromBedFile(char *bFName, char *dirName, char *testName) {
     fclose(fd);
 
     chrFactory.LoadFastaInDirectory(dirName, prefix.c_str(), sufix.c_str(), false);
-    
+
     bedFactory.CreatePeaksFromBedFile(chrFactory, bFName, 0.7, kmersFactory);
-    
+
     if (bedFactory.GetPeaks().size() != 88) {
         cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Peaks to print should be equal to 88 and it is " << i << endl;
     }
-    
-    
+
+
     for (auto it = bedFactory.GetPeaks().begin(); it != bedFactory.GetPeaks().end(); ++it) {
         Peak *p = *it;
         map<string, unsigned long int> inMap = testMap.find(p->GetStart())->second;
@@ -113,35 +114,35 @@ void testCreatePeaksFromBedFile(char *bFName, char *dirName, char *testName) {
             }
         }
     }
-    
+
     bedFactory.GeneratingControlsFromChromosomes(chrFactory, 3, kmersFactory);
     kmersFactory.BuildKmers();
-    if (kmersFactory.GetKmers().size() != 11848 ){
+    if (kmersFactory.GetKmers().size() != 11848) {
         cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong number of kmers 11848 != " << kmersFactory.GetKmers().size() << endl;
     }
 }
 
-void testReadingControlsFromFile(char *dirName, char *controlName){
+void testReadingControlsFromFile(char *dirName, char *controlName) {
     fasta::FastaFactory chrFactory;
     peak::BedFactory bedFactory;
     string prefix("chr");
     string sufix(".fa.masked");
     KmersFactory kmersFactory;
     kmersFactory.CreateGenomeWideKmers();
-    
+
     chrFactory.LoadFastaInDirectory(dirName, prefix.c_str(), sufix.c_str(), false);
-    
+
     bedFactory.ReadControlsFromFile(controlName, chrFactory, kmersFactory);
-    if (kmersFactory.GetTotalNRnt_control() != 1065){
+    if (kmersFactory.GetTotalNRnt_control() != 1065) {
         cout << "%TEST_FAILED% time=0 testname=testReadingControlsFromFile (BedFactoryTest) message=Wrong calculation of Total non N 1065 != " << kmersFactory.GetTotalNRnt_control() << endl;
     }
 }
 
 int main(int argc, char** argv) {
-    char *bFName = NULL;
-    char *dirName = NULL;
-    char *testName = NULL;
-    char *controlName = NULL;
+    char *bFName = strdup("resources/test.bed");
+    char *dirName = strdup("resources/");
+    char *testName = strdup("resources/test.train.control.info.chr1");
+    char *controlName = strdup("resources/randControl.txt");
     cout << "%SUITE_STARTING% BedFactoryTest" << endl;
     cout << "%SUITE_STARTED%" << endl;
 
@@ -150,30 +151,20 @@ int main(int argc, char** argv) {
     Global::instance()->SetBin1(0.005);
     Global::instance()->SetBin2(0.01);
 
-    if (argc == 3) {
-        bFName = argv[1];
-        dirName = argv[2];
-    } else {
-        bFName = strdup("resources/test.bed");
-        dirName = strdup("resources/");
-        testName = strdup("resources/test.train.control.info.chr1");
-        controlName = strdup("resources/randControl.txt");
-    }
-
     cout << "%TEST_STARTED% testCreatePeaksFromBedFile (BedFactoryTest)" << endl;
     testCreatePeaksFromBedFile(bFName, dirName, testName);
     cout << "%TEST_FINISHED% time=0 testCreatePeaksFromBedFile (BedFactoryTest)" << endl;
-    
+
     cout << "%TEST_STARTED% testReadingControlsFromFile (BedFactoryTest)" << endl;
     testReadingControlsFromFile(dirName, controlName);
     cout << "%TEST_FINISHED% time=0 testReadingControlsFromFile (BedFactoryTest)" << endl;
 
     cout << "%SUITE_FINISHED% time=0" << endl;
 
-    if (bFName) free(bFName);
-    if (dirName) free(dirName);
-    if (testName) free(testName);
-    if (controlName) free(controlName);
+    free(bFName);
+    free(dirName);
+    free(testName);
+    free(controlName);
     delete Global::instance();
     return (EXIT_SUCCESS);
 }

@@ -38,6 +38,9 @@ using namespace kmers;
 using namespace fasta;
 using namespace peak;
 
+Global *Global::s_instance = 0;
+TimeUtils *TimeUtils::s_instance = 0;
+
 /*
  * Simple C++ Test Suite
  */
@@ -236,10 +239,9 @@ void testWriteKmersToFile() {
 }
 
 void testReadKmersFromFile() {
-    bool right;
     KmersFactory kmersFactory;
     char *comp;
-    string rc_kmer, rc_test;
+    string rc_kmer;
 
     kmersFactory.ReadKmersFromFile("/tmp/kmers.bin", true);
     
@@ -252,7 +254,7 @@ void testReadKmersFromFile() {
     }
 
     for (auto it = kmersFactory.GetKmers().begin(); it != kmersFactory.GetKmers().end(); ++it) {
-        right = false;
+        bool right = false;
         string kmer = it->first;
         Kmer *k = it->second;
 

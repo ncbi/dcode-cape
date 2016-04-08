@@ -30,6 +30,9 @@
 #include "BedFactory.h"
 #include "bmath.h"
 
+Global *Global::s_instance = 0;
+TimeUtils *TimeUtils::s_instance = 0;
+
 /*
  * Simple C++ Test Suite
  */

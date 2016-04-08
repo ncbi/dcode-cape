@@ -50,19 +50,16 @@
 #include "bmath.h"
 
 double bd0(double x, double np) {
-    double ej, s, s1, v;
-    int j;
-
     if (isinf(x) || isinf(np) || np == 0.0) ML_ERR_return_NAN;
 
     if (fabs(x - np) < 0.1 * (x + np)) {
-        v = (x - np) / (x + np);
-        s = (x - np) * v; /* s using v -- change by MM */
-        ej = 2 * x*v;
+        double v = (x - np) / (x + np);
+        double s = (x - np) * v; /* s using v -- change by MM */
+        double ej = 2 * x*v;
         v = v*v;
-        for (j = 1;; j++) { /* Taylor series */
+        for (int j = 1;; j++) { /* Taylor series */
             ej *= v;
-            s1 = s + ej / ((j << 1) + 1);
+            double s1 = s + ej / ((j << 1) + 1);
             if (s1 == s) /* last term was effectively 0 */
                 return (s1);
             s = s1;

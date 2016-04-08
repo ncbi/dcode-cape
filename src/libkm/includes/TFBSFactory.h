@@ -18,7 +18,7 @@ namespace tfbs {
 
     class Tib {
     public:
-        Tib(const char *n, long int l);
+        Tib();
         virtual ~Tib();
 
         long int GetLen() const {
@@ -27,6 +27,14 @@ namespace tfbs {
 
         std::string GetName() const {
             return name;
+        }
+
+        void SetLen(long int len) {
+            this->len = len;
+        }
+
+        void SetName(std::string name) {
+            this->name = name;
         }
 
     private:

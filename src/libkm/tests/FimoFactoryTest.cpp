@@ -30,6 +30,9 @@
 using namespace std;
 using namespace fimo;
 
+Global *Global::s_instance = 0;
+TimeUtils *TimeUtils::s_instance = 0;
+
 /*
  * Simple C++ Test Suite
  */

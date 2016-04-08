@@ -32,6 +32,9 @@ using namespace fasta;
 using namespace peak;
 using namespace kmers;
 
+Global *Global::s_instance = 0;
+TimeUtils *TimeUtils::s_instance = 0;
+
 char *program_name;
 
 void print_usage(FILE *stream, int exit_code) {

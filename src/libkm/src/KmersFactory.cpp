@@ -40,13 +40,16 @@ Kmer::Kmer() {
     this->negativeControl = 0;
     this->peakFreq = 0;
     this->pValue = INFINITY;
+    this->sig = 0.0;
+    this->pf = 0.0;
 }
 
 Kmer::~Kmer() {
 }
 
 KmersFactory::KmersFactory() {
-
+    this->totalNRnt_control = 0;
+    this->totalNRnt_peak = 0;
 }
 
 KmersFactory::~KmersFactory() {
@@ -67,9 +70,9 @@ void KmersFactory::CreateGenomeWideKmers() {
     this->kmersGenome.insert("G");
     this->kmersGenome.insert("T");
 
-    for (unsigned long int i = 1; i < Global::instance()->GetOrder(); i++) {
+    for (unsigned long int i = 1; i < Global::instance()->GetOrder(); i += 1) {
         newWords.clear();
-        for (it = this->kmersGenome.begin(); it != this->kmersGenome.end(); it++) {
+        for (it = this->kmersGenome.begin(); it != this->kmersGenome.end(); ++it) {
             key = (*it);
             newWords.insert(key + "A");
             newWords.insert(key + "C");
@@ -83,7 +86,7 @@ void KmersFactory::CreateGenomeWideKmers() {
     this->kmersGenome.insert(newWords.begin(), newWords.end());
     newWords.clear();
 
-    for (it1 = this->kmersGenome.begin(); it1 != this->kmersGenome.end(); it1++) {//this->kmers now are redundant
+    for (it1 = this->kmersGenome.begin(); it1 != this->kmersGenome.end(); ++it1) {//this->kmers now are redundant
         key1 = (*it1);
         comp = complement(key1.c_str());
         rcKey1 = comp;
@@ -198,13 +201,11 @@ void KmersFactory::ReadKmersFromFile(char* fileName, bool binary) {
     unsigned long int i, index;
     double value;
     FILE *poutputFile = NULL;
-    string kmer;
     Kmer *k, *kr;
     char *seq;
     char *line = NULL;
     size_t len = 0;
     char **fields = NULL;
-    size_t fieldsSize = 0;
     char *comp;
     string rc_kmer;
     double maxSig = NAN;
@@ -273,7 +274,7 @@ void KmersFactory::ReadKmersFromFile(char* fileName, bool binary) {
     } else {
         poutputFile = (FILE *) checkPointerError(fopen(fileName, "r"), "Can't open output file", __FILE__, __LINE__, -1);
         while (getline(&line, &len, poutputFile) != -1) {
-            fieldsSize = splitString(&fields, line, "\t");
+            size_t fieldsSize = splitString(&fields, line, "\t");
             if (fieldsSize != 4) {
                 printLog(stderr, "Input kmer weight file with a wrong format ", __FILE__, __LINE__, -1);
             }

@@ -122,8 +122,6 @@ namespace peak {
 
         void ReadControlsFromFile(char *controlFileName, fasta::FastaFactory &chrFactory, kmers::KmersFactory &kmersFactory);
 
-        void WritePeaksFastaFile(char *fastaFile, bool binary);
-
     private:
         unsigned long int NCount;
         unsigned long int GCCount;

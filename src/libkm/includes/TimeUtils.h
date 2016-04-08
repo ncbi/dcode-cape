@@ -11,6 +11,11 @@
 #define TIMEUTILS_H
 
 class TimeUtils {
+    clock_t begin;
+    clock_t startTime;
+    static TimeUtils *s_instance;
+    
+    TimeUtils(){}
 public:
 
     static TimeUtils *instance() {
@@ -62,10 +67,6 @@ public:
     double GetTimeHourFrom(clock_t b) {
         return GetTimeSecFrom(b) / 3600;
     }
-private:
-    clock_t begin;
-    clock_t startTime;
-    static TimeUtils *s_instance;
 };
 
 #endif /* TIMEUTILS_H */

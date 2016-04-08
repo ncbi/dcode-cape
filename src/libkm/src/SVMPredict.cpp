@@ -33,9 +33,9 @@ SVMPredict::SVMPredict() {
     this->sumtt = 0;
     this->sumpt = 0;
     this->model = NULL;
-}
-
-SVMPredict::SVMPredict(const SVMPredict& orig) {
+    this->svm_type = 0;
+    this->nr_class = 0;
+    this->prob_estimates = NULL;
 }
 
 SVMPredict::~SVMPredict() {

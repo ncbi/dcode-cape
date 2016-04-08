@@ -64,7 +64,7 @@ TESTFILES= \
 	${TESTDIR}/TestFiles/fimoFactoryTest \
 	${TESTDIR}/TestFiles/kmerFactoryTest \
 	${TESTDIR}/TestFiles/peakTest \
-	${TESTDIR}/TestFiles/phyperTest \
+	${TESTDIR}/TestFiles/f5 \
 	${TESTDIR}/TestFiles/tFBSFactoryTest
 
 # Test Object Files
@@ -141,52 +141,52 @@ ${OBJECTDIR}/src/TFBSFactory.o: src/TFBSFactory.cpp
 ${OBJECTDIR}/src/berror.o: src/berror.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror.o src/berror.c
+	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror.o src/berror.c
 
 ${OBJECTDIR}/src/bmemory.o: src/bmemory.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory.o src/bmemory.c
+	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory.o src/bmemory.c
 
 ${OBJECTDIR}/src/bstring.o: src/bstring.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bstring.o src/bstring.c
+	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bstring.o src/bstring.c
 
 ${OBJECTDIR}/src/chebyshev.o: src/chebyshev.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/chebyshev.o src/chebyshev.c
+	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/chebyshev.o src/chebyshev.c
 
 ${OBJECTDIR}/src/features.o: src/features.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/features.o src/features.c
+	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/features.o src/features.c
 
 ${OBJECTDIR}/src/gamma.o: src/gamma.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/gamma.o src/gamma.c
+	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/gamma.o src/gamma.c
 
 ${OBJECTDIR}/src/lgamma.o: src/lgamma.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/lgamma.o src/lgamma.c
+	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/lgamma.o src/lgamma.c
 
 ${OBJECTDIR}/src/lgammacor.o: src/lgammacor.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/lgammacor.o src/lgammacor.c
+	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/lgammacor.o src/lgammacor.c
 
 ${OBJECTDIR}/src/phyper.o: src/phyper.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/phyper.o src/phyper.c
+	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/phyper.o src/phyper.c
 
 ${OBJECTDIR}/src/stirlerr.o: src/stirlerr.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/stirlerr.o src/stirlerr.c
+	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/stirlerr.o src/stirlerr.c
 
 ${OBJECTDIR}/src/svm.o: src/svm.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -220,9 +220,9 @@ ${TESTDIR}/TestFiles/peakTest: ${TESTDIR}/tests/PeakTest.o ${OBJECTFILES:%.o=%_n
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.cc}   -o ${TESTDIR}/TestFiles/peakTest $^ ${LDLIBSOPTIONS} 
 
-${TESTDIR}/TestFiles/phyperTest: ${TESTDIR}/tests/PhyperTest.o ${OBJECTFILES:%.o=%_nomain.o}
+${TESTDIR}/TestFiles/f5: ${TESTDIR}/tests/PhyperTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/phyperTest $^ ${LDLIBSOPTIONS} 
+	${LINK.cc}   -o ${TESTDIR}/TestFiles/f5 $^ ${LDLIBSOPTIONS} 
 
 ${TESTDIR}/TestFiles/tFBSFactoryTest: ${TESTDIR}/tests/TFBSFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
@@ -259,10 +259,10 @@ ${TESTDIR}/tests/PeakTest.o: tests/PeakTest.cpp
 	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PeakTest.o tests/PeakTest.cpp
 
 
-${TESTDIR}/tests/PhyperTest.o: tests/PhyperTest.c 
+${TESTDIR}/tests/PhyperTest.o: tests/PhyperTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -Iincludes -I. -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PhyperTest.o tests/PhyperTest.c
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PhyperTest.o tests/PhyperTest.cpp
 
 
 ${TESTDIR}/tests/TFBSFactoryTest.o: tests/TFBSFactoryTest.cpp 
@@ -370,7 +370,7 @@ ${OBJECTDIR}/src/berror_nomain.o: ${OBJECTDIR}/src/berror.o src/berror.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror_nomain.o src/berror.c;\
+	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror_nomain.o src/berror.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/berror.o ${OBJECTDIR}/src/berror_nomain.o;\
 	fi
@@ -383,7 +383,7 @@ ${OBJECTDIR}/src/bmemory_nomain.o: ${OBJECTDIR}/src/bmemory.o src/bmemory.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory_nomain.o src/bmemory.c;\
+	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory_nomain.o src/bmemory.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/bmemory.o ${OBJECTDIR}/src/bmemory_nomain.o;\
 	fi
@@ -396,7 +396,7 @@ ${OBJECTDIR}/src/bstring_nomain.o: ${OBJECTDIR}/src/bstring.o src/bstring.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bstring_nomain.o src/bstring.c;\
+	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bstring_nomain.o src/bstring.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/bstring.o ${OBJECTDIR}/src/bstring_nomain.o;\
 	fi
@@ -409,7 +409,7 @@ ${OBJECTDIR}/src/chebyshev_nomain.o: ${OBJECTDIR}/src/chebyshev.o src/chebyshev.
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/chebyshev_nomain.o src/chebyshev.c;\
+	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/chebyshev_nomain.o src/chebyshev.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/chebyshev.o ${OBJECTDIR}/src/chebyshev_nomain.o;\
 	fi
@@ -422,7 +422,7 @@ ${OBJECTDIR}/src/features_nomain.o: ${OBJECTDIR}/src/features.o src/features.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/features_nomain.o src/features.c;\
+	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/features_nomain.o src/features.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/features.o ${OBJECTDIR}/src/features_nomain.o;\
 	fi
@@ -435,7 +435,7 @@ ${OBJECTDIR}/src/gamma_nomain.o: ${OBJECTDIR}/src/gamma.o src/gamma.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/gamma_nomain.o src/gamma.c;\
+	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/gamma_nomain.o src/gamma.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/gamma.o ${OBJECTDIR}/src/gamma_nomain.o;\
 	fi
@@ -448,7 +448,7 @@ ${OBJECTDIR}/src/lgamma_nomain.o: ${OBJECTDIR}/src/lgamma.o src/lgamma.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/lgamma_nomain.o src/lgamma.c;\
+	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/lgamma_nomain.o src/lgamma.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/lgamma.o ${OBJECTDIR}/src/lgamma_nomain.o;\
 	fi
@@ -461,7 +461,7 @@ ${OBJECTDIR}/src/lgammacor_nomain.o: ${OBJECTDIR}/src/lgammacor.o src/lgammacor.
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/lgammacor_nomain.o src/lgammacor.c;\
+	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/lgammacor_nomain.o src/lgammacor.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/lgammacor.o ${OBJECTDIR}/src/lgammacor_nomain.o;\
 	fi
@@ -474,7 +474,7 @@ ${OBJECTDIR}/src/phyper_nomain.o: ${OBJECTDIR}/src/phyper.o src/phyper.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/phyper_nomain.o src/phyper.c;\
+	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/phyper_nomain.o src/phyper.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/phyper.o ${OBJECTDIR}/src/phyper_nomain.o;\
 	fi
@@ -487,7 +487,7 @@ ${OBJECTDIR}/src/stirlerr_nomain.o: ${OBJECTDIR}/src/stirlerr.o src/stirlerr.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/stirlerr_nomain.o src/stirlerr.c;\
+	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/stirlerr_nomain.o src/stirlerr.c;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/stirlerr.o ${OBJECTDIR}/src/stirlerr_nomain.o;\
 	fi
@@ -514,7 +514,7 @@ ${OBJECTDIR}/src/svm_nomain.o: ${OBJECTDIR}/src/svm.o src/svm.cpp
 	    ${TESTDIR}/TestFiles/fimoFactoryTest || true; \
 	    ${TESTDIR}/TestFiles/kmerFactoryTest || true; \
 	    ${TESTDIR}/TestFiles/peakTest || true; \
-	    ${TESTDIR}/TestFiles/phyperTest || true; \
+	    ${TESTDIR}/TestFiles/f5 || true; \
 	    ${TESTDIR}/TestFiles/tFBSFactoryTest || true; \
 	else  \
 	    ./${TEST} || true; \

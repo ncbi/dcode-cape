@@ -32,15 +32,6 @@ extern "C" {
     int strbcmp(const char *haystack, const char *needle);
 
     /**
-     * Duplicate the src string until the delimiter or the newline or \0 are found
-     * 
-     * @param src string to duplicate
-     * @param delimiter delimiter to stop duplication
-     * @return string
-     */
-    char *strdupdel(char *src, char delimiter);
-
-    /**
      * Count the number of occurrences of characters in c in the string str
      * 
      * @param str the string to count on

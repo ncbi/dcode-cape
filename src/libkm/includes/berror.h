@@ -38,14 +38,6 @@ extern "C" {
      */
     extern void *checkPointerError(void *data, const char *msg, const char *file, int line, int exit_status);
 
-    /**
-     * Print the FILE and LINE info
-     * 
-     * @param file the file name (__FILE__)
-     * @param line the line name (__LINE__)
-     */
-    extern void printFileLine(const char *file, int line);
-
 #ifdef	__cplusplus
 }
 #endif

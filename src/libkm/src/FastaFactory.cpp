@@ -64,10 +64,9 @@ Fasta *FastaFactory::GetFastaFromID(string id) {
 
 long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRead, bool cleanContainers, bool binary) {
     int numberSeqCurrentRead;
-    unsigned long int i, j, len;
+    unsigned long int i, len;
     off_t pos;
-    size_t bufferSize, read, readTotal, seq_length, numLines, str_length;
-    char *buffer, *line, *s, *str, *seq, *seq_end;
+    char *buffer, *line, *seq, *seq_end;
     Fasta *fasta = NULL;
 
     if (cleanContainers) {
@@ -78,7 +77,7 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
     numberSeqCurrentRead = 0;
     if (binary) {
         fread(&i, sizeof (unsigned long int), 1, fName);
-        for (j = 0; j < i; j++) {
+        for (int j = 0; j < i; j++) {
             fasta = new Fasta();
 
             fread(&len, sizeof (unsigned long int), 1, fName);
@@ -97,13 +96,16 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
             }
         }
     } else {
-        bufferSize = 100000000;
+        size_t str_length;
+        size_t bufferSize = 100000000;
         buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
         seq = seq_end = NULL;
 
-        readTotal = numLines = seq_length = 0;
+        size_t readTotal = 0;
+        size_t numLines = 0;
+        size_t seq_length = 0;
         while (!feof(fName)) {
-            read = fread(buffer, sizeof (char), bufferSize, fName);
+            size_t read = fread(buffer, sizeof (char), bufferSize, fName);
             buffer[read] = 0;
             if (feof(fName)) {
                 if (buffer[read - 1] != '\n') {
@@ -111,7 +113,7 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
                     buffer[read + 1] = 0;
                 }
             }
-            str = buffer;
+            char *str = buffer;
             while (1) {
                 line = strchr(str, '\n');
                 if (line) *line = 0;
@@ -135,7 +137,7 @@ long unsigned int FastaFactory::ParseFastaFile(FILE *fName, int numberSeqTotalRe
                         seq = NULL;
                         readTotal += str_length;
                         fasta = new Fasta();
-                        s = strndup(str + 1, str_length - 1);
+                        char *s = strndup(str + 1, str_length - 1);
                         fasta->SetId(s);
                         free(s);
                     } else {
@@ -228,7 +230,6 @@ void FastaFactory::WriteSequencesToFile(char* fileName, bool binary) {
     unsigned long int i, len;
     FILE *outputFile = NULL;
     Fasta *f;
-    char t = 0;
 
     if (binary) {
         outputFile = (FILE *) checkPointerError(fopen(fileName, "wb"), "Can't open output file", __FILE__, __LINE__, -1);
@@ -249,6 +250,7 @@ void FastaFactory::WriteSequencesToFile(char* fileName, bool binary) {
             f = it->second;
             fprintf(outputFile, ">%s\n", f->GetId().c_str());
             for (i = 0; i < f->GetLength(); i += 50) {
+                char t = 0;
                 if (i + 50 < f->GetLength()) {
                     t = f->GetSeq()[i + 50];
                     f->GetSeq()[i + 50] = 0;

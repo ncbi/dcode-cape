@@ -1,8 +1,8 @@
-/*
- * File:   PhyperTest.c
+/* 
+ * File:   PhyperTest.cpp
  * Author: veraalva
  *
- * Created on February 18, 2016, 3:00 PM
+ * Created on April 8, 2016, 11:29 AM
  */
 
 #include <stdio.h>
@@ -11,8 +11,17 @@
 #include <math.h>
 #include "bmath.h"
 
+#include <stdlib.h>
+#include <iostream>
+
+#include "TimeUtils.h"
+#include "Global.h"
+
+Global *Global::s_instance = 0;
+TimeUtils *TimeUtils::s_instance = 0;
+
 /*
- * Simple C Test Suite
+ * Simple C++ Test Suite
  */
 
 void testPhyperTest() {
@@ -28,13 +37,14 @@ void testPhyperTest() {
 }
 
 int main(int argc, char** argv) {
-    printf("%%SUITE_STARTING%% PhyperTest\n");
-    printf("%%SUITE_STARTED%%\n");
+    std::cout << "%SUITE_STARTING% PhyperTest" << std::endl;
+    std::cout << "%SUITE_STARTED%" << std::endl;
 
-    printf("%%TEST_STARTED%% test1 (PhyperTest)\n");
+    std::cout << "%TEST_STARTED% testPhyperTest (PhyperTest)" << std::endl;
     testPhyperTest();
-    printf("%%TEST_FINISHED%% time=0 test1 (PhyperTest) \n");
+    std::cout << "%TEST_FINISHED% time=0 testPhyperTest (PhyperTest)" << std::endl;
 
-    printf("%%SUITE_FINISHED%% time=0\n");
+    std::cout << "%SUITE_FINISHED% time=0" << std::endl;
+
     return (EXIT_SUCCESS);
 }

@@ -43,6 +43,9 @@ using namespace snp;
 using namespace svm;
 using namespace fimo;
 
+Global *Global::s_instance = 0;
+TimeUtils *TimeUtils::s_instance = 0;
+
 char *program_name;
 
 void print_usage(FILE *stream, int exit_code) {

@@ -49,9 +49,9 @@ size_t splitString(char ***dest, char *src, const char *delimiter) {
  */
 int strbcmp(const char *haystack, const char *needle) {
     int length;
-    const char *s = haystack;
-    const char *sub = NULL;
+    const char *s = haystack;    
     if (haystack && needle && strlen(haystack) >= (length = strlen(needle))) {
+        const char *sub = NULL;
         while ((s = strstr(s, needle)) != NULL) {
             sub = s;
             s += strlen(needle);
@@ -59,31 +59,6 @@ int strbcmp(const char *haystack, const char *needle) {
         if (sub && strlen(sub) == length) return 0;
     }
     return 1;
-}
-
-/**
- * Duplicate the src string until the delimiter or the newline or \0 are found
- * 
- * @param src string to duplicate
- * @param delimiter delimiter to stop duplication
- * @return string
- */
-char *strdupdel(char *src, char delimiter) {
-    char *id = src;
-    char *val, *val_src;
-    char *result = NULL;
-    if (id) {
-        while (*(id++) != delimiter);
-        val = val_src = (char *) checkPointerError(malloc(sizeof (char) * (strlen(id) + 1)), "Can't allocate memory", __FILE__, __LINE__, -1);
-
-        while (*id != delimiter && *id != 0 && *id != '\n' && *id != '\r') {
-            *(val++) = *(id++);
-        }
-        *val = 0;
-        result = strdup(val_src);
-        free(val_src);
-    }
-    return result;
 }
 
 /**
@@ -96,9 +71,8 @@ char *strdupdel(char *src, char delimiter) {
 int countCharacter(const char *str, const char *chracters) {
     int count = 0;
     const char *s = str;
-    const char *c;
     while (*s != 0) {
-        c = chracters;
+        const char *c = chracters;
         while (*c != 0) {
             if (*s == *c) count++;
             c++;
@@ -159,12 +133,11 @@ char *complement(const char *input) {
  * @return a new char * with the shuffle string
  */
 char *shuffle(const char *input) {
-    char c;
     char *output = strdup(input);
-    int j, i = strlen(output) - 1;
+    int i = strlen(output) - 1;
     while (i > 0) {
-        j = rand() % i;
-        c = output[i];
+        int j = rand() % i;
+        char c = output[i];
         output[i] = output[j];
         output[j] = c;
         i--;

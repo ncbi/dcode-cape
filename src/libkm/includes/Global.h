@@ -15,8 +15,8 @@ class Global {
     double bin2;
     static Global *s_instance;
 
-    Global(int v = false) {
-        verbose = v;
+    Global() {
+        verbose = 0;
     }
 public:
 
@@ -50,7 +50,7 @@ public:
     void SetOrder(unsigned long int order) {
         this->order = order;
     }
-    
+
     double GetBin1() const {
         return bin1;
     }

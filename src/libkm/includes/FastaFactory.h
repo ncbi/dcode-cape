@@ -21,6 +21,8 @@ namespace fasta {
         Fasta();
 
         Fasta(const std::string& i, const std::string& d) : id(i), description(d) {
+            this->length = 0;
+            this->seq = NULL;
         }
         Fasta(const Fasta& orig);
         virtual ~Fasta();

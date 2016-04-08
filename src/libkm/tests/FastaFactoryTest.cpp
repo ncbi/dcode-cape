@@ -32,6 +32,9 @@
 using namespace std;
 using namespace fasta;
 
+Global *Global::s_instance = 0;
+TimeUtils *TimeUtils::s_instance = 0;
+
 void testParseFastaFile(char *fileName) {
     Fasta *fasta;
     FastaFactory fastaFactory;

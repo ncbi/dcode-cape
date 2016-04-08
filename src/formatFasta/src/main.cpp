@@ -27,6 +27,9 @@
 using namespace std;
 using namespace fasta;
 
+Global *Global::s_instance = 0;
+TimeUtils *TimeUtils::s_instance = 0;
+
 char *program_name;
 
 void print_usage(FILE *stream, int exit_code) {

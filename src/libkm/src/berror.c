@@ -46,15 +46,3 @@ void *checkPointerError(void *data, const char *msg, const char *file, int line,
     }
     return data;
 }
-
-/**
- * Print the FILE and LINE info
- * 
- * @param file the file name (__FILE__)
- * @param line the line name (__LINE__)
- */
-void printFileLine(const char *file, int line) {
-    printf("%s %d\n", file, line);
-    fflush(stdout);
-}
-

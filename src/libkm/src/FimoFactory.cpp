@@ -157,7 +157,7 @@ void FimoFactory::CreateCutoffIndexFromFile(char* cutoffFileName, size_t column)
 void FimoFactory::ParseFimoOutput(char* fimoOuputName, char *tissueCode, unsigned long int snpPos) {
     size_t i;
     FILE *fimoOuputFile = (FILE *) checkPointerError(fopen(fimoOuputName, "r"), "Can't open FIMO output file", __FILE__, __LINE__, -1);
-    size_t bufferSize, read, backupLineSize;
+    size_t bufferSize, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine;
     char **fields = NULL;
     size_t fieldsSize = 0;
@@ -176,7 +176,7 @@ void FimoFactory::ParseFimoOutput(char* fimoOuputName, char *tissueCode, unsigne
 
     *backupLine = 0;
     while (!feof(fimoOuputFile)) {
-        read = fread(buffer, sizeof (char), bufferSize, fimoOuputFile);
+        size_t read = fread(buffer, sizeof (char), bufferSize, fimoOuputFile);
         buffer[read] = 0;
         if (feof(fimoOuputFile)) {            
             if (buffer[read - 1] != '\n') {

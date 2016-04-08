@@ -40,9 +40,6 @@ using namespace fasta;
 using namespace peak;
 using namespace kmers;
 
-Global *Global::s_instance = 0;
-TimeUtils *TimeUtils::s_instance = 0;
-
 Peak::Peak() {
     this->start = 0;
     this->end = 0;
@@ -50,6 +47,7 @@ Peak::Peak() {
     this->GCCount = 0;
     this->NCount = 0;
     this->NRCount = 0;
+    this->NPercent = 0.0;
 }
 
 Peak::~Peak() {
@@ -87,9 +85,9 @@ char* Peak::RandomizePeakSeq() {
         if (n == s) s++;
         else {
             if (n != NULL) *n = '\0';
-            int j, i = strlen(s) - 1;
+            int i = strlen(s) - 1;
             while (i > 0) {
-                j = rand() % i;
+                int j = rand() % i;
                 c = s[i];
                 s[i] = s[j];
                 s[j] = c;
@@ -107,6 +105,8 @@ char* Peak::RandomizePeakSeq() {
 }
 
 BedFactory::BedFactory() {
+    this->NCount = 0;
+    this->GCCount = 0;
 }
 
 BedFactory::~BedFactory() {
@@ -118,7 +118,7 @@ BedFactory::~BedFactory() {
 void BedFactory::CreatePeaksFromBedFile(FastaFactory& chrFactory, char *bedFileName, double maxNPercent, KmersFactory &kmersFactory) {
     FILE *bedFile = (FILE *) checkPointerError(fopen(bedFileName, "r"), "Can't open bed file", __FILE__, __LINE__, -1);
 
-    size_t bufferSize, read, backupLineSize;
+    size_t bufferSize, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine, *seq;
     char **fields = NULL;
     size_t fieldsSize = 0;
@@ -132,14 +132,14 @@ void BedFactory::CreatePeaksFromBedFile(FastaFactory& chrFactory, char *bedFileN
 
     *backupLine = 0;
     while (!feof(bedFile)) {
-        read = fread(buffer, sizeof (char), bufferSize, bedFile);
+        size_t read = fread(buffer, sizeof (char), bufferSize, bedFile);
         buffer[read] = 0;
-        if (feof(bedFile)) {            
+        if (feof(bedFile)) {
             if (buffer[read - 1] != '\n') {
                 buffer[read] = '\n';
                 buffer[read + 1] = 0;
             }
-        }  
+        }
         str = buffer;
         while ((newLine = strchr(str, '\n')) != NULL) {
             *newLine = 0;
@@ -477,7 +477,7 @@ void BedFactory::GeneratingControlsFromShufflingPeaks(unsigned long int hit_Num,
 void BedFactory::ReadControlsFromFile(char* controlFileName, FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory) {
     FILE *bedFile = (FILE *) checkPointerError(fopen(controlFileName, "r"), "Can't open bed file", __FILE__, __LINE__, -1);
 
-    size_t bufferSize, read, backupLineSize;
+    size_t bufferSize, backupLineSize;
     char *buffer, *newLine, *str, *backupLine, *completeLine, *seq;
     char **fields = NULL;
     size_t fieldsSize = 0;
@@ -490,9 +490,9 @@ void BedFactory::ReadControlsFromFile(char* controlFileName, FastaFactory &chrFa
     kmersFactory.ClearKmerControlData();
     *backupLine = 0;
     while (!feof(bedFile)) {
-        read = fread(buffer, sizeof (char), bufferSize, bedFile);
+        size_t read = fread(buffer, sizeof (char), bufferSize, bedFile);
         buffer[read] = 0;
-        if (feof(bedFile)) {            
+        if (feof(bedFile)) {
             if (buffer[read - 1] != '\n') {
                 buffer[read] = '\n';
                 buffer[read + 1] = 0;
@@ -547,26 +547,5 @@ void BedFactory::ReadControlsFromFile(char* controlFileName, FastaFactory &chrFa
     free(buffer);
     free(backupLine);
     fclose(bedFile);
-}
-
-void BedFactory::WritePeaksFastaFile(char* fastaFile, bool binary) {
-    FastaFactory fastaFactory;
-    Fasta *f = NULL;
-    Peak *p = NULL;
-    char *seq = NULL;
-    string id;
-
-    for (auto it = peaks.begin(); it != peaks.end(); ++it) {
-        p = *it;
-        f = new Fasta();
-        id = p->GetChr() + ":" + to_string(p->GetStart()) + "-" + to_string(p->GetEnd());
-        f->SetId(id);
-        seq = strdup(p->GetSeq());        
-        f->SetLength(strlen(seq));
-        f->SetSeq(&seq);
-        fastaFactory.GetFastaMap().insert(pair<string, Fasta*>(id, move(f)));
-    }
-
-    fastaFactory.WriteSequencesToFile(fastaFile, binary);
 }
 

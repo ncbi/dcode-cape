@@ -13,7 +13,6 @@ namespace svm {
     class SVMPredict {
     public:
         SVMPredict();
-        SVMPredict(const SVMPredict& orig);
         virtual ~SVMPredict();
 
         svm_model* GetModel() {
