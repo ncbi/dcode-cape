@@ -21,14 +21,16 @@
 #include "bmemory.h"
 #include "bstring.h"
 
+#include "Global.h"
+#include "FileParserFactory.h"
 #include "Exceptions.h"
 #include "FastaFactory.h"
 #include "TFBSFactory.h"
-#include "Global.h"
 
 using namespace std;
+using namespace parsers;
 using namespace exceptions;
-using namespace fasta;
+using namespace sequence;
 using namespace tfbs;
 
 Tib::Tib() {
@@ -76,146 +78,62 @@ TFBSFactory::~TFBSFactory() {
     }
 }
 
-void TFBSFactory::CreateTFBSFileIndexMap(char* dirName, const char *prefix, const char *idxExtension, const char *tibExtension) {
+void TFBSFactory::createTFBSFileIndexMap(std::string dirName, std::string prefix, std::string idxExtension, std::string tibExtension) {
     struct dirent *dp;
-    bool read = false;
-
-    pair<FILE *, FILE*> cPair;
-    char *index;
-    size_t len = strlen(dirName);
-    char *fileName = (char *) allocate(sizeof (char) * (len + 1), __FILE__, __LINE__);
-
-    DIR *dirp = (DIR *) checkPointerError(opendir(dirName), "Can't open input directory", __FILE__, __LINE__, -1);
+    DIR *dirp = (DIR *) checkPointerError(opendir(dirName.c_str()), "Can't open input directory", __FILE__, __LINE__, -1);
 
     while ((dp = readdir(dirp)) != NULL) {
-        //        if (Global::instance()->isDebug3()) {
-        //            cout << "\tDEBUG3 ==> Found file: " << dp->d_name << endl;
-        //        }
-        if (dp->d_name[0] != '.') {
-            if (!prefix && !idxExtension) {
+        bool read = false;
+        string fName(dp->d_name);
+        if (fName[0] != '.') {
+            if (prefix.empty() && idxExtension.empty()) {
                 read = true;
             } else {
-                if (prefix && !idxExtension) {
-                    if (strncmp(dp->d_name, prefix, strlen(prefix)) == 0) read = true;
-                } else if (!prefix && idxExtension) {
-                    if (strbcmp(dp->d_name, idxExtension) == 0) read = true;
-                } else if (prefix && idxExtension) {
-                    if (strncmp(dp->d_name, prefix, strlen(prefix)) == 0 && strbcmp(dp->d_name, idxExtension) == 0) read = true;
+                if (!prefix.empty() && idxExtension.empty()) {
+                    if (prefix.size() <= fName.size() &&
+                            fName.compare(0, prefix.size(), prefix) == 0) read = true;
+                } else if (prefix.empty() && !idxExtension.empty()) {
+                    if (idxExtension.size() <= fName.size() &&
+                            fName.compare(fName.size() - idxExtension.size(), idxExtension.size(), idxExtension) == 0) read = true;
+                } else if (!prefix.empty() && !idxExtension.empty()) {
+                    if (prefix.size() <= fName.size() &&
+                            idxExtension.size() <= fName.size() &&
+                            fName.compare(0, prefix.size(), prefix) == 0 &&
+                            fName.compare(fName.size() - idxExtension.size(), idxExtension.size(), idxExtension) == 0) read = true;
                 }
             }
         }
         if (read) {
-            if (len < strlen(dirName) + strlen(dp->d_name) + strlen(tibExtension) + 2) {
-                len = strlen(dirName) + strlen(dp->d_name) + strlen(tibExtension) + 2;
-                fileName = (char *) reallocate(fileName, sizeof (char) * len, __FILE__, __LINE__);
-            }
-            sprintf(fileName, "%s/%s", dirName, dp->d_name);
-            //            if (Global::instance()->isDebug3()) {
-            //                cout << "\tDEBUG3 ==> Opening file: " << fileName << endl;
-            //            }
-            cPair.first = (FILE *) checkPointerError(fopen(fileName, "rb"), "Can't open input file", __FILE__, __LINE__, -1);
-            index = strstr(dp->d_name, idxExtension);
-            strncpy(index, tibExtension, strlen(tibExtension));
-            sprintf(fileName, "%s/%s", dirName, dp->d_name);
-            //            if (Global::instance()->isDebug3()) {
-            //                cout << "\tDEBUG3 ==> Opening file: " << fileName << endl;
-            //            }
-            cPair.second = (FILE *) checkPointerError(fopen(fileName, "rb"), "Can't open input file", __FILE__, __LINE__, -1);
-
-            *index = 0;
-            //            if (Global::instance()->isInfo()) {
-            //                cout << "\tDEBUG3 ==> Chr file name: " << dp->d_name << endl;
-            //            }
-
+            pair<FILE *, FILE*> cPair;
+            fName.replace(fName.size() - idxExtension.size(), idxExtension.size(), "");
+            cPair.first = (FILE *) checkPointerError(fopen((dirName + "/" + fName + idxExtension).c_str(), "rb"), "Can't open input file", __FILE__, __LINE__, -1);
+            cPair.second = (FILE *) checkPointerError(fopen((dirName + "/" + fName + tibExtension).c_str(), "rb"), "Can't open input file", __FILE__, __LINE__, -1);
             if (!cPair.first || !cPair.second) {
                 cerr << "ERROR!!" << endl;
                 cerr << "Can't open TFBS index files" << endl;
                 exit(-1);
             }
-
-            tfbsFileIndex.insert(pair<string, pair < FILE *, FILE*>>(dp->d_name, cPair));
-
-            strncpy(index, idxExtension, strlen(idxExtension));
-            //            if (Global::instance()->isDebug3()) {
-            //                cout << "\tDEBUG3 ==> Setting index file name to the initial state: " << dp->d_name << endl;
-            //            }
-
-            read = false;
+            tfbsFileIndex.insert(pair<string, pair < FILE *, FILE*>>(fName, cPair));
         }
     }
     closedir(dirp);
-    free(fileName);
 }
 
-void TFBSFactory::CreatePWMIndexFromTibInfoFile(const char* tibInfoFileName) {
-    FILE *tibInfoFile = (FILE *) checkPointerError(fopen(tibInfoFileName, "r"), "Can't open Tib info file", __FILE__, __LINE__, -1);
+void TFBSFactory::createPWMIndexFromTibInfoFile(std::string tibInfoFileName) {
+    FileParserFactory fParser(tibInfoFileName);
 
-    size_t bufferSize, backupLineSize;
-    char *buffer, *newLine, *str, *backupLine, *completeLine;
-    char **fields = NULL;
-    size_t fieldsSize = 0;
-    Tib *tib;
-
-    backupLineSize = bufferSize = 100000000;
-    buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
-    backupLine = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
-
-    *backupLine = 0;
-    while (!feof(tibInfoFile)) {
-        size_t read = fread(buffer, sizeof (char), bufferSize, tibInfoFile);
-        buffer[read] = 0;
-        if (feof(tibInfoFile)) {
-            if (buffer[read - 1] != '\n') {
-                buffer[read] = '\n';
-                buffer[read + 1] = 0;
-            }
+    while (fParser.iterate('#', " ")) {
+        if (fParser.getNWords() != 3) {
+            printLog(stderr, "Tib info file with a wrong format ", __FILE__, __LINE__, -1);
         }
-        str = buffer;
-        while ((newLine = strchr(str, '\n')) != NULL) {
-            *newLine = 0;
-            if (*backupLine != 0) {
-                if (strlen(backupLine) + strlen(str) + 1 > backupLineSize) {
-                    backupLineSize += backupLineSize;
-                    backupLine = (char *) reallocate(backupLine, sizeof (char) * (backupLineSize + 1), __FILE__, __LINE__);
-                }
-                strcat(backupLine, str);
-                completeLine = backupLine;
-            } else {
-                completeLine = str;
-            }
-
-            if (*completeLine != '#') {
-                fieldsSize = splitString(&fields, completeLine, " ");
-                if (fieldsSize != 3) {
-                    fprintf(stderr, "%s\n", completeLine);
-                    printLog(stderr, "Tib info file with a wrong format ", __FILE__, __LINE__, -1);
-                }
-                tib = new Tib();
-                tib->SetName(fields[2]);
-                tib->SetLen(atol(fields[1]));
-                if (longestPWM < tib->GetLen()) {
-                    longestPWM = tib->GetLen();
-                }
-                pwmIndex.push_back(move(tib));
-
-                freeArrayofPointers((void **) fields, fieldsSize);
-            }
-            *backupLine = 0;
-            str = newLine + 1;
+        Tib *tib = new Tib();
+        tib->setName(fParser.getWords()[2]);
+        tib->setLen(atol(fParser.getWords()[1]));
+        if (longestPWM < tib->getLen()) {
+            longestPWM = tib->getLen();
         }
-
-        if (strlen(str) > 0) {
-            if (strlen(backupLine) + strlen(str) + 1 > backupLineSize) {
-                backupLineSize += backupLineSize;
-                backupLine = (char *) reallocate(backupLine, sizeof (char) * (backupLineSize + 1), __FILE__, __LINE__);
-            }
-            strcat(backupLine, str);
-        }
+        pwmIndex.push_back(tib);
     }
-
-    free(buffer);
-    free(backupLine);
-    fclose(tibInfoFile);
 }
 
 class TFBSList {
@@ -239,7 +157,7 @@ TFBSList::~TFBSList() {
 
 }
 
-void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
+void TFBSFactory::extractTFBSFromFile(long int from, long int to, Seq *chr) {
     long int i, j, k;
     unsigned long int *offset = NULL;
     uint32_t b;
@@ -251,19 +169,19 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
     std::vector<TFBSList *> tfbsList;
     unordered_map<string, pair < FILE *, FILE *>>::iterator tfbsFileIndexIt;
 
-    if (chr->GetId().compare(currentChr) != 0) {
-        tfbsFileIndexIt = tfbsFileIndex.find(chr->GetId());
+    if (chr->getId().compare(currentChr) != 0) {
+        tfbsFileIndexIt = tfbsFileIndex.find(chr->getId());
         if (tfbsFileIndexIt == tfbsFileIndex.end()) {
-            throw OutOfRangeException("Indexes files are not available");
+            throw NotFoundException("Indexes files are not available");
         }
 
-        currentChr = chr->GetId();
+        currentChr = chr->getId();
         chrIdxFile = tfbsFileIndexIt->second.first;
         chrTibFile = tfbsFileIndexIt->second.second;
     }
 
     if (!chrIdxFile || !chrTibFile) {
-        throw OutOfRangeException("Current indexes pointers are NULL");
+        throw NotFoundException("Current indexes pointers are NULL");
     }
 
     rFrom = from - longestPWM - 1;
@@ -271,8 +189,8 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
     if (rFrom < 1) {
         rFrom = 1;
     }
-    if (rTo > static_cast<long int> (chr->GetLength())) {
-        rTo = chr->GetLength();
+    if (rTo > static_cast<long int> (chr->getLength())) {
+        rTo = chr->getLength();
     }
 
     if (rFrom > rTo) {
@@ -309,10 +227,10 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
                         }
 
                         tfbsElement = new TFBS(i - rFrom, intFromByte);
-                        tfbsPtr->GetElements().push_back(move(tfbsElement));
+                        tfbsPtr->GetElements().push_back(tfbsElement);
                     }
 
-                    tfbsList.push_back(move(tfbsPtr));
+                    tfbsList.push_back(tfbsPtr);
                     break;
                 }
             }
@@ -328,15 +246,12 @@ void TFBSFactory::ExtractTFBSFromFile(long int from, long int to, Fasta *chr) {
         for (auto tfbsPtrIt = tfbsPtr->GetElements().begin(); tfbsPtrIt != tfbsPtr->GetElements().end(); ++tfbsPtrIt) {
             tfbsElement = *tfbsPtrIt;
 
-            start = rFrom + tfbsElement->GetDelta();
-            end = start + pwmIndex[tfbsElement->GetIndex() - 1]->GetLen() - 1;
+            start = rFrom + tfbsElement->getDelta();
+            end = start + pwmIndex[tfbsElement->getIndex() - 1]->getLen() - 1;
             if ((start >= from) && (end <= to)) {
-                tfbsElement->SetStart(start);
-                tfbsElement->SetEnd(end);
+                tfbsElement->setStart(start);
+                tfbsElement->setEnd(end);
                 tfbs.push_back(move(tfbsElement));
-                //                if (Global::instance()->isDebug3()) {
-                //                    cerr << "\tDEBUG3 ==> \tTFBS\t" << pwmIndex[tfbsElement->GetIndex() - 1]->GetName() << "\t" << start << "\t" << end << "\t" << tfbsElement->GetStrand() << endl;
-                //                }
             } else {
                 delete (*tfbsPtrIt);
             }

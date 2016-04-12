@@ -20,7 +20,7 @@ class Global {
     }
 public:
 
-    bool GetVerbose() {
+    bool getVerbose() {
         return verbose;
     }
 
@@ -39,31 +39,31 @@ public:
         return false;
     }
 
-    void SetVerbose(int v) {
+    void setVerbose(int v) {
         verbose = v;
     }
 
-    unsigned long int GetOrder() const {
+    unsigned long int getOrder() const {
         return order;
     }
 
-    void SetOrder(unsigned long int order) {
+    void setOrder(unsigned long int order) {
         this->order = order;
     }
 
-    double GetBin1() const {
+    double getBin1() const {
         return bin1;
     }
 
-    void SetBin1(double bin1) {
+    void setBin1(double bin1) {
         this->bin1 = bin1;
     }
 
-    double GetBin2() const {
+    double getBin2() const {
         return bin2;
     }
 
-    void SetBin2(double bin2) {
+    void setBin2(double bin2) {
         this->bin2 = bin2;
     }
 

@@ -24,71 +24,71 @@ namespace peak {
         Peak();
         virtual ~Peak();
 
-        void CalculateContent();
+        void calculateContent();
 
-        std::string GetChr() const {
+        std::string getChr() const {
             return chr;
         }
 
-        void SetChr(std::string chr) {
+        void setChr(std::string chr) {
             this->chr = chr;
         }
 
-        unsigned long int GetGCCount() const {
+        unsigned long int getGCCount() const {
             return GCCount;
         }
 
-        void SetGCCount(unsigned long int GCCount) {
+        void setGCCount(unsigned long int GCCount) {
             this->GCCount = GCCount;
         }
 
-        unsigned long int GetNCount() const {
+        unsigned long int getNCount() const {
             return NCount;
         }
 
-        void SetNCount(unsigned long int NCount) {
+        void setNCount(unsigned long int NCount) {
             this->NCount = NCount;
         }
 
-        unsigned long int GetNRCount() const {
+        unsigned long int getNRCount() const {
             return NRCount;
         }
 
-        double GetNPercent() const {
+        double getNPercent() const {
             return NPercent;
         }
 
-        unsigned long int GetEnd() const {
+        unsigned long int getEnd() const {
             return end;
         }
 
-        void SetEnd(unsigned long int end) {
+        void setEnd(unsigned long int end) {
             this->end = end;
         }
 
-        char *GetSeq() {
+        char *getSeq() {
             return seq;
         }
 
-        void SetSeq(char **seq) {
+        void setSeq(char **seq) {
             this->seq = *seq;
         }
 
-        unsigned long int GetStart() const {
+        unsigned long int getStart() const {
             return start;
         }
 
-        void SetStart(unsigned long int start) {
+        void setStart(unsigned long int start) {
             this->start = start;
         }
 
-        unsigned long int GetLength() const {
+        unsigned long int getLength() const {
             return end - start + 1;
         }
 
-        std::pair<int, int> GetGCNcontentBin();
+        std::pair<int, int> getGCNcontentBin();
 
-        char *RandomizePeakSeq();
+        char *randomizePeakSeq();
 
     private:
         std::string chr;
@@ -106,21 +106,21 @@ namespace peak {
         BedFactory();
         virtual ~BedFactory();
 
-        std::vector<Peak*>& GetPeaks() {
+        std::vector<Peak*>& getPeaks() {
             return peaks;
         }
 
-        std::map<std::string, std::map<int, std::map<std::pair<int, int>, int>>>& GetGCNcontentBin() {
+        std::map<std::string, std::map<int, std::map<std::pair<int, int>, int>>>& getGCNcontentBin() {
             return GCNcontentBin;
         }
 
-        void CreatePeaksFromBedFile(fasta::FastaFactory& chrFactory, char *bedFileName, double maxNPercent, kmers::KmersFactory &kmersFactory);
+        void createPeaksFromBedFile(sequence::FastaFactory& chrFactory, std::string bedFileName, double maxNPercent, kmers::KmersFactory &kmersFactory);
 
-        void GeneratingControlsFromChromosomes(fasta::FastaFactory &chrFactory, unsigned long int hit_Num, kmers::KmersFactory &kmersFactory);
+        void generatingControlsFromChromosomes(sequence::FastaFactory &chrFactory, unsigned long int hit_Num, kmers::KmersFactory &kmersFactory);
 
-        void GeneratingControlsFromShufflingPeaks(unsigned long int hit_Num, kmers::KmersFactory &kmersFactory);
+        void generatingControlsFromShufflingPeaks(unsigned long int hit_Num, kmers::KmersFactory &kmersFactory);
 
-        void ReadControlsFromFile(char *controlFileName, fasta::FastaFactory &chrFactory, kmers::KmersFactory &kmersFactory);
+        void readControlsFromFile(std::string controlFileName, sequence::FastaFactory &chrFactory, kmers::KmersFactory &kmersFactory);
 
     private:
         unsigned long int NCount;

@@ -30,6 +30,66 @@ namespace exceptions {
         std::string msg;
     };
 
+    class FileNotFoundException : public std::exception {
+    public:
+
+        explicit FileNotFoundException(const char* message) : msg(message) {
+        }
+
+        explicit FileNotFoundException(const std::string& message) : msg(message) {
+        }
+
+        virtual ~FileNotFoundException() {
+        }
+
+        virtual const char* what() const throw () {
+            return msg.c_str();
+        }
+
+    private:
+        std::string msg;
+    };
+
+    class ErrorReadingFromFileException : public std::exception {
+    public:
+
+        explicit ErrorReadingFromFileException(const char* message) : msg(message) {
+        }
+
+        explicit ErrorReadingFromFileException(const std::string& message) : msg(message) {
+        }
+
+        virtual ~ErrorReadingFromFileException() {
+        }
+
+        virtual const char* what() const throw () {
+            return msg.c_str();
+        }
+
+    private:
+        std::string msg;
+    };
+
+    class NotFoundException : public std::exception {
+    public:
+
+        explicit NotFoundException(const char* message) : msg(message) {
+        }
+
+        explicit NotFoundException(const std::string& message) : msg(message) {
+        }
+
+        virtual ~NotFoundException() {
+        }
+
+        virtual const char* what() const throw () {
+            return msg.c_str();
+        }
+
+    private:
+        std::string msg;
+    };
+
 }
 
 #endif /* EXCEPTIONS_H */

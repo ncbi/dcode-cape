@@ -42,9 +42,9 @@ SVMPredict::~SVMPredict() {
     if (this->model) svm_free_and_destroy_model(&this->model);
 }
 
-void SVMPredict::SVMLoadModel(char* fileName) {
-    if ((this->model = svm_load_model(fileName)) == 0) {
-        fprintf(stderr, "can't open model file %s\n", fileName);
+void SVMPredict::svmLoadModel(std::string fileName) {
+    if ((this->model = svm_load_model(fileName.c_str())) == 0) {
+        fprintf(stderr, "can't open model file %s\n", fileName.c_str());
         exit(1);
     }
     if (this->predict_probability) {
@@ -70,7 +70,7 @@ void SVMPredict::SVMLoadModel(char* fileName) {
     }
 }
 
-void SVMPredict::SVMPredictCalulation(struct svm_node *x, double target_label) {
+void SVMPredict::svmPredictCalulation(struct svm_node *x, double target_label) {
     double predict_label;
 
     if (this->predict_probability && (this->svm_type == C_SVC || this->svm_type == NU_SVC)) {

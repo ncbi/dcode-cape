@@ -21,19 +21,19 @@ namespace tfbs {
         Tib();
         virtual ~Tib();
 
-        long int GetLen() const {
+        long int getLen() const {
             return len;
         }
 
-        std::string GetName() const {
+        std::string getName() const {
             return name;
         }
 
-        void SetLen(long int len) {
+        void setLen(long int len) {
             this->len = len;
         }
 
-        void SetName(std::string name) {
+        void setName(std::string name) {
             this->name = name;
         }
 
@@ -47,31 +47,31 @@ namespace tfbs {
         TFBS(unsigned long int d, short int i);
         virtual ~TFBS();
 
-        unsigned long int GetDelta() const {
+        unsigned long int getDelta() const {
             return delta;
         }
 
-        short int GetIndex() const {
+        short int getIndex() const {
             return index;
         }
 
-        char GetStrand() const {
+        char getStrand() const {
             return strand;
         }
 
-        long int GetEnd() const {
+        long int getEnd() const {
             return end;
         }
 
-        void SetEnd(long int end) {
+        void setEnd(long int end) {
             this->end = end;
         }
 
-        long int GetStart() const {
+        long int getStart() const {
             return start;
         }
 
-        void SetStart(long int start) {
+        void setStart(long int start) {
             this->start = start;
         }
 
@@ -88,23 +88,23 @@ namespace tfbs {
         TFBSFactory();
         virtual ~TFBSFactory();
 
-        void CreateTFBSFileIndexMap(char *dirName, const char *prefix, const char *idxExtension, const char *tibExtension);
-        void CreatePWMIndexFromTibInfoFile(const char *tibInfoFileName);
-        void ExtractTFBSFromFile(long int from, long int to, fasta::Fasta *chr);
+        void createTFBSFileIndexMap(std::string dirName, std::string prefix, std::string idxExtension, std::string tibExtension);
+        void createPWMIndexFromTibInfoFile(std::string tibInfoFileName);
+        void extractTFBSFromFile(long int from, long int to, sequence::Seq *chr);
 
-        std::vector<Tib *>& GetPwmIndex() {
+        std::vector<Tib *>& getPwmIndex() {
             return pwmIndex;
         }
 
-        std::vector<TFBS *>& GetTfbs() {
+        std::vector<TFBS *>& getTfbs() {
             return tfbs;
         }
 
-        long int GetLongestPWM() const {
+        long int getLongestPWM() const {
             return longestPWM;
         }
 
-        void SetLongestPWM(long int longestPWM) {
+        void setLongestPWM(long int longestPWM) {
             this->longestPWM = longestPWM;
         }
 

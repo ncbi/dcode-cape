@@ -34,14 +34,6 @@ extern "C" {
      */
     extern void *reallocate(void *self, size_t size, const char *file, int line);
 
-    /**
-     * Free an array of pointers
-     * 
-     * @param str the pointer to be free
-     * @param index the number of strings
-     */
-    extern void freeArrayofPointers(void **pointer, int index);
-
 #ifdef	__cplusplus
 }
 #endif

@@ -23,11 +23,14 @@
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"
+
 #include "Global.h"
 #include "TimeUtils.h"
+#include "FileParserFactory.h"
 #include "FimoFactory.h"
 
 using namespace std;
+using namespace parsers;
 using namespace fimo;
 
 FimoFactory::FimoFactory() {
@@ -40,258 +43,177 @@ FimoFactory::~FimoFactory() {
 
 }
 
-void FimoFactory::CreateTissueIndexFromFiles(char *pwm_EnsembleID, char *tissue_file) {
-    FILE *pwmEnsembleIDFile = (FILE *) checkPointerError(fopen(pwm_EnsembleID, "r"), "Can't open pwm_tFName file", __FILE__, __LINE__, -1);
-    FILE *tissueFile = (FILE *) checkPointerError(fopen(tissue_file, "r"), "Can't open tissue file", __FILE__, __LINE__, -1);
-
-    char *line = NULL;
-    size_t len = 0;
-    char **fields = NULL;
-    size_t fieldsSize = 0;
-    char **fields2 = NULL;
-    size_t fields2Size = 0;
+void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::string tissue_file) {
+    char **words = NULL;
+    size_t nWords = 0;
+    size_t wordsSize = 0;
+    FileParserFactory fParser(pwm_EnsembleID);
     unordered_map<string, set < string>> tFNameReverseMap;
     unordered_map<string, set < string>>::iterator tFNameReverseMapIt;
+    vector<string> header;
 
-    while (getline(&line, &len, pwmEnsembleIDFile) != -1) {
-        if (*line != '#') {
-            if (*(line + (strlen(line) - 1)) == '\n') *(line + (strlen(line) - 1)) = '\0';
-            fieldsSize = splitString(&fields, line, "\t");
-            if (fieldsSize < 2) {
-                printLog(stderr, "Input pwm_tFName file with a wrong format ", __FILE__, __LINE__, -1);
-            }
-            fields2Size = splitString(&fields2, fields[fieldsSize - 1], ";");
-            set<string> a;
-            for (size_t i = 0; i < fields2Size; i++) {
-                a.insert(fields2[i]);
+    while (fParser.iterate('#', "\t")) {
+        if (fParser.getNWords() < 2) {
+            printLog(stderr, "Input pwm_tFName file with a wrong format ", __FILE__, __LINE__, -1);
+        }
+        nWords = strsep_ptr(&words, &wordsSize, fParser.getWords()[fParser.getNWords() - 1], ";");
+        set<string> a;
+        for (size_t i = 0; i < nWords; i++) {
+            a.insert(words[i]);
 
-                tFNameReverseMapIt = tFNameReverseMap.find(fields2[i]);
-                if (tFNameReverseMapIt == tFNameReverseMap.end()) {
-                    set<string> s;
-                    s.insert(fields[0]);
-                    tFNameReverseMap.insert(pair<string, set < string >> (fields2[i], s));
-                } else {
-                    tFNameReverseMapIt->second.insert(fields[0]);
-                }
+            tFNameReverseMapIt = tFNameReverseMap.find(words[i]);
+            if (tFNameReverseMapIt == tFNameReverseMap.end()) {
+                set<string> s;
+                s.insert(fParser.getWords()[0]);
+                tFNameReverseMap.insert(pair<string, set < string >> (words[i], s));
+            } else {
+                tFNameReverseMapIt->second.insert(fParser.getWords()[0]);
             }
-            freeArrayofPointers((void **) fields2, fields2Size);
-            freeArrayofPointers((void **) fields, fieldsSize);
         }
     }
-    fclose(pwmEnsembleIDFile);
 
-    getline(&line, &len, tissueFile);
-    if (*(line + (strlen(line) - 1)) == '\n') *(line + (strlen(line) - 1)) = '\0';
-    fieldsSize = splitString(&fields, line, "\t");
+    fParser.clean();
+    fParser.setFileToParse(tissue_file);
 
-    while (getline(&line, &len, tissueFile) != -1) {
-        if (*line != '#') {
-            if (*(line + (strlen(line) - 1)) == '\n') *(line + (strlen(line) - 1)) = '\0';
-            fields2Size = splitString(&fields2, line, "\t");
-            if (fields2Size != fieldsSize) {
-                printLog(stderr, "Tissue file with a wrong format ", __FILE__, __LINE__, -1);
-            }
+    fParser.iterate('#', "\t");
+    fParser.wordsToVector(header);
 
-            tFNameReverseMapIt = tFNameReverseMap.find(fields2[0]);
-            if (tFNameReverseMapIt != tFNameReverseMap.end()) {
-                for (auto it1 = tFNameReverseMapIt->second.begin(); it1 != tFNameReverseMapIt->second.end(); ++it1) {
+    while (fParser.iterate('#', "\t")) {
+        if (fParser.getNWords() != header.size()) {
+            printLog(stderr, "Tissue file with a wrong format ", __FILE__, __LINE__, -1);
+        }
 
-                    auto tissueMapIt = tissueIndex.find(*it1);
+        tFNameReverseMapIt = tFNameReverseMap.find(fParser.getWords()[0]);
+        if (tFNameReverseMapIt != tFNameReverseMap.end()) {
+            for (auto it1 = tFNameReverseMapIt->second.begin(); it1 != tFNameReverseMapIt->second.end(); ++it1) {
 
-                    for (size_t i = 1; i < fields2Size; i++) {
-                        if (tissueMapIt == tissueIndex.end()) {
-                            pair<string, double> tissueEnsemblePair(fields2[0], strtod(fields2[i], NULL));
-                            unordered_map<string, pair<string, double>> tissues;
-                            tissues.insert(pair<string, pair<string, double>>(fields[i], tissueEnsemblePair));
-                            tissueIndex.insert(pair<string, unordered_map<string, pair<string, double>>>(*it1, tissues));
-                            tissueMapIt = tissueIndex.find(*it1);
+                auto tissueMapIt = tissueIndex.find(*it1);
+
+                for (size_t i = 1; i < fParser.getNWords(); i++) {
+                    if (tissueMapIt == tissueIndex.end()) {
+                        pair<string, double> tissueEnsemblePair(fParser.getWords()[0], strtod(fParser.getWords()[i], NULL));
+                        unordered_map<string, pair<string, double>> tissues;
+                        tissues.insert(pair<string, pair<string, double>>(header[i], tissueEnsemblePair));
+                        tissueIndex.insert(pair<string, unordered_map<string, pair<string, double>>>(*it1, tissues));
+                        tissueMapIt = tissueIndex.find(*it1);
+                    } else {
+                        auto tissueIt = tissueMapIt->second.find(header[i]);
+                        if (tissueIt == tissueMapIt->second.end()) {
+                            pair<string, double> tissueEnsemblePair(fParser.getWords()[0], strtod(fParser.getWords()[i], NULL));
+                            tissueMapIt->second.insert(pair<string, pair<string, double>>(header[i], tissueEnsemblePair));
                         } else {
-                            auto tissueIt = tissueMapIt->second.find(fields[i]);
-                            if (tissueIt == tissueMapIt->second.end()) {
-                                pair<string, double> tissueEnsemblePair(fields2[0], strtod(fields2[i], NULL));
-                                tissueMapIt->second.insert(pair<string, pair<string, double>>(fields[i], tissueEnsemblePair));
-                            } else {
-                                if (tissueIt->second.second < strtod(fields2[i], NULL)) {
-                                    pair<string, double> tissueEnsemblePair(fields2[0], strtod(fields2[i], NULL));
-                                    tissueIt->second = pair<string, double>(fields2[0], strtod(fields2[i], NULL));
-                                }
+                            if (tissueIt->second.second < strtod(fParser.getWords()[i], NULL)) {
+                                pair<string, double> tissueEnsemblePair(fParser.getWords()[0], strtod(fParser.getWords()[i], NULL));
+                                tissueIt->second = pair<string, double>(fParser.getWords()[0], strtod(fParser.getWords()[i], NULL));
                             }
                         }
                     }
                 }
             }
-            freeArrayofPointers((void **) fields2, fields2Size);
-        }
-    }
-    fclose(tissueFile);
-    freeArrayofPointers((void **) fields, fieldsSize);
-
-    if (line) free(line);
-}
-
-void FimoFactory::CreateCutoffIndexFromFile(char* cutoffFileName, size_t column) {
-    FILE *cutoffFile = (FILE *) checkPointerError(fopen(cutoffFileName, "r"), "Can't open pwm_tFName file", __FILE__, __LINE__, -1);
-
-    char *line = NULL;
-    size_t len = 0;
-    char **fields = NULL;
-    size_t fieldsSize = 0;
-
-    while (getline(&line, &len, cutoffFile) != -1) {
-        if (*line != '#') {
-            if (*(line + (strlen(line) - 1)) == '\n') *(line + (strlen(line) - 1)) = '\0';
-            fieldsSize = splitString(&fields, line, " ");
-            if (fieldsSize <= column) {
-                fprintf(stderr, "%s\n", line);
-                printLog(stderr, "Input cutoff file with less columns of required ", __FILE__, __LINE__, -1);
-            }
-            cutoffIndex.insert(pair<string, double>(fields[0], strtod(fields[column], NULL)));
-            freeArrayofPointers((void **) fields, fieldsSize);
         }
     }
 
-    if (line) free(line);
-    fclose(cutoffFile);
+    if (words) free(words);
 }
 
-void FimoFactory::ParseFimoOutput(char* fimoOuputName, char *tissueCode, unsigned long int snpPos) {
-    size_t i;
-    FILE *fimoOuputFile = (FILE *) checkPointerError(fopen(fimoOuputName, "r"), "Can't open FIMO output file", __FILE__, __LINE__, -1);
-    size_t bufferSize, backupLineSize;
-    char *buffer, *newLine, *str, *backupLine, *completeLine;
-    char **fields = NULL;
-    size_t fieldsSize = 0;
-    char **fields2 = NULL;
-    size_t fields2Size = 0;
-    Fimo *f;
+void FimoFactory::createCutoffIndexFromFile(std::string cutoffFileName, size_t column) {
+    FileParserFactory fParser(cutoffFileName);
+    while (fParser.iterate('#', " ")) {
+        if (fParser.getNWords() <= column) {
+            printLog(stderr, "Input cutoff file with less columns of required ", __FILE__, __LINE__, -1);
+        }
+        cutoffIndex.insert(pair<string, double>(fParser.getWords()[0], strtod(fParser.getWords()[column], NULL)));
+    }
+}
+
+void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueCode, unsigned long int snpPos) {
+    FileParserFactory fParser(fimoOuputName);
     unordered_map<string, set < Fimo *, PointerCompare>> fimoMap;
     unordered_map <string, set < Fimo *, PointerCompare>>::iterator fimoIt;
     unordered_map<string, set < string>> ensemblMap;
     unordered_map<string, set < string>>::iterator ensemblMapIt;
     pair < unordered_map<string, set < string>>::iterator, bool> res;
+    char **words = NULL;
+    size_t nWords = 0;
+    size_t wordsSize = 0;
 
-    backupLineSize = bufferSize = 100000000;
-    buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
-    backupLine = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
+    while (fParser.iterate('#', "\t")) {
+        if (fParser.getNWords() != 8) {
+            printLog(stderr, "FIMO output file with a wrong format ", __FILE__, __LINE__, -1);
+        }
 
-    *backupLine = 0;
-    while (!feof(fimoOuputFile)) {
-        size_t read = fread(buffer, sizeof (char), bufferSize, fimoOuputFile);
-        buffer[read] = 0;
-        if (feof(fimoOuputFile)) {            
-            if (buffer[read - 1] != '\n') {
-                buffer[read] = '\n';
-                buffer[read + 1] = 0;
-            }
-        }   
-        str = buffer;
-        while ((newLine = strchr(str, '\n')) != NULL) {
-            *newLine = 0;
-            if (*backupLine != 0) {
-                if (strlen(backupLine) + strlen(str) + 1 > backupLineSize) {
-                    backupLineSize += backupLineSize;
-                    backupLine = (char *) reallocate(backupLine, sizeof (char) * (backupLineSize + 1), __FILE__, __LINE__);
-                }
-                strcat(backupLine, str);
-                completeLine = backupLine;
-            } else {
-                completeLine = str;
-            }
+        res = ensemblMap.insert(pair<string, set < string >> (fParser.getWords()[1], set < string>()));
+        ensemblMapIt = res.first;
 
-            if (*completeLine != '#') {
-                fieldsSize = splitString(&fields, completeLine, "\t");
-                if (fieldsSize != 8) {
-                    printLog(stderr, "FIMO output file with a wrong format ", __FILE__, __LINE__, -1);
-                }
+        nWords = strsep_ptr(&words, &wordsSize, fParser.getWords()[0], ";");
 
-                res = ensemblMap.insert(pair<string, set < string >> (fields[1], set < string>()));
-                ensemblMapIt = res.first;
+        for (size_t i = 0; i < nWords; i++) {
+            pair<string, double> motifExpression = getTissueValue(words[i], tissueCode);
+            if (fabs(motifExpression.second) >= 1.0) {
+                double pValue = strtod(fParser.getWords()[6], NULL);
+                if (pValue < getCutoffValue(words[i])) {
 
-                fields2Size = splitString(&fields2, fields[0], ";");
-                for (i = 0; i < fields2Size; i++) {
-                    pair<string, double> motifExpression = GetTissueValue(fields2[i], tissueCode);
-                    if (fabs(motifExpression.second) >= 1.0) {
-                        double pValue = strtod(fields[6], NULL);
-                        if (pValue < GetCutoffValue(fields2[i])) {
+                    fimoIt = fimoMap.find(fParser.getWords()[1]);
+                    Fimo *f = new Fimo();
+                    f->setMotif(words[i]);
+                    f->setId(fParser.getWords()[1]);
+                    f->setStart(static_cast<unsigned long int> (atoi(fParser.getWords()[2]) - 1));
+                    f->setEnd(static_cast<unsigned long int> (atoi(fParser.getWords()[3]) - 1));
+                    f->setStrand(fParser.getWords()[4][0]);
+                    f->setScore(strtod(fParser.getWords()[5], NULL));
+                    f->setValue(pValue);
+                    f->setSeq(fParser.getWords()[7]);
+                    f->setExpression(motifExpression.second);
+                    f->setExpEnsembl(motifExpression.first);
 
-                            fimoIt = fimoMap.find(fields[1]);
-                            f = new Fimo();
-                            f->SetMotif(fields2[i]);
-                            f->SetId(fields[1]);
-                            f->SetStart(static_cast<unsigned long int> (atoi(fields[2]) - 1));
-                            f->SetEnd(static_cast<unsigned long int> (atoi(fields[3]) - 1));
-                            f->SetStrand(fields[4][0]);
-                            f->SetScore(strtod(fields[5], NULL));
-                            f->SetValue(pValue);
-                            f->SetSeq(fields[7]);
-                            f->SetExpression(motifExpression.second);
-                            f->SetExpEnsembl(motifExpression.first);
+                    if (fimoIt == fimoMap.end()) {
+                        vector<double> v;
+                        if (f->getStart() <= snpPos && f->getEnd() >= snpPos) {
+                            v.push_back(motifExpression.second);
+                            v.push_back(10E-10);
+                        } else {
+                            v.push_back(10E-10);
+                            v.push_back(motifExpression.second);
+                            ensemblMapIt->second.insert(motifExpression.first);
+                        }
+                        snpIDContainer.insert(pair<string, vector<double>>(fParser.getWords()[1], v));
 
-                            if (fimoIt == fimoMap.end()) {
-                                vector<double> v;
-                                if (f->GetStart() <= snpPos && f->GetEnd() >= snpPos) {
-                                    v.push_back(motifExpression.second);
-                                    v.push_back(10E-10);
-                                } else {
-                                    v.push_back(10E-10);
-                                    v.push_back(motifExpression.second);
-                                    ensemblMapIt->second.insert(motifExpression.first);
+                        set<Fimo *, PointerCompare> s;
+                        s.insert(move(f));
+                        fimoMap.insert(pair<string, set < Fimo *, PointerCompare >> (fParser.getWords()[1], s));
+                        f = NULL;
+                    } else {
+                        pair < set < Fimo *, PointerCompare>::iterator, bool> iter;
+
+                        iter = fimoIt->second.insert(move(f));
+                        if (iter.second) {
+                            f = *iter.first;
+                            auto snpMapIt = snpIDContainer.find(fParser.getWords()[1]);
+
+                            if (f->getStart() <= snpPos && f->getEnd() >= snpPos) {
+                                if (snpMapIt->second[0] < motifExpression.second) {
+                                    snpMapIt->second[0] = motifExpression.second;
                                 }
-                                snpIDMap.insert(pair<string, vector<double>>(fields[1], v));
-
-                                set<Fimo *, PointerCompare> s;
-                                s.insert(move(f));
-                                fimoMap.insert(pair<string, set < Fimo *, PointerCompare >> (fields[1], s));
-                                f = NULL;
                             } else {
-                                pair < set < Fimo *, PointerCompare>::iterator, bool> iter;
-
-                                iter = fimoIt->second.insert(move(f));
-                                if (iter.second) {
-                                    f = *iter.first;
-                                    auto snpMapIt = snpIDMap.find(fields[1]);
-
-                                    if (f->GetStart() <= snpPos && f->GetEnd() >= snpPos) {
-                                        if (snpMapIt->second[0] < motifExpression.second) {
-                                            snpMapIt->second[0] = motifExpression.second;
-                                        }
-                                    } else {
-                                        if (ensemblMapIt->second.find(motifExpression.first) == ensemblMapIt->second.end()) {
-                                            ensemblMapIt->second.insert(motifExpression.first);
-                                            snpMapIt->second[1] += motifExpression.second;
-                                        }
-                                    }
-                                    f = NULL;
+                                if (ensemblMapIt->second.find(motifExpression.first) == ensemblMapIt->second.end()) {
+                                    ensemblMapIt->second.insert(motifExpression.first);
+                                    snpMapIt->second[1] += motifExpression.second;
                                 }
                             }
-                            if (f) delete f;
+                            f = NULL;
                         }
                     }
+                    if (f) delete f;
                 }
-
-                freeArrayofPointers((void **) fields2, fields2Size);
-                freeArrayofPointers((void **) fields, fieldsSize);
             }
-            *backupLine = 0;
-            str = newLine + 1;
-        }
-
-        if (strlen(str) > 0) {
-            if (strlen(backupLine) + strlen(str) + 1 > backupLineSize) {
-                backupLineSize += backupLineSize;
-                backupLine = (char *) reallocate(backupLine, sizeof (char) * (backupLineSize + 1), __FILE__, __LINE__);
-            }
-            strcat(backupLine, str);
         }
     }
+
+    if (words) free(words);
 
     for (auto it = fimoMap.begin(); it != fimoMap.end(); ++it) {
         for (auto it1 = it->second.begin(); it1 != it->second.end(); ++it1) {
             delete (*it1);
         }
     }
-
-    fclose(fimoOuputFile);
-    free(buffer);
-    free(backupLine);
 }

@@ -13,6 +13,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <ctime>
 
 #include "TimeUtils.h"
 #include "Global.h"
@@ -37,14 +38,17 @@ void testPhyperTest() {
 }
 
 int main(int argc, char** argv) {
+    clock_t start = clock();
+    clock_t begin;
     std::cout << "%SUITE_STARTING% PhyperTest" << std::endl;
     std::cout << "%SUITE_STARTED%" << std::endl;
 
+    begin = clock();
     std::cout << "%TEST_STARTED% testPhyperTest (PhyperTest)" << std::endl;
     testPhyperTest();
-    std::cout << "%TEST_FINISHED% time=0 testPhyperTest (PhyperTest)" << std::endl;
+    std::cout << "%TEST_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(begin) << " second testPhyperTest (PhyperTest)" << std::endl;
 
-    std::cout << "%SUITE_FINISHED% time=0" << std::endl;
+    std::cout << "%SUITE_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << std::endl;
 
     return (EXIT_SUCCESS);
 }

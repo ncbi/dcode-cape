@@ -21,47 +21,48 @@
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <ctime>
 
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"
 #include "Global.h"
 #include "TimeUtils.h"
+#include "Exceptions.h"
 #include "FastaFactory.h"
 
 using namespace std;
-using namespace fasta;
+using namespace sequence;
 
 Global *Global::s_instance = 0;
 TimeUtils *TimeUtils::s_instance = 0;
 
-void testParseFastaFile(char *fileName) {
-    Fasta *fasta;
+void testParseFastaFile(string fileName) {
+    Seq *fasta;
     FastaFactory fastaFactory;
     char *seg;
     std::string test_seg("ATCCGACATCAAGTGCCCACCTTGGCTCGTGGCTCTCACTGCAACGGGAAAGCCACAGACTGGGGTGAAGAGTTCAGTCACATGCGACCGGTGACTCCCTGTCCCCACCCCCATGACACTCCCCAGCCCTCCAAGGCCACTGTGTTTCCCAGTTAGCTCAGAGCCTCAGTCGATCCCTGACCCAGCACCGGGCACTGATGAGACAGCGGCTGTTTGAGGAGCCACCTCCCAGCCACCTCGGGGCCAGGGCCAGGGTGTGCAGCANNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNAAACCATAGTGCCCAGGGCACTGCCGCTGCAGGCGCAGGCATCGCATCACACCAGTGTCTGCGTTCACAGCAGGCATCATCAGTAGCCTCCAGAGGCCTCAGGTCCAGTCTCTAAAAATATCTCAGGAGGCTGCAGTGGCTGACCATTGCCTTGGACCGCTCTTGGCAGTCGAAGAAGATTCTCCTGTCAGTTTGAGCTGGGTGAGCTTAGAGAGGAAAGCTCCACTATGGCTCCCAAACCAGGAAGGAGCCATAGCCCAGGCAGGAGGGCTGAGGACCTCTGGTGGCGGCCCAGGGCTTCCAGCATGTGCCCTAGGGGAAGCAGGGGCCAGCTGGCAAGAGCAGGGGGTGGGCAGAAAGCACCCGGTGGACTCAGGGCTGGAGGGGAGGAGGCGATCTTGCCCAAGGCCCTCCGACTGCAAGCTCCAGGGCCCGCTCACCTTGCTCCTGCTCCTTCTGCTGCTGCTTCTCCAGCTTTCGCTCCTTCATGCTGCGCAGCTTGGCCTTGCCGATGCCCCCAGCTTGGCGGATGGACTCTAGCAGAGTGGCCAGCCACCGGAGGGGTCAACCACTTCCCTGGGAGCTCCCTGGACTGGAGCCGGGAGGTGGGGAACAGGGCAAGGAGGAAAGGCTGCTCAGGCAGGG");
 
-    FILE *fName = (FILE *) checkPointerError(fopen(fileName, "r"), "Can't open input file", __FILE__, __LINE__, -1);
+    FILE *fName = (FILE *) checkPointerError(fopen(fileName.c_str(), "r"), "Can't open input file", __FILE__, __LINE__, -1);
 
-    long unsigned int seqRead = fastaFactory.ParseFastaFile(fName, -1, true, false);
+    long unsigned int seqRead = fastaFactory.parseFastaFile(fName, -1, true, false);
 
-    
-    if (fastaFactory.GetFastaMap().size() != 1 || seqRead != 1) {
+    if (fastaFactory.getSequenceContainter().size() != 1 || seqRead != 1) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=It should read 1 sequence" << endl;
     }
-    fasta = fastaFactory.GetFastaMap().begin()->second;
-    if (fasta->GetId().compare("chr1") != 0) {
+    fasta = fastaFactory.getSequenceContainter().begin()->second;
+    if (fasta->getId().compare("chr1") != 0) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence Id should be chr1" << endl;
     }
-    if (fasta->GetLength() != 1249950 || strlen(fasta->GetSeq()) != fasta->GetLength()) {
-        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence should have 1249950 bp and it is " << fasta->GetLength() << endl;
+    if (fasta->getLength() != 1249950 || strlen(fasta->getSeq()) != fasta->getLength()) {
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence should have 1249950 bp and it is " << fasta->getLength() << endl;
     }
 
-    seg = fasta->GetSubStr(15000, 1000);
+    seg = fasta->getSubStr(15000, 1000);
     if (!seg) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=Can't get the segment of length 1050 starting at 15000 " << endl;
     }
-    if (strcmp(seg, test_seg.c_str()) != 0) {
+    if (strncmp(seg, test_seg.c_str(), test_seg.size()) != 0) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The segment of length 1050 starting at 15000 is not equal to the test" << endl;
     }
 
@@ -69,10 +70,10 @@ void testParseFastaFile(char *fileName) {
     fclose(fName);
 }
 
-void testParseFastaMultipleFile(char *fileName) {
+void testParseFastaMultipleFile(string fileName) {
     long unsigned int seqRead, totalRead;
     FastaFactory fFactory;
-    Fasta *f;
+    Seq *f;
 
     map<string, long unsigned int> seqSize;
 
@@ -82,86 +83,101 @@ void testParseFastaMultipleFile(char *fileName) {
     seqSize.insert(pair<string, long unsigned int>("chr4", 1450));
     seqSize.insert(pair<string, long unsigned int>("chr5", 1700));
 
-    FILE *fName = (FILE *) checkPointerError(fopen(fileName, "r"), "Can't open input file", __FILE__, __LINE__, -1);
+    FILE *fName = (FILE *) checkPointerError(fopen(fileName.c_str(), "r"), "Can't open input file", __FILE__, __LINE__, -1);
 
     totalRead = 0;
-    while ((seqRead = fFactory.ParseFastaFile(fName, 2, false, false)) != 0) {
+    while ((seqRead = fFactory.parseFastaFile(fName, 2, false, false)) != 0) {
         totalRead += seqRead;
-        if (fFactory.GetFastaMap().size() != totalRead) {
+        if (fFactory.getSequenceContainter().size() != totalRead) {
             cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=It should read 1 sequence" << endl;
         }
 
-        for (auto it = fFactory.GetFastaMap().begin(); it != fFactory.GetFastaMap().end(); ++it) {
+        for (auto it = fFactory.getSequenceContainter().begin(); it != fFactory.getSequenceContainter().end(); ++it) {
             f = it->second;
-            if (seqSize.find(f->GetId())->second != f->GetLength() || strlen(f->GetSeq()) != f->GetLength()) {
+            if (seqSize.find(f->getId())->second != f->getLength() || strlen(f->getSeq()) != f->getLength()) {
                 cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Wrong sequence size "
-                        << seqSize.find(f->GetId())->second << " != " << f->GetLength() << endl;
+                        << seqSize.find(f->getId())->second << " != " << f->getLength() << endl;
             }
         }
 
     }
 
-    f = fFactory.GetFastaFromID("chr4");
+    f = fFactory.getSequenceFromID("chr4");
     if (!f) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Cant find chr4 in the factory container " << endl;
     } else {
-        if (seqSize.find(f->GetId())->second != f->GetLength() || strlen(f->GetSeq()) != f->GetLength()) {
+        if (seqSize.find(f->getId())->second != f->getLength() || strlen(f->getSeq()) != f->getLength()) {
             cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Wrong sequence size "
-                    << seqSize.find(f->GetId())->second << " != " << f->GetLength() << endl;
+                    << seqSize.find(f->getId())->second << " != " << f->getLength() << endl;
+        }
+    }
+
+    f = fFactory.getSequenceFromID("chr5");
+    if (!f) {
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Cant find chr4 in the factory container " << endl;
+    } else {
+        if (seqSize.find(f->getId())->second != f->getLength() || strlen(f->getSeq()) != f->getLength() || f->getLength() != 1700) {
+            cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Wrong sequence size "
+                    << seqSize.find(f->getId())->second << " != " << f->getLength() << endl;
         }
     }
 
     fclose(fName);
 }
 
-void testParseFastaDir(char *fileName) {
+void testParseFastaDir(string fileName) {
     FastaFactory fFactory;
     string prefix("chr");
     string suxif(".fa.masked");
+    std::string test_seg("ATCCGACATCAAGTGCCCACCTTGGCTCGTGGCTCTCACTGCAACGGGAAAGCCACAGACTGGGGTGAAGAGTTCAGTCACATGCGACCGGTGACTCCCTGTCCCCACCCCCATGACACTCCCCAGCCCTCCAAGGCCACTGTGTTTCCCAGTTAGCTCAGAGCCTCAGTCGATCCCTGACCCAGCACCGGGCACTGATGAGACAGCGGCTGTTTGAGGAGCCACCTCCCAGCCACCTCGGGGCCAGGGCCAGGGTGTGCAGCANNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNAAACCATAGTGCCCAGGGCACTGCCGCTGCAGGCGCAGGCATCGCATCACACCAGTGTCTGCGTTCACAGCAGGCATCATCAGTAGCCTCCAGAGGCCTCAGGTCCAGTCTCTAAAAATATCTCAGGAGGCTGCAGTGGCTGACCATTGCCTTGGACCGCTCTTGGCAGTCGAAGAAGATTCTCCTGTCAGTTTGAGCTGGGTGAGCTTAGAGAGGAAAGCTCCACTATGGCTCCCAAACCAGGAAGGAGCCATAGCCCAGGCAGGAGGGCTGAGGACCTCTGGTGGCGGCCCAGGGCTTCCAGCATGTGCCCTAGGGGAAGCAGGGGCCAGCTGGCAAGAGCAGGGGGTGGGCAGAAAGCACCCGGTGGACTCAGGGCTGGAGGGGAGGAGGCGATCTTGCCCAAGGCCCTCCGACTGCAAGCTCCAGGGCCCGCTCACCTTGCTCCTGCTCCTTCTGCTGCTGCTTCTCCAGCTTTCGCTCCTTCATGCTGCGCAGCTTGGCCTTGCCGATGCCCCCAGCTTGGCGGATGGACTCTAGCAGAGTGGCCAGCCACCGGAGGGGTCAACCACTTCCCTGGGAGCTCCCTGGACTGGAGCCGGGAGGTGGGGAACAGGGCAAGGAGGAAAGGCTGCTCAGGCAGGG");
 
-    fFactory.LoadFastaInDirectory(fileName, prefix.c_str(), suxif.c_str(), false);
+    fFactory.parseFastaInDirectory(fileName, prefix, suxif, false);
+    Seq *seq = fFactory.getSequenceFromID("chr1");
+    if (seq->getId().compare("chr1") != 0) {
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence Id should be chr1" << endl;
+    }
+    if (seq->getLength() != 1249950 || strlen(seq->getSeq()) != seq->getLength()) {
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence should have 1249950 bp and it is " << seq->getLength() << endl;
+    }
 
+    char *seg = seq->getSubStr(15000, 1000);
+    if (!seg) {
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=Can't get the segment of length 1050 starting at 15000 " << endl;
+    }
+    if (strncmp(seg, test_seg.c_str(), test_seg.size()) != 0) {
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The segment of length 1050 starting at 15000 is not equal to the test" << endl;
+    }
+
+    free(seg);
 }
 
-int main(int argc, char** argv) {
-    char *singleFileName;
-    char *multipleFileName;
-    char *dirName = NULL;
+int main() {
+    clock_t start = clock();
+    clock_t begin;
+    string singleFileName("resources/chr1.fa.masked");
+    string multipleFileName("resources/multiple.fa.masked");
+    string dirName("resources/");
     cout << "%SUITE_STARTING% FastaFactoryTest" << endl;
     cout << "%SUITE_STARTED%" << endl;
 
-    Global::instance()->SetVerbose(0);
+    Global::instance()->setVerbose(0);
 
-    if (argc == 4) {
-        singleFileName = argv[1];
-        multipleFileName = argv[2];
-        dirName = argv[3];
-    } else {
-        singleFileName = strdup("resources/chr1.fa.masked");
-        multipleFileName = strdup("resources/multiple.fa.masked");
-    }
-
+    begin = clock();
     cout << "%TEST_STARTED% testParseFastaFile (FastaFactoryTest)" << endl;
     testParseFastaFile(singleFileName);
-    cout << "%TEST_FINISHED% time=0 testParseFastaFile (FastaFactoryTest)" << endl;
+    cout << "%TEST_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(begin) << " second testParseFastaFile (FastaFactoryTest)" << endl;
 
+    begin = clock();
     cout << "%TEST_STARTED% testParseFastaMultipleFile (FastaFactoryTest)" << endl;
     testParseFastaMultipleFile(multipleFileName);
-    cout << "%TEST_FINISHED% time=0 testParseFastaMultipleFile (FastaFactoryTest)" << endl;
+    cout << "%TEST_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(begin) << " second testParseFastaMultipleFile (FastaFactoryTest)" << endl;
 
-    if (dirName != NULL) {
-        Global::instance()->SetVerbose(3);
-        cout << "%TEST_STARTED% testParseFastaDir (FastaFactoryTest)" << endl;
-        testParseFastaDir(dirName);
-        cout << "%TEST_FINISHED% time=0 testParseFastaDir (FastaFactoryTest)" << endl;
-    }
+    begin = clock();
+    cout << "%TEST_STARTED% testParseFastaDir (FastaFactoryTest)" << endl;
+    testParseFastaDir(dirName);
+    cout << "%TEST_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(begin) << " second testParseFastaDir (FastaFactoryTest)" << endl;
 
-    cout << "%SUITE_FINISHED% time=0" << endl;
-
-    if (argc != 4) {
-        free(singleFileName);
-        free(multipleFileName);
-    }
+    cout << "%SUITE_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;
 
     delete Global::instance();
     return (EXIT_SUCCESS);

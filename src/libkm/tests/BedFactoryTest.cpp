@@ -19,19 +19,24 @@
 #include <unordered_map>
 #include <map>
 #include <set>
+#include <ctime>
 
 #include "berror.h"
 #include "bmemory.h"
 #include "bstring.h"
+
 #include "Global.h"
 #include "TimeUtils.h"
+#include "Exceptions.h"
+#include "FileParserFactory.h"
 #include "FastaFactory.h"
 #include "KmersFactory.h"
 #include "BedFactory.h"
 
 using namespace std;
+using namespace parsers;
 using namespace kmers;
-using namespace fasta;
+using namespace sequence;
 using namespace peak;
 
 Global *Global::s_instance = 0;
@@ -41,130 +46,124 @@ TimeUtils *TimeUtils::s_instance = 0;
  * Simple C++ Test Suite
  */
 
-void testCreatePeaksFromBedFile(char *bFName, char *dirName, char *testName) {
+void testCreatePeaksFromBedFile(string bFName, string dirName, string testName) {
     int i = 0;
-    fasta::FastaFactory chrFactory;
+    sequence::FastaFactory chrFactory;
     peak::BedFactory bedFactory;
-    char *line = NULL;
-    size_t len = 0;
+    FileParserFactory fParser;
     string prefix("chr");
     string sufix(".fa.masked");
     map<unsigned long int, map<string, unsigned long int>> testMap;
-    char **fields = NULL;
     KmersFactory kmersFactory;
-    kmersFactory.CreateGenomeWideKmers();
+    kmersFactory.createGenomeWideKmers();
 
     string test("TGAGAGGAAAGCTTTCCCACATTATACAGCTTCTGAAAGGGTTGCTTGACCCACAGATGTGAAGCTGAGGCTGAAGGAGACTGATGTGGTTTCTCCTCAGTTTCTCTGTGCAGCACCAGGTGGCAGCAGAGGTCAGCAAGGCAAACCCGAGCCCGGGGATGCGGAGTGGGGGCAGCTACGTCCTCTCTTG");
 
-    FILE *fd = (FILE *) checkPointerError(fopen(testName, "r"), "Can't open test file", __FILE__, __LINE__, -1);
-    while (getline(&line, &len, fd) != -1) {
-        size_t fieldsSize = splitString(&fields, line, "\t");
+    fParser.setFileToParse(testName);
+    while (fParser.iterate('#', "\t")) {
         map<string, unsigned long int> inMap;
-        char *n = strchr(fields[2], '-');
+        char *n = strchr(fParser.getWords()[2], '-');
         *n = '\0';
-        i = atoi(fields[2]);
+        string start(fParser.getWords()[2]);
+        i = atoi(fParser.getWords()[2]);
         inMap.insert(pair<string, unsigned long int>("start", i));
-        inMap.insert(pair<string, unsigned long int>("end", atoi(fields[2] + strlen(fields[2]) + 1)));
-        inMap.insert(pair<string, unsigned long int>("width", atoi(fields[3])));
-        inMap.insert(pair<string, unsigned long int>("gccount", atoi(fields[4])));
-        inMap.insert(pair<string, unsigned long int>("ncount", atoi(fields[5])));
-        inMap.insert(pair<string, unsigned long int>("nrcount", atoi(fields[6])));
+        inMap.insert(pair<string, unsigned long int>("end", atoi(fParser.getWords()[2] + start.size() + 1)));
+        inMap.insert(pair<string, unsigned long int>("width", atoi(fParser.getWords()[3])));
+        inMap.insert(pair<string, unsigned long int>("gccount", atoi(fParser.getWords()[4])));
+        inMap.insert(pair<string, unsigned long int>("ncount", atoi(fParser.getWords()[5])));
+        inMap.insert(pair<string, unsigned long int>("nrcount", atoi(fParser.getWords()[6])));
 
         testMap.insert(pair<unsigned long int, map<string, unsigned long int>>(i, inMap));
-
-        freeArrayofPointers((void **) fields, fieldsSize);
     }
-    if (line) free(line);
-    fclose(fd);
 
-    chrFactory.LoadFastaInDirectory(dirName, prefix.c_str(), sufix.c_str(), false);
+    chrFactory.parseFastaInDirectory(dirName, prefix, sufix, false);
 
-    bedFactory.CreatePeaksFromBedFile(chrFactory, bFName, 0.7, kmersFactory);
+    bedFactory.createPeaksFromBedFile(chrFactory, bFName, 0.7, kmersFactory);
 
-    if (bedFactory.GetPeaks().size() != 88) {
+    if (bedFactory.getPeaks().size() != 88) {
         cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Peaks to print should be equal to 88 and it is " << i << endl;
     }
 
 
-    for (auto it = bedFactory.GetPeaks().begin(); it != bedFactory.GetPeaks().end(); ++it) {
+    for (auto it = bedFactory.getPeaks().begin(); it != bedFactory.getPeaks().end(); ++it) {
         Peak *p = *it;
-        map<string, unsigned long int> inMap = testMap.find(p->GetStart())->second;
-        if (inMap.find("width")->second != p->GetLength()) {
+        map<string, unsigned long int> inMap = testMap.find(p->getStart())->second;
+        if (inMap.find("width")->second != p->getLength()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong width: "
-                    << p->GetLength() << "!=" << inMap.find("width")->second << endl;
+                    << p->getLength() << "!=" << inMap.find("width")->second << endl;
         }
-        if (inMap.find("gccount")->second != p->GetGCCount()) {
+        if (inMap.find("gccount")->second != p->getGCCount()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong GCCount: "
-                    << p->GetGCCount() << "!=" << inMap.find("gccount")->second << endl;
+                    << p->getGCCount() << "!=" << inMap.find("gccount")->second << endl;
         }
-        if (inMap.find("ncount")->second != p->GetNCount()) {
+        if (inMap.find("ncount")->second != p->getNCount()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong NCount: "
-                    << p->GetNCount() << "!=" << inMap.find("ncount")->second << endl;
+                    << p->getNCount() << "!=" << inMap.find("ncount")->second << endl;
         }
-        if (inMap.find("nrcount")->second != p->GetNRCount()) {
+        if (inMap.find("nrcount")->second != p->getNRCount()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong NRCount: "
-                    << p->GetNRCount() << "!=" << inMap.find("nrcount")->second << endl;
+                    << p->getNRCount() << "!=" << inMap.find("nrcount")->second << endl;
         }
-        if (strlen(p->GetSeq()) != p->GetLength()) {
+        if (strlen(p->getSeq()) != p->getLength()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Sequence length not equal to width" << endl;
         }
-        if (p->GetStart() == 237640 && p->GetEnd() == 237829) {
-            if (strcmp(p->GetSeq(), test.c_str()) != 0) {
+        if (p->getStart() == 237640 && p->getEnd() == 237829) {
+            if (strcmp(p->getSeq(), test.c_str()) != 0) {
                 cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=First peak is not equal to the test" << endl;
             }
         }
     }
 
-    bedFactory.GeneratingControlsFromChromosomes(chrFactory, 3, kmersFactory);
-    kmersFactory.BuildKmers();
-    if (kmersFactory.GetKmers().size() != 11848) {
-        cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong number of kmers 11848 != " << kmersFactory.GetKmers().size() << endl;
+    bedFactory.generatingControlsFromChromosomes(chrFactory, 3, kmersFactory);
+    kmersFactory.buildKmers();
+    if (kmersFactory.getKmers().size() != 11848) {
+        cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong number of kmers 11848 != " << kmersFactory.getKmers().size() << endl;
     }
 }
 
-void testReadingControlsFromFile(char *dirName, char *controlName) {
-    fasta::FastaFactory chrFactory;
+void testReadingControlsFromFile(string dirName, string controlName) {
+    sequence::FastaFactory chrFactory;
     peak::BedFactory bedFactory;
     string prefix("chr");
     string sufix(".fa.masked");
     KmersFactory kmersFactory;
-    kmersFactory.CreateGenomeWideKmers();
+    kmersFactory.createGenomeWideKmers();
 
-    chrFactory.LoadFastaInDirectory(dirName, prefix.c_str(), sufix.c_str(), false);
+    chrFactory.parseFastaInDirectory(dirName, prefix, sufix, false);
 
-    bedFactory.ReadControlsFromFile(controlName, chrFactory, kmersFactory);
-    if (kmersFactory.GetTotalNRnt_control() != 1065) {
-        cout << "%TEST_FAILED% time=0 testname=testReadingControlsFromFile (BedFactoryTest) message=Wrong calculation of Total non N 1065 != " << kmersFactory.GetTotalNRnt_control() << endl;
+    bedFactory.readControlsFromFile(controlName, chrFactory, kmersFactory);
+    if (kmersFactory.getTotalNRNTControl() != 1065) {
+        cout << "%TEST_FAILED% time=0 testname=testReadingControlsFromFile (BedFactoryTest) message=Wrong calculation of Total non N 1065 != " << kmersFactory.getTotalNRNTControl() << endl;
     }
 }
 
 int main(int argc, char** argv) {
-    char *bFName = strdup("resources/test.bed");
-    char *dirName = strdup("resources/");
-    char *testName = strdup("resources/test.train.control.info.chr1");
-    char *controlName = strdup("resources/randControl.txt");
+    clock_t start = clock();
+    clock_t begin;
+    string bFName("resources/test.bed");
+    string dirName("resources/");
+    string testName("resources/test.train.control.info.chr1");
+    string controlName("resources/randControl.txt");
     cout << "%SUITE_STARTING% BedFactoryTest" << endl;
     cout << "%SUITE_STARTED%" << endl;
 
-    Global::instance()->SetVerbose(0);
-    Global::instance()->SetOrder(10);
-    Global::instance()->SetBin1(0.005);
-    Global::instance()->SetBin2(0.01);
+    Global::instance()->setVerbose(0);
+    Global::instance()->setOrder(10);
+    Global::instance()->setBin1(0.005);
+    Global::instance()->setBin2(0.01);
 
+    begin = clock();
     cout << "%TEST_STARTED% testCreatePeaksFromBedFile (BedFactoryTest)" << endl;
     testCreatePeaksFromBedFile(bFName, dirName, testName);
-    cout << "%TEST_FINISHED% time=0 testCreatePeaksFromBedFile (BedFactoryTest)" << endl;
+    cout << "%TEST_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds testCreatePeaksFromBedFile (BedFactoryTest)" << endl;
 
+    begin = clock();
     cout << "%TEST_STARTED% testReadingControlsFromFile (BedFactoryTest)" << endl;
     testReadingControlsFromFile(dirName, controlName);
-    cout << "%TEST_FINISHED% time=0 testReadingControlsFromFile (BedFactoryTest)" << endl;
+    cout << "%TEST_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(begin) << " second testReadingControlsFromFile (BedFactoryTest)" << endl;
 
-    cout << "%SUITE_FINISHED% time=0" << endl;
-
-    free(bFName);
-    free(dirName);
-    free(testName);
-    free(controlName);
+    cout << "%SUITE_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;
+    
     delete Global::instance();
     return (EXIT_SUCCESS);
 }

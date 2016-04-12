@@ -14,52 +14,52 @@
 #ifndef FASTAFACTORY_H
 #define FASTAFACTORY_H
 
-namespace fasta {
+namespace sequence {
 
-    class Fasta {
+    class Seq {
     public:
-        Fasta();
+        Seq();
 
-        Fasta(const std::string& i, const std::string& d) : id(i), description(d) {
+        Seq(const std::string& i, const std::string& d) : id(i), description(d) {
             this->length = 0;
             this->seq = NULL;
         }
-        Fasta(const Fasta& orig);
-        virtual ~Fasta();
+        Seq(const Seq& orig);
+        virtual ~Seq();
 
-        char *GetSubStr(int pos, int length) {
+        char *getSubStr(int pos, int length) {
             return strndup(seq + pos, length);
         }
 
-        std::string GetId() const {
+        std::string getId() const {
             return id;
         }
 
-        void SetId(std::string id) {
+        void setId(std::string id) {
             this->id = id;
         }
 
-        char *GetSeq() {
+        char *getSeq() {
             return seq;
         }
 
-        void SetSeq(char **seq) {
+        void setSeq(char **seq) {
             this->seq = *seq;
         }
 
-        std::string GetDescription() const {
+        std::string getDescription() const {
             return description;
         }
 
-        void SetDescription(std::string desc) {
+        void setDescription(std::string desc) {
             description = desc;
         }
 
-        unsigned long int GetLength() {
+        unsigned long int getLength() {
             return length;
         }
 
-        void SetLength(unsigned long int len) {
+        void setLength(unsigned long int len) {
             length = len;
         }
 
@@ -76,17 +76,23 @@ namespace fasta {
         FastaFactory(const FastaFactory& orig);
         virtual ~FastaFactory();
 
-        void LoadFastaInDirectory(char *dirName, const char *prefix, const char *sufix, bool binary);
-        long unsigned int ParseFastaFile(FILE *fName, int numberSeqTotalRead, bool cleanContainers, bool binary);
-        Fasta *GetFastaFromID(std::string id);
-
-        void WriteSequencesToFile(char *fileName, bool binary);
-
-        std::unordered_map<std::string, Fasta*>& GetFastaMap() {
-            return fastaMap;
+        std::unordered_map<std::string, Seq*>& getSequenceContainter() {
+            return sequenceContainer;
         }
+
+        Seq *getSequenceFromID(std::string id) {
+            std::unordered_map<std::string, Seq *>::iterator it = sequenceContainer.find(id);
+            if (it == sequenceContainer.end()) {
+                throw exceptions::NotFoundException("Id " + id + " was not found in the sequence container");
+            }
+            return it->second;
+        }
+
+        void parseFastaInDirectory(std::string dirName, std::string prefix, std::string sufix, bool binary);
+        long unsigned int parseFastaFile(FILE *fName, int numberSeqTotalRead, bool cleanContainers, bool binary);
+        void writeSequencesToFile(std::string fileName, bool binary);
     private:
-        std::unordered_map<std::string, Fasta *> fastaMap;
+        std::unordered_map<std::string, Seq *> sequenceContainer;
     };
 
 }

@@ -21,63 +21,63 @@ namespace kmers {
         Kmer();
         virtual ~Kmer();
 
-        unsigned long int GetControlFreq() const {
+        unsigned long int getControlFreq() const {
             return controlFreq;
         }
 
-        void SetControlFreq(unsigned long int controlFreq) {
+        void setControlFreq(unsigned long int controlFreq) {
             this->controlFreq = controlFreq;
         }
 
-        unsigned long int GetNegativeControl() const {
+        unsigned long int getNegativeControl() const {
             return negativeControl;
         }
 
-        void SetNegativeControl(unsigned long int negativeControl) {
+        void setNegativeControl(unsigned long int negativeControl) {
             this->negativeControl = negativeControl;
         }
 
-        unsigned long int GetNegativePeak() const {
+        unsigned long int getNegativePeak() const {
             return negativePeak;
         }
 
-        void SetNegativePeak(unsigned long int negativePeak) {
+        void setNegativePeak(unsigned long int negativePeak) {
             this->negativePeak = negativePeak;
         }
 
-        unsigned long int GetPeakFreq() const {
+        unsigned long int getPeakFreq() const {
             return peakFreq;
         }
 
-        void SetPeakFreq(unsigned long int peakFreq) {
+        void setPeakFreq(unsigned long int peakFreq) {
             this->peakFreq = peakFreq;
         }
 
-        double GetValue() const {
+        double getValue() const {
             return pValue;
         }
 
-        double GetPf() const {
+        double getPf() const {
             return pf;
         }
 
-        double GetSig() const {
+        double getSig() const {
             return sig;
         }
 
-        void SetValue(double Value) {
+        void setValue(double Value) {
             pValue = Value;
         }
 
-        void SetPf(double pf) {
+        void setPf(double pf) {
             this->pf = pf;
         }
 
-        void SetSig(double sig) {
+        void setSig(double sig) {
             this->sig = sig;
         }
 
-        void CalculatePValue(double totalNRnt_peak, double totalNRnt_control);
+        void calculatePValue(double totalNRnt_peak, double totalNRnt_control);
 
     private:
         unsigned long int peakFreq;
@@ -94,51 +94,51 @@ namespace kmers {
         KmersFactory();
         virtual ~KmersFactory();
 
-        std::set<std::string>& GetKmersGenome() {
+        std::set<std::string>& getKmersGenome() {
             return kmersGenome;
         }
 
-        void SetKmersGenome(std::set<std::string> kmersGenome) {
+        void setKmersGenome(std::set<std::string> kmersGenome) {
             this->kmersGenome = kmersGenome;
         }
 
-        std::map<std::string, Kmer *>& GetKmers() {
+        std::map<std::string, Kmer *>& getKmers() {
             return kmers;
         }
 
-        std::map<std::string, unsigned long int>& GetKmer2controlFreq() {
+        std::map<std::string, unsigned long int>& getKmer2controlFreq() {
             return kmer2controlFreq;
         }
 
-        std::map<std::string, unsigned long int>& GetKmer2peakFreq() {
+        std::map<std::string, unsigned long int>& getKmer2peakFreq() {
             return kmer2peakFreq;
         }
 
-        unsigned long int GetTotalNRnt_control() const {
+        unsigned long int getTotalNRNTControl() const {
             return totalNRnt_control;
         }
 
-        unsigned long int GetTotalNRnt_peak() const {
+        unsigned long int getTotalNRNTPeak() const {
             return totalNRnt_peak;
         }
 
-        void CreateGenomeWideKmers();
+        void createGenomeWideKmers();
 
-        void ClearKmerControlData();
+        void clearKmerControlData();
 
-        void ClearKmerPeakData();
+        void clearKmerPeakData();
 
         void scanSequences(std::string inputSeq, bool control);
 
-        void BuildKmers();
+        void buildKmers();
 
-        void WriteKmersToFile(char *fileName, bool binary);
+        void writeKmersToFile(std::string fileName, bool binary);
 
-        void ReadKmersFromFile(char *fileName, bool binary);
+        void readKmersFromFile(std::string fileName, bool binary);
 
-        double DropSigKmerSigForRefandAlt(char *seq, unsigned long int refPos, char ref, char alt);
+        double dropSigKmerSigForRefandAlt(char *seq, unsigned long int refPos, char ref, char alt);
 
-        double GetKmerSig(std::string kmer);
+        double getKmerSig(std::string kmer);
 
     private:
         std::set<std::string> kmersGenome;

@@ -24,48 +24,48 @@ public:
         return s_instance;
     }
 
-    void SetStartTime() {
+    void setStartTime() {
         startTime = clock();
     }
 
-    void SetClock() {
+    void setClock() {
         begin = clock();
     }
 
-    double GetTimeSec() {
+    double getTimeSec() {
         return double(clock() - begin) / CLOCKS_PER_SEC;
     }
 
-    double GetTimeMin() {
-        return GetTimeSec() / 60;
+    double getTimeMin() {
+        return getTimeSec() / 60;
     }
 
-    double GetTimeHour() {
-        return GetTimeSec() / 3600;
+    double getTimeHour() {
+        return getTimeSec() / 3600;
     }
 
-    double GetElapseTimeSec() {
+    double getElapseTimeSec() {
         return double(clock() - startTime) / CLOCKS_PER_SEC;
     }
 
-    double GetElapseTimeMin() {
-        return GetElapseTimeSec() / 60;
+    double getElapseTimeMin() {
+        return getElapseTimeSec() / 60;
     }
 
-    double GetElapseTimeHour() {
-        return GetElapseTimeSec() / 3600;
+    double getElapseTimeHour() {
+        return getElapseTimeSec() / 3600;
     }
 
-    double GetTimeSecFrom(clock_t b) {
+    double getTimeSecFrom(clock_t b) {
         return double(clock() - b) / CLOCKS_PER_SEC;
     }
 
-    double GetTimeMinFrom(clock_t b) {
-        return GetTimeSecFrom(b) / 60;
+    double getTimeMinFrom(clock_t b) {
+        return getTimeSecFrom(b) / 60;
     }
 
-    double GetTimeHourFrom(clock_t b) {
-        return GetTimeSecFrom(b) / 3600;
+    double getTimeHourFrom(clock_t b) {
+        return getTimeSecFrom(b) / 3600;
     }
 };
 

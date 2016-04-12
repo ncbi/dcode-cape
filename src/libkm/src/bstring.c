@@ -15,47 +15,28 @@
 #include "bmemory.h"
 
 /**
- * Split a string into a array of string using the delimiter
+ * Split a string into a array of pointers string using the delimiter
  * 
  * @param dest the destination pointer
+ * @param len number of elements of the destination pointer
  * @param src the source pointer
  * @param delimiter the delimiter
- * @return a array with the splited strings
+ * @return a array with the split strings
  */
-size_t splitString(char ***dest, char *src, const char *delimiter) {
-    *dest = NULL;
-    size_t count = 0;
-    char *srccpy = strdup(src);
-    char *token = strtok(srccpy, delimiter);
-    while (token) {
-        *dest = (char **) checkPointerError(realloc(*dest, sizeof (char **) * (count + 1)), "Can't allocate memory", __FILE__, __LINE__, -1);
-        (*dest)[count] = strdup(token);
-        token = strtok(NULL, delimiter);
-        count++;
-    }
-    if (srccpy)free(srccpy);
-    return count;
-}
+size_t strsep_ptr(char ***tokens, size_t *len, char *src, const char *delimiter) {
+    size_t nWords = 0;
+    char *token;
 
-/**
- * Return 0 if the string haystack ends with the string needle
- * 
- * @param haystack the string to be analyzed
- * @param needle the suffix string
- * @return 0 if the string haystack ends with the string needle, 1 if not
- */
-int strbcmp(const char *haystack, const char *needle) {
-    int length;
-    const char *s = haystack;
-    if (haystack && needle && strlen(haystack) >= (length = strlen(needle))) {
-        const char *sub = NULL;
-        while ((s = strstr(s, needle)) != NULL) {
-            sub = s;
-            s += strlen(needle);
+    while ((token = strsep(&src, delimiter)) != NULL) {
+        if (*token != 0) {
+            if (*len <= nWords) {
+                *len = nWords + 1;
+                *tokens = (char **) realloc(*tokens, sizeof (char **) * (*len));
+            }
+            *(*tokens + nWords++) = token;
         }
-        if (sub && strlen(sub) == length) return 0;
     }
-    return 1;
+    return nWords;
 }
 
 /**

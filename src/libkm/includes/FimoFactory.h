@@ -25,90 +25,90 @@ namespace fimo {
         virtual ~Fimo() {
         }
 
-        unsigned long int GetEnd() const {
+        unsigned long int getEnd() const {
             return end;
         }
 
-        void SetEnd(unsigned long int end) {
+        void setEnd(unsigned long int end) {
             this->end = end;
         }
 
-        std::string GetId() const {
+        std::string getId() const {
             return id;
         }
 
-        void SetId(std::string id) {
+        void setId(std::string id) {
             this->id = id;
         }
 
-        std::string GetMotif() const {
+        std::string getMotif() const {
             return motif;
         }
 
-        void SetMotif(std::string motif) {
+        void setMotif(std::string motif) {
             this->motif = motif;
         }
 
-        double GetValue() const {
+        double getValue() const {
             return pValue;
         }
 
-        void SetValue(double Value) {
+        void setValue(double Value) {
             pValue = Value;
         }
 
-        double GetScore() const {
+        double getScore() const {
             return score;
         }
 
-        void SetScore(double score) {
+        void setScore(double score) {
             this->score = score;
         }
 
-        std::string GetSeq() const {
+        std::string getSeq() const {
             return seq;
         }
 
-        void SetSeq(std::string seq) {
+        void setSeq(std::string seq) {
             this->seq = seq;
         }
 
-        unsigned long int GetStart() const {
+        unsigned long int getStart() const {
             return start;
         }
 
-        void SetStart(unsigned long int start) {
+        void setStart(unsigned long int start) {
             this->start = start;
         }
 
-        char GetStrand() const {
+        char getStrand() const {
             return strand;
         }
 
-        void SetStrand(char strand) {
+        void setStrand(char strand) {
             this->strand = strand;
         }
 
-        double GetExpression() const {
+        double getExpression() const {
             return expression;
         }
 
-        void SetExpression(double expression) {
+        void setExpression(double expression) {
             this->expression = expression;
         }
 
-        std::string GetExpEnsembl() const {
+        std::string getExpEnsembl() const {
             return expEnsembl;
         }
 
-        void SetExpEnsembl(std::string expEnsembl) {
+        void setExpEnsembl(std::string expEnsembl) {
             this->expEnsembl = expEnsembl;
         }
 
         bool operator==(const Fimo& right) const {
-            return this->GetMotif().compare(right.GetMotif()) == 0 &&
-                    this->start == right.GetStart() &&
-                    this->end == right.GetEnd();
+            return this->getMotif().compare(right.getMotif()) == 0 &&
+                    this->start == right.getStart() &&
+                    this->end == right.getEnd();
         }
 
         bool operator!=(const Fimo& right) const {
@@ -117,13 +117,13 @@ namespace fimo {
         }
 
         bool operator>(const Fimo& right) const {
-            if (this->start == right.GetStart()) {
-                if (this->end == right.GetEnd()) {
-                    return this->expression > right.GetExpression();
+            if (this->start == right.getStart()) {
+                if (this->end == right.getEnd()) {
+                    return this->expression > right.getExpression();
                 }
-                return this->end > right.GetEnd();
+                return this->end > right.getEnd();
             }
-            return this->start > right.GetStart();
+            return this->start > right.getStart();
         }
 
         bool operator<(const Fimo& right) const {
@@ -131,8 +131,8 @@ namespace fimo {
         }
 
         friend std::ostream& operator<<(std::ostream& os, const Fimo& obj) {
-            os << obj.GetId() << "\t" << obj.GetMotif() << "\t" << obj.GetStart() << "\t" << obj.GetEnd()
-                    << "\t" << obj.GetValue() << "\t" << obj.GetExpression() << "\t" << obj.GetExpEnsembl();
+            os << obj.getId() << "\t" << obj.getMotif() << "\t" << obj.getStart() << "\t" << obj.getEnd()
+                    << "\t" << obj.getValue() << "\t" << obj.getExpression() << "\t" << obj.getExpEnsembl();
             return os;
         }
 
@@ -155,11 +155,11 @@ namespace fimo {
         FimoFactory(const FimoFactory& orig);
         virtual ~FimoFactory();
 
-        void CreateTissueIndexFromFiles(char *pwm_EnsembleID, char *tissue_file);
-        void CreateCutoffIndexFromFile(char *cutoffFileName, size_t column);
-        void ParseFimoOutput(char *fimoOuputName, char *tissueCode, unsigned long int snpPos);
+        void createTissueIndexFromFiles(std::string pwm_EnsembleID, std::string tissue_file);
+        void createCutoffIndexFromFile(std::string cutoffFileName, size_t column);
+        void parseFimoOutput(std::string fimoOuputName, std::string tissueCode, unsigned long int snpPos);
 
-        std::pair<std::string, double> GetTissueValue(std::string motifName, std::string tissueName) {
+        std::pair<std::string, double> getTissueValue(std::string motifName, std::string tissueName) {
             std::unordered_map<std::string, std::unordered_map<std::string, std::pair < std::string, double>>>::iterator it = tissueIndex.find(motifName);
             if (it != tissueIndex.end()) {
                 std::unordered_map<std::string, std::pair < std::string, double>>::iterator it1 = it->second.find(tissueName);
@@ -168,7 +168,7 @@ namespace fimo {
             return std::pair<std::string, double>("", 0.0000);
         }
 
-        double GetCutoffValue(std::string motifName) {
+        double getCutoffValue(std::string motifName) {
             std::unordered_map<std::string, double>::iterator it = cutoffIndex.find(motifName);
             if (it != cutoffIndex.end()) {
                 return it->second;
@@ -176,8 +176,8 @@ namespace fimo {
             return -1.0;
         }
 
-        std::unordered_map<std::string, std::vector<double> >& GetSnpIDMap() {
-            return snpIDMap;
+        std::unordered_map<std::string, std::vector<double> >& getSnpIDContainer() {
+            return snpIDContainer;
         }
     private:
         std::unordered_map<std::string, std::unordered_map<std::string, std::pair<std::string, double>>> tissueIndex;
@@ -188,7 +188,7 @@ namespace fimo {
          * The first element is the sum of the co-occupied and the second the 
          * sum of the neighbors 
          */
-        std::unordered_map<std::string, std::vector<double>> snpIDMap;
+        std::unordered_map<std::string, std::vector<double>> snpIDContainer;
 
         struct PointerCompare {
 

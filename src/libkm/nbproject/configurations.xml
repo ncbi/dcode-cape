@@ -7,6 +7,7 @@
       <itemPath>includes/BedFactory.h</itemPath>
       <itemPath>includes/Exceptions.h</itemPath>
       <itemPath>includes/FastaFactory.h</itemPath>
+      <itemPath>includes/FileParserFactory.h</itemPath>
       <itemPath>includes/FimoFactory.h</itemPath>
       <itemPath>includes/Global.h</itemPath>
       <itemPath>includes/KmersFactory.h</itemPath>
@@ -44,6 +45,7 @@
                    projectFiles="true">
       <itemPath>src/BedFactory.cpp</itemPath>
       <itemPath>src/FastaFactory.cpp</itemPath>
+      <itemPath>src/FileParserFactory.cpp</itemPath>
       <itemPath>src/FimoFactory.cpp</itemPath>
       <itemPath>src/KmersFactory.cpp</itemPath>
       <itemPath>src/SNPFactory.cpp</itemPath>
@@ -53,7 +55,6 @@
       <itemPath>src/bmemory.c</itemPath>
       <itemPath>src/bstring.c</itemPath>
       <itemPath>src/chebyshev.c</itemPath>
-      <itemPath>src/features.c</itemPath>
       <itemPath>src/gamma.c</itemPath>
       <itemPath>src/lgamma.c</itemPath>
       <itemPath>src/lgammacor.c</itemPath>
@@ -76,6 +77,12 @@
                      projectFiles="true"
                      kind="TEST">
         <itemPath>tests/FastaFactoryTest.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f8"
+                     displayName="FileParserFactoryTest"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>tests/FileParserFactoryTest.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f6"
                      displayName="FimoFactoryTest"
@@ -250,7 +257,6 @@
         <ccTool>
           <incDir>
             <pElem>.</pElem>
-            <pElem>../../../../../../../.homebrew/include</pElem>
           </incDir>
         </ccTool>
         <linkerTool>
@@ -272,11 +278,28 @@
           <output>${TESTDIR}/TestFiles/tFBSFactoryTest</output>
         </linkerTool>
       </folder>
+      <folder path="TestFiles/f8">
+        <cTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>.</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/fileParserFactoryTest</output>
+        </linkerTool>
+      </folder>
       <item path="includes/BedFactory.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="includes/Exceptions.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="includes/FastaFactory.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="includes/FileParserFactory.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="includes/FimoFactory.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -342,6 +365,8 @@
       </item>
       <item path="src/FastaFactory.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <item path="src/FileParserFactory.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="src/FimoFactory.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/KmersFactory.cpp" ex="false" tool="1" flavor2="0">
@@ -360,8 +385,6 @@
       </item>
       <item path="src/chebyshev.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="src/features.c" ex="false" tool="0" flavor2="0">
-      </item>
       <item path="src/gamma.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/lgamma.c" ex="false" tool="0" flavor2="0">
@@ -377,6 +400,8 @@
       <item path="tests/BedFactoryTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="tests/FastaFactoryTest.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="tests/FileParserFactoryTest.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="tests/FimoFactoryTest.cpp" ex="false" tool="1" flavor2="0">
       </item>

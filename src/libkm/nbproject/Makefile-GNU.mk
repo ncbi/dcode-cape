@@ -37,6 +37,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/src/BedFactory.o \
 	${OBJECTDIR}/src/FastaFactory.o \
+	${OBJECTDIR}/src/FileParserFactory.o \
 	${OBJECTDIR}/src/FimoFactory.o \
 	${OBJECTDIR}/src/KmersFactory.o \
 	${OBJECTDIR}/src/SNPFactory.o \
@@ -46,7 +47,6 @@ OBJECTFILES= \
 	${OBJECTDIR}/src/bmemory.o \
 	${OBJECTDIR}/src/bstring.o \
 	${OBJECTDIR}/src/chebyshev.o \
-	${OBJECTDIR}/src/features.o \
 	${OBJECTDIR}/src/gamma.o \
 	${OBJECTDIR}/src/lgamma.o \
 	${OBJECTDIR}/src/lgammacor.o \
@@ -61,6 +61,7 @@ TESTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tests
 TESTFILES= \
 	${TESTDIR}/TestFiles/bedFactoryTest \
 	${TESTDIR}/TestFiles/fastaFactoryTest \
+	${TESTDIR}/TestFiles/fileParserFactoryTest \
 	${TESTDIR}/TestFiles/fimoFactoryTest \
 	${TESTDIR}/TestFiles/kmerFactoryTest \
 	${TESTDIR}/TestFiles/peakTest \
@@ -71,6 +72,7 @@ TESTFILES= \
 TESTOBJECTFILES= \
 	${TESTDIR}/tests/BedFactoryTest.o \
 	${TESTDIR}/tests/FastaFactoryTest.o \
+	${TESTDIR}/tests/FileParserFactoryTest.o \
 	${TESTDIR}/tests/FimoFactoryTest.o \
 	${TESTDIR}/tests/KmerFactoryTest.o \
 	${TESTDIR}/tests/PeakTest.o \
@@ -112,6 +114,11 @@ ${OBJECTDIR}/src/FastaFactory.o: src/FastaFactory.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FastaFactory.o src/FastaFactory.cpp
+
+${OBJECTDIR}/src/FileParserFactory.o: src/FileParserFactory.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FileParserFactory.o src/FileParserFactory.cpp
 
 ${OBJECTDIR}/src/FimoFactory.o: src/FimoFactory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -158,11 +165,6 @@ ${OBJECTDIR}/src/chebyshev.o: src/chebyshev.c
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/chebyshev.o src/chebyshev.c
 
-${OBJECTDIR}/src/features.o: src/features.c 
-	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/features.o src/features.c
-
 ${OBJECTDIR}/src/gamma.o: src/gamma.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
@@ -208,6 +210,10 @@ ${TESTDIR}/TestFiles/fastaFactoryTest: ${TESTDIR}/tests/FastaFactoryTest.o ${OBJ
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.cc}   -o ${TESTDIR}/TestFiles/fastaFactoryTest $^ ${LDLIBSOPTIONS} 
 
+${TESTDIR}/TestFiles/fileParserFactoryTest: ${TESTDIR}/tests/FileParserFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
+	${MKDIR} -p ${TESTDIR}/TestFiles
+	${LINK.cc}   -o ${TESTDIR}/TestFiles/fileParserFactoryTest $^ ${LDLIBSOPTIONS} 
+
 ${TESTDIR}/TestFiles/fimoFactoryTest: ${TESTDIR}/tests/FimoFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.cc}   -o ${TESTDIR}/TestFiles/fimoFactoryTest $^ ${LDLIBSOPTIONS} 
@@ -241,10 +247,16 @@ ${TESTDIR}/tests/FastaFactoryTest.o: tests/FastaFactoryTest.cpp
 	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FastaFactoryTest.o tests/FastaFactoryTest.cpp
 
 
+${TESTDIR}/tests/FileParserFactoryTest.o: tests/FileParserFactoryTest.cpp 
+	${MKDIR} -p ${TESTDIR}/tests
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FileParserFactoryTest.o tests/FileParserFactoryTest.cpp
+
+
 ${TESTDIR}/tests/FimoFactoryTest.o: tests/FimoFactoryTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -I../../../../../../../.homebrew/include -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FimoFactoryTest.o tests/FimoFactoryTest.cpp
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FimoFactoryTest.o tests/FimoFactoryTest.cpp
 
 
 ${TESTDIR}/tests/KmerFactoryTest.o: tests/KmerFactoryTest.cpp 
@@ -295,6 +307,19 @@ ${OBJECTDIR}/src/FastaFactory_nomain.o: ${OBJECTDIR}/src/FastaFactory.o src/Fast
 	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FastaFactory_nomain.o src/FastaFactory.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/FastaFactory.o ${OBJECTDIR}/src/FastaFactory_nomain.o;\
+	fi
+
+${OBJECTDIR}/src/FileParserFactory_nomain.o: ${OBJECTDIR}/src/FileParserFactory.o src/FileParserFactory.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/src/FileParserFactory.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FileParserFactory_nomain.o src/FileParserFactory.cpp;\
+	else  \
+	    ${CP} ${OBJECTDIR}/src/FileParserFactory.o ${OBJECTDIR}/src/FileParserFactory_nomain.o;\
 	fi
 
 ${OBJECTDIR}/src/FimoFactory_nomain.o: ${OBJECTDIR}/src/FimoFactory.o src/FimoFactory.cpp 
@@ -414,19 +439,6 @@ ${OBJECTDIR}/src/chebyshev_nomain.o: ${OBJECTDIR}/src/chebyshev.o src/chebyshev.
 	    ${CP} ${OBJECTDIR}/src/chebyshev.o ${OBJECTDIR}/src/chebyshev_nomain.o;\
 	fi
 
-${OBJECTDIR}/src/features_nomain.o: ${OBJECTDIR}/src/features.o src/features.c 
-	${MKDIR} -p ${OBJECTDIR}/src
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/src/features.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/features_nomain.o src/features.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/src/features.o ${OBJECTDIR}/src/features_nomain.o;\
-	fi
-
 ${OBJECTDIR}/src/gamma_nomain.o: ${OBJECTDIR}/src/gamma.o src/gamma.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	@NMOUTPUT=`${NM} ${OBJECTDIR}/src/gamma.o`; \
@@ -511,6 +523,7 @@ ${OBJECTDIR}/src/svm_nomain.o: ${OBJECTDIR}/src/svm.o src/svm.cpp
 	then  \
 	    ${TESTDIR}/TestFiles/bedFactoryTest || true; \
 	    ${TESTDIR}/TestFiles/fastaFactoryTest || true; \
+	    ${TESTDIR}/TestFiles/fileParserFactoryTest || true; \
 	    ${TESTDIR}/TestFiles/fimoFactoryTest || true; \
 	    ${TESTDIR}/TestFiles/kmerFactoryTest || true; \
 	    ${TESTDIR}/TestFiles/peakTest || true; \

@@ -15,36 +15,36 @@ namespace svm {
         SVMPredict();
         virtual ~SVMPredict();
 
-        svm_model* GetModel() {
+        svm_model* getModel() {
             return model;
         }
 
-        void SetModel(svm_model* model) {
+        void setModel(svm_model* model) {
             this->model = model;
         }
 
-        int GetPredict_probability() const {
+        int getPredictProbability() const {
             return predict_probability;
         }
 
-        void SetPredict_probability(int predict_probability) {
+        void setPredictProbability(int predict_probability) {
             this->predict_probability = predict_probability;
         }
 
-        int GetNr_class() const {
+        int getNrClass() const {
             return nr_class;
         }
 
-        double* GetProb_estimates() {
+        double* getProbEstimates() {
             return prob_estimates;
         }
 
-        int GetSvm_type() const {
+        int getSVMType() const {
             return svm_type;
         }
 
-        void SVMLoadModel(char *fileName);
-        void SVMPredictCalulation(struct svm_node *x, double target_label);
+        void svmLoadModel(std::string fileName);
+        void svmPredictCalulation(struct svm_node *x, double target_label);
     private:
         struct svm_model* model;
         int predict_probability;

@@ -20,16 +20,7 @@ extern "C" {
      * @param delimiter the delimiter
      * @return a array with the splited strings
      */
-    extern size_t splitString(char ***dest, char *src, const char *delimiter);
-
-    /**
-     * Return 0 if the string haystack ends with the string needle
-     * 
-     * @param haystack the string to be analyzed
-     * @param needle the suffix string
-     * @return 0 if the string haystack ends with the string needle, 1 if not
-     */
-    int strbcmp(const char *haystack, const char *needle);
+    extern size_t strsep_ptr(char ***tokens, size_t *len, char *src, const char *delimiter);
 
     /**
      * Count the number of occurrences of characters in c in the string str

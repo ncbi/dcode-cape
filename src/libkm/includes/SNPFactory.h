@@ -25,84 +25,84 @@ namespace snp {
         SNP();
         virtual ~SNP();
 
-        char GetAlt() const {
+        char getAlt() const {
             return alt;
         }
 
-        void SetAlt(char alt) {
+        void setAlt(char alt) {
             this->alt = alt;
         }
 
-        std::string GetId() const {
+        std::string getId() const {
             return id;
         }
 
-        void SetId(std::string id) {
+        void setId(std::string id) {
             this->id = id;
         }
 
-        std::string GetChr() const {
+        std::string getChr() const {
             return chr;
         }
 
-        void SetChr(std::string chr) {
+        void setChr(std::string chr) {
             this->chr = chr;
         }
 
-        unsigned long int GetLength() const {
+        unsigned long int getLength() const {
             return length;
         }
 
-        void SetLength(unsigned long int length) {
+        void setLength(unsigned long int length) {
             this->length = length;
         }
 
-        unsigned long int GetPos() const {
+        unsigned long int getPos() const {
             return pos;
         }
 
-        void SetPos(unsigned long int pos) {
+        void setPos(unsigned long int pos) {
             this->pos = pos;
         }
 
-        unsigned long int GetChrPos() const {
+        unsigned long int getChrPos() const {
             return chrPos;
         }
 
-        void SetChrPos(unsigned long int chrPos) {
+        void setChrPos(unsigned long int chrPos) {
             this->chrPos = chrPos;
         }
 
-        char GetRef() const {
+        char getRef() const {
             return ref;
         }
 
-        void SetRef(char ref) {
+        void setRef(char ref) {
             this->ref = ref;
         }
 
-        char* GetSeq() {
+        char* getSeq() {
             return seq;
         }
 
-        void SetSeq(char** seq) {
+        void setSeq(char** seq) {
             this->seq = *seq;
             this->length = strlen(this->seq);
         }
 
-        std::vector<double>& GetDescriptors() {
+        std::vector<double>& getDescriptors() {
             return descriptors;
         }
 
-        double GetProbPos() const {
+        double getProbPos() const {
             return probPos;
         }
 
-        void SetProbPos(double ProbPos) {
+        void setProbPos(double ProbPos) {
             probPos = ProbPos;
         }
 
-        void CalculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned long int featNumber);
+        void calculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned long int featNumber);
 
     private:
         std::string id;
@@ -125,21 +125,21 @@ namespace snp {
         SNPFactory(const SNPFactory& orig);
         virtual ~SNPFactory();
 
-        std::vector<SNP*>& GetSnps() {
+        std::vector<SNP*>& getSnps() {
             return snps;
         }
         
-        std::string GetExpressionCode() const {
+        std::string getExpressionCode() const {
             return expressionCode;
         }
 
-        void SetExpressionCode(std::string expressionCode) {
+        void setExpressionCode(std::string expressionCode) {
             this->expressionCode = expressionCode;
         }
 
-        void ReadSNPFromFile(char* snpFileName, unsigned long int neighbors, fasta::FastaFactory &chrFactory);
-        void WriteEnhansersFastaFile(char* fastaFile, bool binary);
-        int ProcessSNPFromFile(char* snpFileName, unsigned long int neighbors, fasta::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict, fimo::FimoFactory & fimoFactory, tfbs::TFBSFactory & tFBSFactory);
+        void parseSNPFile(std::string snpFileName, unsigned long int neighbors, sequence::FastaFactory &chrFactory);
+        void writeEnhansersFastaFile(std::string fastaFile, bool binary);
+        int processSNPFromFile(std::string snpFileName, unsigned long int neighbors, sequence::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict, fimo::FimoFactory & fimoFactory, tfbs::TFBSFactory & tFBSFactory);
     private:
         std::string expressionCode;
         std::vector<SNP *> snps;
