@@ -14,7 +14,6 @@
 #include <stdbool.h>
 #include <time.h>
 
-
 #include <iostream>
 #include <memory>
 #include <cstdlib>
@@ -30,8 +29,11 @@
 #include "bmemory.h"
 #include "bstring.h"
 #include "svm.h"
+
 #include "Global.h"
 #include "TimeUtils.h"
+#include "Exceptions.h"
+#include "FileParserFactory.h"
 #include "FastaFactory.h"
 #include "KmersFactory.h"
 #include "FimoFactory.h"
@@ -41,7 +43,8 @@
 #include "SVMPredict.h"
 
 using namespace std;
-using namespace fasta;
+using namespace parsers;
+using namespace sequence;
 using namespace peak;
 using namespace kmers;
 using namespace snp;
@@ -98,18 +101,17 @@ int main(int argc, char** argv) {
     clock_t start = clock();
     int next_option, count;
     const char* const short_options = "vhci:d";
-    FILE *chrsBinName = NULL;
-    char *inFileName = NULL;
-    FILE *inFile = NULL;
-    char *svmModelName = NULL;
-    char *weightFileName = NULL;
-    char *fimoFileName = NULL;
-    char *pwmEnsembleIDFileName = NULL;
-    char *expressionFileName = NULL;
-    char *expressionCode = NULL;
-    char *abbrevmtfmappedFileName = NULL;
-    char *tibInfoFileName = NULL;
-    char *tFBSIdxDirName = NULL;
+    FILE *chrsBinFile = NULL;
+    string inFileName;
+    string svmModelName;
+    string weightFileName;
+    string fimoFileName;
+    string pwmEnsembleIDFileName;
+    string expressionFileName;
+    string expressionCode;
+    string abbrevmtfmappedFileName;
+    string tibInfoFileName;
+    string tFBSIdxDirName;
     FILE *outputFile = NULL;
     unsigned long int neighbors = 100;
     FastaFactory chrFactory;
@@ -118,15 +120,12 @@ int main(int argc, char** argv) {
     FimoFactory fimoFactory;
     SVMPredict svmPredict;
     TFBSFactory tFBSFactory;
-    char *line = NULL;
-    size_t len = 0;
-    char **fields = NULL;
-    size_t fieldsSize = 0;
+    FileParserFactory fParser;
 
     program_name = argv[0];
 
     srand(time(NULL));
-    Global::instance()->SetOrder(10);
+    Global::instance()->setOrder(10);
 
     const struct option long_options[] = {
         { "help", 0, NULL, 'h'},
@@ -143,98 +142,92 @@ int main(int argc, char** argv) {
                 print_usage(stdout, 0);
 
             case 'v':
-                Global::instance()->SetVerbose(1);
+                Global::instance()->setVerbose(1);
                 break;
 
             case 'i':
-                inFileName = strdup(optarg);
+                inFileName = optarg;
                 break;
 
             case 'd':
-                Global::instance()->SetVerbose(3);
+                Global::instance()->setVerbose(3);
                 break;
         }
     } while (next_option != -1);
 
-    if (!inFileName) {
+    if (inFileName.empty()) {
         cerr << "\nInput file with SNP coordinates is required. See -i option" << endl;
         print_usage(stderr, -1);
     }
 
-    inFile = (FILE *) checkPointerError(fopen(inFileName, "r"), "\nCan't open input file. See -i option\n", __FILE__, __LINE__, -1);
+    fParser.setFileToParse(inFileName);
+    inFileName.clear();
 
-    free(inFileName);
-    inFileName = NULL;
-
-    while (getline(&line, &len, inFile) != -1) {
-        if (*line != '#') {
-            if (*(line + strlen(line) - 1) == '\n') *(line + strlen(line) - 1) = '\0';
-            fieldsSize = splitString(&fields, line, "\t");
-            if (fieldsSize >= 2) {
-                if (strcmp(fields[0], "in") == 0) {
-                    inFileName = strdup(fields[1]);
-                }
-                if (strcmp(fields[0], "out") == 0) {
-                    outputFile = (FILE *) checkPointerError(fopen(fields[1], "w"), "\nCan't open output file. See -i option\n", __FILE__, __LINE__, -1);
-                }
-                if (strcmp(fields[0], "order") == 0) {
-                    Global::instance()->SetOrder(static_cast<unsigned long int> (atoi(fields[1])));
-                }
-                if (strcmp(fields[0], "chrs") == 0) {
-                    chrsBinName = (FILE *) checkPointerError(fopen(fields[1], "rb"), "\nCan't open chromosome binary file. See -i option\n", __FILE__, __LINE__, -1);
-                }
-                if (strcmp(fields[0], "weight") == 0) {
-                    weightFileName = strdup(fields[1]);
-                }
-                if (strcmp(fields[0], "neighbors") == 0) {
-                    neighbors = static_cast<unsigned long int> (atoi(fields[1]));
-                }
-                if (strcmp(fields[0], "model") == 0) {
-                    svmModelName = strdup(fields[1]);
-                }
-                if (strcmp(fields[0], "probability") == 0) {
-                    svmPredict.SetPredict_probability(atoi(fields[1]));
-                }
-                if (strcmp(fields[0], "fimo") == 0) {
-                    if (strncmp(fields[1], "0", strlen(fields[1])) != 0) {
-                        fimoFileName = strdup(fields[1]);
-                    }
-                }
-                if (strcmp(fields[0], "pwm_EnsembleID") == 0) {
-                    pwmEnsembleIDFileName = strdup(fields[1]);
-                }
-                if (strcmp(fields[0], "expression") == 0) {
-                    expressionFileName = strdup(fields[1]);
-                }
-                if (strcmp(fields[0], "expression_code") == 0) {
-                    expressionCode = strdup(fields[1]);
-                }
-                if (strcmp(fields[0], "abbrev-mtf-mapped") == 0) {
-                    abbrevmtfmappedFileName = strdup(fields[1]);
-                }
-                if (strcmp(fields[0], "TibInfoFileName") == 0) {
-                    tibInfoFileName = strdup(fields[1]);
-                }
-                if (strcmp(fields[0], "TFBSIdxDirName") == 0) {
-                    tFBSIdxDirName = strdup(fields[1]);
+    while (fParser.iterate('#', "\t")) {
+        if (fParser.getNWords() >= 2) {
+            string field(fParser.getWords()[0]);
+            if (field.compare("in") == 0) {
+                inFileName = fParser.getWords()[1];
+            }
+            if (field.compare("out") == 0) {
+                outputFile = (FILE *) checkPointerError(fopen(fParser.getWords()[1], "w"), "\nCan't open output file. See -i option\n", __FILE__, __LINE__, -1);
+            }
+            if (field.compare("order") == 0) {
+                Global::instance()->setOrder(static_cast<unsigned long int> (atoi(fParser.getWords()[1])));
+            }
+            if (field.compare("chrs") == 0) {
+                chrsBinFile = (FILE *) checkPointerError(fopen(fParser.getWords()[1], "rb"), "\nCan't open chromosome binary file. See -i option\n", __FILE__, __LINE__, -1);
+            }
+            if (field.compare("weight") == 0) {
+                weightFileName = fParser.getWords()[1];
+            }
+            if (field.compare("neighbors") == 0) {
+                neighbors = static_cast<unsigned long int> (atoi(fParser.getWords()[1]));
+            }
+            if (field.compare("model") == 0) {
+                svmModelName = fParser.getWords()[1];
+            }
+            if (field.compare("probability") == 0) {
+                svmPredict.setPredictProbability(atoi(fParser.getWords()[1]));
+            }
+            if (field.compare("fimo") == 0) {
+                string fimoTmpName(fParser.getWords()[1]);
+                if (fimoTmpName.compare("0") != 0) {
+                    fimoFileName = fParser.getWords()[1];
                 }
             }
-            freeArrayofPointers((void **) fields, fieldsSize);
+            if (field.compare("pwm_EnsembleID") == 0) {
+                pwmEnsembleIDFileName = fParser.getWords()[1];
+            }
+            if (field.compare("expression") == 0) {
+                expressionFileName = fParser.getWords()[1];
+            }
+            if (field.compare("expression_code") == 0) {
+                expressionCode = fParser.getWords()[1];
+            }
+            if (field.compare("abbrev-mtf-mapped") == 0) {
+                abbrevmtfmappedFileName = fParser.getWords()[1];
+            }
+            if (field.compare("TibInfoFileName") == 0) {
+                tibInfoFileName = fParser.getWords()[1];
+            }
+            if (field.compare("TFBSIdxDirName") == 0) {
+                tFBSIdxDirName = fParser.getWords()[1];
+            }
         }
     }
-    if (line) free(line);
 
-    if (!inFileName) {
+    if (inFileName.empty()) {
         cerr << "\nInput file with SNP coordinates is required in config file." << endl;
         print_usage(stderr, -1);
     }
 
-    if (!weightFileName) {
+    if (weightFileName.empty()) {
         cerr << "\nKmer weight file is required in config file" << endl;
         print_usage(stderr, -1);
     }
 
-    if (!chrsBinName) {
+    if (!chrsBinFile) {
         cerr << "\nChromosomes file in binary mode is required in config file" << endl;
         print_usage(stderr, -1);
     }
@@ -244,105 +237,93 @@ int main(int argc, char** argv) {
         print_usage(stderr, -1);
     }
 
-    if (fimoFileName) {
-        if (!pwmEnsembleIDFileName) {
+    if (fimoFileName.empty()) {
+        if (pwmEnsembleIDFileName.empty()) {
             cerr << "\npwm_EnsembleID option is required in config file if FIMO ouput is provided." << endl;
             print_usage(stderr, -1);
         }
-        if (!expressionFileName) {
+        if (expressionFileName.empty()) {
             cerr << "\nexpression option  is required in config file if FIMO ouput is provided." << endl;
             print_usage(stderr, -1);
         }
-        if (!expressionCode) {
+        if (expressionCode.empty()) {
             cerr << "\nexpression_code option  is required in config file if FIMO ouput is provided." << endl;
             print_usage(stderr, -1);
         }
-        if (!abbrevmtfmappedFileName) {
+        if (abbrevmtfmappedFileName.empty()) {
             cerr << "\nabbrev-mtf-mapped option  is required in config file if FIMO ouput is provided." << endl;
             print_usage(stderr, -1);
         }
-    } else if (tFBSIdxDirName || tibInfoFileName) {
-        if (!expressionCode) {
+    } else if (!tFBSIdxDirName.empty() || !tibInfoFileName.empty()) {
+        if (expressionCode.empty()) {
             cerr << "\nexpression_code option  is required in config file if FIMO indexes are provided." << endl;
             print_usage(stderr, -1);
         }
-        if (!tFBSIdxDirName) {
+        if (tFBSIdxDirName.empty()) {
             cerr << "\tTFBSIdxDirName option  is required in config file if FIMO indexes are provided." << endl;
             print_usage(stderr, -1);
         }
-        if (!tibInfoFileName) {
+        if (tibInfoFileName.empty()) {
             cerr << "\tTibInfoFileName option  is required in config file if FIMO indexes are provided." << endl;
             print_usage(stderr, -1);
         }
 
-        snpFactory.SetExpressionCode(expressionCode);
+        snpFactory.setExpressionCode(expressionCode);
 
-        tFBSFactory.CreateTFBSFileIndexMap(tFBSIdxDirName, "chr", ".idx", ".tib");
-        tFBSFactory.CreatePWMIndexFromTibInfoFile(tibInfoFileName);
+        tFBSFactory.createTFBSFileIndexMap(tFBSIdxDirName, "chr", ".idx", ".tib");
+        tFBSFactory.createPWMIndexFromTibInfoFile(tibInfoFileName);
     }
 
-    TimeUtils::instance()->SetStartTime();
-    Global::instance()->SetBin1(0.005);
-    Global::instance()->SetBin2(0.01);
+    TimeUtils::instance()->setStartTime();
+    Global::instance()->setBin1(0.005);
+    Global::instance()->setBin2(0.01);
     cout.precision(2);
 
     begin = clock();
     cout << "Reading chromosome sequences from binary file" << endl;
-    chrFactory.ParseFastaFile(chrsBinName, -1, true, true);
-    cout << chrFactory.GetFastaMap().size() << " chromosomes loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    chrFactory.parseFastaFile(chrsBinFile, -1, true, true);
+    cout << chrFactory.getSequenceContainter().size() << " chromosomes loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
-    if (pwmEnsembleIDFileName && expressionFileName) {
-        fimoFactory.CreateTissueIndexFromFiles(pwmEnsembleIDFileName, expressionFileName);
+    if (!pwmEnsembleIDFileName.empty() && !expressionFileName.empty()) {
+        fimoFactory.createTissueIndexFromFiles(pwmEnsembleIDFileName, expressionFileName);
     }
 
-    if (fimoFileName) {
+    if (!fimoFileName.empty()) {
         begin = clock();
         cout << "Parsing FIMO output file" << endl;
-        fimoFactory.CreateCutoffIndexFromFile(abbrevmtfmappedFileName, 4);
-        fimoFactory.ParseFimoOutput(fimoFileName, expressionCode, neighbors);
-        cout << fimoFactory.GetSnpIDMap().size() << " SNP with FIMO expression loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+        fimoFactory.createCutoffIndexFromFile(abbrevmtfmappedFileName, 4);
+        fimoFactory.parseFimoOutput(fimoFileName, expressionCode, neighbors);
+        cout << fimoFactory.getSnpIDContainer().size() << " SNP with FIMO expression loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
     }
 
     begin = clock();
     cout << "Reading SVM model" << endl;
-    svmPredict.SVMLoadModel(svmModelName);
-    cout << " SVM model processed in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    svmPredict.svmLoadModel(svmModelName);
+    cout << " SVM model processed in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
     cout << "Reading kmers weight" << endl;
-    kmersFactory.ReadKmersFromFile(weightFileName, false);
-    cout << kmersFactory.GetKmers().size() << " kmers loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    kmersFactory.readKmersFromFile(weightFileName, false);
+    cout << kmersFactory.getKmers().size() << " kmers loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
     cout << "Reading input SNP coordinates from files" << endl;
-    count = snpFactory.ProcessSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory, tFBSFactory);
-    cout << count << " SNP processed in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    count = snpFactory.processSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory, tFBSFactory);
+    cout << count << " SNP processed in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     fprintf(outputFile, "#chrom\tpos\trsID\trefAle\taltAle\tscore\n");
-    for (auto it = snpFactory.GetSnps().begin(); it != snpFactory.GetSnps().end(); ++it) {
+    for (auto it = snpFactory.getSnps().begin(); it != snpFactory.getSnps().end(); ++it) {
         SNP *s = *it;
 
         fprintf(outputFile, "%s\t%lu\t%s\t%c\t%c\t%.6f\n",
-                s->GetChr().c_str(), s->GetChrPos() + 1, s->GetId().c_str(),
-                s->GetRef(), s->GetAlt(), s->GetProbPos());
+                s->getChr().c_str(), s->getChrPos() + 1, s->getId().c_str(),
+                s->getRef(), s->getAlt(), s->getProbPos());
     }
 
     fclose(outputFile);
-    fclose(chrsBinName);
-    if (inFileName) free(inFileName);
-    if (weightFileName) free(weightFileName);
-    if (svmModelName) free(svmModelName);
-    if (fimoFileName) free(fimoFileName);
-    if (pwmEnsembleIDFileName) free(pwmEnsembleIDFileName);
-    if (expressionFileName) free(expressionFileName);
-    if (expressionCode) free(expressionCode);
-    if (abbrevmtfmappedFileName) free(abbrevmtfmappedFileName);
-
-    if (tibInfoFileName) free(tibInfoFileName);
-    if (tFBSIdxDirName) free(tFBSIdxDirName);
-
+    fclose(chrsBinFile);
     delete Global::instance();
-    cout << "Total elapse time: " << TimeUtils::instance()->GetTimeSecFrom(start) << " seconds" << endl;
+    cout << "Total elapse time: " << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;
     return 0;
 }
 

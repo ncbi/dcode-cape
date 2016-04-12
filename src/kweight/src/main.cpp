@@ -23,12 +23,13 @@
 
 #include "Global.h"
 #include "TimeUtils.h"
+#include "Exceptions.h"
 #include "FastaFactory.h"
 #include "KmersFactory.h"
 #include "BedFactory.h"
 
 using namespace std;
-using namespace fasta;
+using namespace sequence;
 using namespace peak;
 using namespace kmers;
 
@@ -75,11 +76,11 @@ int main(int argc, char** argv) {
     unsigned long int hitNum;
     const char* const short_options = "vhm:o:b:n:gc:p:ir:u:";
     FILE *chrsBinFile = NULL;
-    char *bedFileName = NULL;
-    char *controlFileName = NULL;
-    char *poutputFileName = NULL;
-    char *prefix = NULL;
-    char *subfix = NULL;
+    string bedFileName;
+    string controlFileName;
+    string poutputFileName;
+    string prefix;
+    string subfix;
     FastaFactory chrFactory;
     BedFactory bedFactory;
     bool genCtrl = false;
@@ -88,7 +89,7 @@ int main(int argc, char** argv) {
     program_name = argv[0];
 
     srand(time(NULL));
-    Global::instance()->SetOrder(10);
+    Global::instance()->setOrder(10);
 
     const struct option long_options[] = {
         { "help", 0, NULL, 'h'},
@@ -115,7 +116,7 @@ int main(int argc, char** argv) {
                 print_usage(stdout, 0);
 
             case 'v':
-                Global::instance()->SetVerbose(1);
+                Global::instance()->setVerbose(1);
                 break;
 
             case 'g':
@@ -131,23 +132,23 @@ int main(int argc, char** argv) {
                 break;
 
             case 'r':
-                prefix = strdup(optarg);
+                prefix = optarg;
                 break;
 
             case 'u':
-                subfix = strdup(optarg);
+                subfix = optarg;
                 break;
 
             case 'p':
-                poutputFileName = strdup(optarg);
+                poutputFileName = optarg;
                 break;
             
             case 'c':
-                controlFileName = strdup(optarg);
+                controlFileName = optarg;
                 break;
 
             case 'b':
-                bedFileName = strdup(optarg);
+                bedFileName = optarg;
                 break;
 
             case 'n':
@@ -155,7 +156,7 @@ int main(int argc, char** argv) {
                 break;
 
             case 'o':
-                Global::instance()->SetOrder(atoi(optarg));
+                Global::instance()->setOrder(atoi(optarg));
                 break;
         }
     } while (next_option != -1);
@@ -166,7 +167,7 @@ int main(int argc, char** argv) {
         if (hitNum == 0) hitNum = 10;
     }
 
-    if (!poutputFileName) {
+    if (poutputFileName.empty()) {
         cerr << "\nKmer contingency table output is required. See -k option" << endl;
         print_usage(stderr, -1);
     }
@@ -176,62 +177,58 @@ int main(int argc, char** argv) {
         print_usage(stderr, -1);
     }
 
-    if (!bedFileName) {
+    if (bedFileName.empty()) {
         cerr << "\nBed file is required. See -b option" << endl;
         print_usage(stderr, -1);
     }
 
-    TimeUtils::instance()->SetStartTime();
-    Global::instance()->SetBin1(0.005);
-    Global::instance()->SetBin2(0.01);
+    TimeUtils::instance()->setStartTime();
+    Global::instance()->setBin1(0.005);
+    Global::instance()->setBin2(0.01);
     cout.precision(2);
 
     begin = clock();
     cout << "Creating kmers genomewide" << endl;
     KmersFactory kmersFactory;
-    kmersFactory.CreateGenomeWideKmers();
-    cout << kmersFactory.GetKmersGenome().size() << " kmers created in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    kmersFactory.createGenomeWideKmers();
+    cout << kmersFactory.getKmersGenome().size() << " kmers created in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
     cout << "Reading chromosome sequences from binary file" << endl;
-    chrFactory.ParseFastaFile(chrsBinFile, -1, true, true);
-    cout << chrFactory.GetFastaMap().size() << " chromosomes loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    chrFactory.parseFastaFile(chrsBinFile, -1, true, true);
+    cout << chrFactory.getSequenceContainter().size() << " chromosomes loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
     cout << "Reading peaks from file" << endl;
-    bedFactory.CreatePeaksFromBedFile(chrFactory, bedFileName, 0.7, kmersFactory);
-    cout << bedFactory.GetPeaks().size() << " peaks loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
-    cout << bedFactory.GetGCNcontentBin().size() << " chromosomes to analyze" << endl;
+    bedFactory.createPeaksFromBedFile(chrFactory, bedFileName, 0.7, kmersFactory);
+    cout << bedFactory.getPeaks().size() << " peaks loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
+    cout << bedFactory.getGCNcontentBin().size() << " chromosomes to analyze" << endl;
 
     begin = clock();
-    if (!controlFileName) {
+    if (controlFileName.empty()) {
         if (genCtrl) {
             cout << "Generating controls from Chromosomes" << endl;
-            bedFactory.GeneratingControlsFromChromosomes(chrFactory, hitNum, kmersFactory);
+            bedFactory.generatingControlsFromChromosomes(chrFactory, hitNum, kmersFactory);
         } else {
             cout << "Generating controls from shuffling peaks" << endl;
-            bedFactory.GeneratingControlsFromShufflingPeaks(hitNum, kmersFactory);
+            bedFactory.generatingControlsFromShufflingPeaks(hitNum, kmersFactory);
         }
     } else {
         cout << "Reading controls from file" << endl;
-        bedFactory.ReadControlsFromFile(controlFileName, chrFactory, kmersFactory);
+        bedFactory.readControlsFromFile(controlFileName, chrFactory, kmersFactory);
     }
-    cout << "Controls generated in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    cout << "Controls generated in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
     cout << "Generating kmers from peaks and controls" << endl;
-    kmersFactory.BuildKmers();
-    cout << kmersFactory.GetKmers().size() << " kmers generated in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    kmersFactory.buildKmers();
+    cout << kmersFactory.getKmers().size() << " kmers generated in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
-    kmersFactory.WriteKmersToFile(poutputFileName, binary);
-
-    if (prefix) free(prefix);
-    if (subfix) free(subfix);
+    kmersFactory.writeKmersToFile(poutputFileName, binary);
+    
     if (chrsBinFile) fclose(chrsBinFile);
-    if (bedFileName) free(bedFileName);
-    if (poutputFileName) free(poutputFileName);
     delete Global::instance();
-    cout << "Total elapse time: " << TimeUtils::instance()->GetTimeMinFrom(start) << " minutes" << endl;
+    cout << "Total elapse time: " << TimeUtils::instance()->getTimeMinFrom(start) << " minutes" << endl;
     return 0;
 }
 

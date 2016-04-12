@@ -22,10 +22,11 @@
 
 #include "Global.h"
 #include "TimeUtils.h"
+#include "Exceptions.h"
 #include "FastaFactory.h"
 
 using namespace std;
-using namespace fasta;
+using namespace sequence;
 
 Global *Global::s_instance = 0;
 TimeUtils *TimeUtils::s_instance = 0;
@@ -57,9 +58,9 @@ int main(int argc, char** argv) {
     clock_t start = clock();
     int next_option;
     const char* const short_options = "vhi:o:d:r";
-    char *dirName = NULL;
-    char *inName = NULL;
-    char *outName = NULL;
+    string dirName;
+    string inName;
+    string outName;
     FILE *inFile;
     FastaFactory fastaFactory;
     bool reverse = false;
@@ -86,19 +87,19 @@ int main(int argc, char** argv) {
                 print_usage(stdout, 0);
 
             case 'v':
-                Global::instance()->SetVerbose(1);
+                Global::instance()->setVerbose(1);
                 break;
 
             case 'i':
-                inName = strdup(optarg);
+                inName = optarg;
                 break;
 
             case 'o':
-                outName = strdup(optarg);
+                outName = optarg;
                 break;
 
             case 'd':
-                dirName = strdup(optarg);
+                dirName = optarg;
                 break;
 
             case 'r':
@@ -107,22 +108,22 @@ int main(int argc, char** argv) {
         }
     } while (next_option != -1);
 
-    if (!outName) {
+    if (outName.empty()) {
         cerr << "\nOutput file is required. See -o option" << endl;
         print_usage(stderr, -1);
     }
 
-    if (!inName && !dirName) {
+    if (inName.empty() && dirName.empty()) {
         cerr << "\nInput file or directory name are required. See -i or -d options" << endl;
         print_usage(stderr, -1);
     }
 
     if (reverse) {
-        if (!inName) {
+        if (inName.empty()) {
             cerr << "\nIf reverse the input file is required. See -i option" << endl;
             print_usage(stderr, -1);
         }
-        if (dirName) {
+        if (!dirName.empty()) {
             cerr << "\nDirectory is not compatible with reverse option. Use -i for input file" << endl;
             print_usage(stderr, -1);
         }
@@ -130,40 +131,37 @@ int main(int argc, char** argv) {
 
     begin = clock();
     if (!reverse) {
-        if (dirName) {
+        if (!dirName.empty()) {
             cout << "Reading sequences from files" << endl;
-            fastaFactory.LoadFastaInDirectory(dirName, NULL, ".fa", false);
-        } else if (inName) {
+            fastaFactory.parseFastaInDirectory(dirName, "", ".fa", false);
+        } else if (!inName.empty()) {
             cout << "Reading sequences from file" << endl;
-            inFile = (FILE *) fopen(inName, "r");
+            inFile = (FILE *) fopen(inName.c_str(), "r");
             if (!inFile) {
                 cerr << "Can't open input file" << endl;
                 exit(-1);
             }
-            fastaFactory.ParseFastaFile(inFile, -1, true, false);
+            fastaFactory.parseFastaFile(inFile, -1, true, false);
             fclose(inFile);
         }
     } else {
         cout << "Reading sequences from file" << endl;
-        inFile = (FILE *) fopen(inName, "rb");
+        inFile = (FILE *) fopen(inName.c_str(), "rb");
         if (!inFile) {
             cerr << "Can't open input file" << endl;
             exit(-1);
         }
-        fastaFactory.ParseFastaFile(inFile, -1, true, true);
+        fastaFactory.parseFastaFile(inFile, -1, true, true);
         fclose(inFile);
     }
-    cout << fastaFactory.GetFastaMap().size() << " sequences loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    cout << fastaFactory.getSequenceContainter().size() << " sequences loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();
     cout << "Writing sequences in binary mode ";
-    fastaFactory.WriteSequencesToFile(outName, !reverse);
-    cout << "in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    fastaFactory.writeSequencesToFile(outName, !reverse);
+    cout << "in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
-    if (outName) free(outName);
-    if (inName) free(inName);
-    if (dirName) free(dirName);
-    cout << "Total elapse time: " << TimeUtils::instance()->GetTimeMinFrom(start) << " minutes" << endl;
+    cout << "Total elapse time: " << TimeUtils::instance()->getTimeMinFrom(start) << " minutes" << endl;
     return 0;
 }
 

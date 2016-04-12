@@ -27,6 +27,7 @@
 #include "svm.h"
 #include "Global.h"
 #include "TimeUtils.h"
+#include "Exceptions.h"
 #include "FastaFactory.h"
 #include "KmersFactory.h"
 #include "FimoFactory.h"
@@ -36,7 +37,7 @@
 #include "SVMPredict.h"
 
 using namespace std;
-using namespace fasta;
+using namespace sequence;
 using namespace peak;
 using namespace kmers;
 using namespace snp;
@@ -75,8 +76,8 @@ int main(int argc, char** argv) {
     int next_option;
     const char* const short_options = "vhi:c:o:l:";
     FILE *chrsBinFile = NULL;
-    char *inName = NULL;
-    char *outName = NULL;
+    string inName;
+    string outName;
     unsigned long int length = 0;
     FastaFactory chrFactory;
     SNPFactory snpFactory;
@@ -101,11 +102,11 @@ int main(int argc, char** argv) {
                 print_usage(stdout, 0);
 
             case 'v':
-                Global::instance()->SetVerbose(1);
+                Global::instance()->setVerbose(1);
                 break;
 
             case 'i':
-                inName = strdup(optarg);
+                inName = optarg;
                 break;
 
             case 'c':
@@ -113,7 +114,7 @@ int main(int argc, char** argv) {
                 break;
 
             case 'o':
-                outName = strdup(optarg);
+                outName = optarg;
                 break;
 
             case 'l':
@@ -122,12 +123,12 @@ int main(int argc, char** argv) {
         }
     } while (next_option != -1);
 
-    if (!inName) {
+    if (inName.empty()) {
         cerr << "\nInput SNP coordinate file is required. See -i option" << endl;
         print_usage(stderr, -1);
     }
 
-    if (!outName) {
+    if (outName.empty()) {
         cerr << "\nOutput file is required. See -i option" << endl;
         print_usage(stderr, -1);
     }
@@ -142,23 +143,21 @@ int main(int argc, char** argv) {
         print_usage(stderr, -1);
     }
 
-    TimeUtils::instance()->SetStartTime();
+    TimeUtils::instance()->setStartTime();
     begin = clock();
     cout << "Reading chromosome sequences from binary file" << endl;
-    chrFactory.ParseFastaFile(chrsBinFile, -1, true, true);
-    cout << chrFactory.GetFastaMap().size() << " chromosomes loaded in " << TimeUtils::instance()->GetTimeSecFrom(begin) << " seconds" << endl;
+    chrFactory.parseFastaFile(chrsBinFile, -1, true, true);
+    cout << chrFactory.getSequenceContainter().size() << " chromosomes loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
     
     cout << "Reading input SNP coordinates from files" << endl;
-    snpFactory.ReadSNPFromFile(inName, length, chrFactory);
+    snpFactory.parseSNPFile(inName, length, chrFactory);
     
     cout << "Writing fasta file" << endl;
-    snpFactory.WriteEnhansersFastaFile(outName, false);
+    snpFactory.writeEnhansersFastaFile(outName, false);
 
-    if (inName) free(inName);
-    if (outName) free(outName);
     if (chrsBinFile) fclose(chrsBinFile);
     delete Global::instance();
-    cout << "Total elapse time: " << TimeUtils::instance()->GetTimeMinFrom(start) << " minutes" << endl;
+    cout << "Total elapse time: " << TimeUtils::instance()->getTimeMinFrom(start) << " minutes" << endl;
     return 0;
 }
 
