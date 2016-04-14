@@ -74,7 +74,7 @@ void testParseFastaFile(string fileName, bool binary) {
 
     free(seg);
     fclose(fName);
-    //remove(fileName.c_str());
+    remove(fileName.c_str());
 }
 
 void testParseFastaMultipleFile(string fileName) {

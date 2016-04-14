@@ -28,7 +28,6 @@
       <itemPath>resources/57epigenomes.RPKM.pc</itemPath>
       <itemPath>resources/abbrev-mtf-mapped-to-whole-label.all.info.renamed</itemPath>
       <itemPath>resources/chr1.fa.masked</itemPath>
-      <itemPath>resources/chr1.fa.masked.bin</itemPath>
       <itemPath>resources/chr1.fimo.txt</itemPath>
       <itemPath>resources/chr1.idx</itemPath>
       <itemPath>resources/chr1.tib</itemPath>
@@ -337,8 +336,6 @@
             flavor2="0">
       </item>
       <item path="resources/chr1.fa.masked" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="resources/chr1.fa.masked.bin" ex="false" tool="3" flavor2="0">
       </item>
       <item path="resources/chr1.fimo.txt" ex="false" tool="3" flavor2="0">
       </item>

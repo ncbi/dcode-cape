@@ -519,7 +519,7 @@ void testReadKmersFromFile(std::string fileName, bool binary) {
         }
     }
 
-    //remove(fileName.c_str());
+    remove(fileName.c_str());
 }
 
 int main(int argc, char** argv) {
