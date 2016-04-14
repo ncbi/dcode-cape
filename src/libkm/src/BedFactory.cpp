@@ -13,6 +13,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <dirent.h>
+
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -23,8 +26,8 @@
 #include <set>
 #include <utility>
 #include <algorithm>
-#include <stdbool.h>
-#include <dirent.h>
+#include <random>
+#include <chrono>
 
 #include "berror.h"
 #include "bmemory.h"
@@ -32,6 +35,7 @@
 #include "TimeUtils.h"
 #include "Global.h"
 #include "FileParserFactory.h"
+#include "cstring.h"
 #include "FastaFactory.h"
 #include "KmersFactory.h"
 #include "BedFactory.h"
@@ -71,35 +75,22 @@ pair<int, int> Peak::getGCNcontentBin() {
     int n_binID = 0;
     double Ncontent = static_cast<double> (this->NCount) / static_cast<double> (this->getLength());
     double GCcontent = static_cast<double> (this->GCCount) / static_cast<double> (this->getLength() - this->NCount);
-    int gc_binID = int(GCcontent / Global::instance()->getBin1());
+    int gc_binID = static_cast<int> (GCcontent / Global::instance()->getBin1());
     if (Ncontent != 0) {
-        n_binID = int(Ncontent / Global::instance()->getBin2()) + 1;
+        n_binID = static_cast<int> (Ncontent / Global::instance()->getBin2()) + 1;
     }
     return pair<int, int>(gc_binID, n_binID);
 }
 
-char* Peak::randomizePeakSeq() {
-    char c, *s, *n;
-    char *seq = strdup(this->seq);
-    s = seq;
-    while (*s != '\0') {
-        n = strchr(s, 'N');
-        if (n == s) s++;
-        else {
-            if (n != NULL) *n = '\0';
-            int i = strlen(s) - 1;
-            while (i > 0) {
-                int j = rand() % i;
-                c = s[i];
-                s[i] = s[j];
-                s[j] = c;
-                i--;
-            }
-            if (n != NULL) {
-                *n = 'N';
-                s = n;
-            } else {
-                break;
+std::string Peak::randomizePeakSeq() {
+    string seq = this->seq;
+    string::iterator it1;
+    for (auto it = seq.begin(); it != seq.end(); ++it) {
+        if (*it != 'N' && *it != 'n') {
+            for (it1 = it; it1 != seq.end() && *it1 != 'N' && *it1 != 'n'; ++it1);
+            if (it1 != it) {
+                unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+                std::shuffle(it, it1, std::default_random_engine(seed));
             }
         }
     }
@@ -124,53 +115,76 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
     Seq *f = NULL;
 
     kmersFactory.clearKmerPeakData();
-    while (fParser.iterate('#', "\t")) {
-        if (fParser.getNWords() != 3) {
-            printLog(stderr, "Bed file with a wrong format ", __FILE__, __LINE__, -1);
-        }
-        if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
-            f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
-        }
-        if (f) {
-            if (static_cast<unsigned long int> (atoi(fParser.getWords()[2])) <= f->getLength()) {
-                Peak *p = new Peak();
-                p->setChr(fParser.getWords()[0]);
-                p->setStart(atoi(fParser.getWords()[1]));
-                p->setEnd(atoi(fParser.getWords()[2]) - 1);
-                char *seq = f->getSubStr(p->getStart(), p->getLength());
-                p->setSeq(&seq);
-                p->calculateContent();
-                if (p->getNRCount() >= 50 && p->getNPercent() < maxNPercent) {
-                    pair<int, int> k = p->getGCNcontentBin();
-
-                    if (this->GCNcontentBin.find(f->getId()) == this->GCNcontentBin.end()) {
-                        std::map<int, std::map < std::pair<int, int>, int>> wm;
-                        std::map<std::pair<int, int>, int> m;
-                        m.insert(pair<pair<int, int>, int>(k, 1));
-                        wm.insert(pair<int, std::map < std::pair<int, int>, int>>(p->getLength(), m));
-                        this->GCNcontentBin.insert(pair<string, std::map<int, std::map < std::pair<int, int>, int>>>(f->getId(), wm));
-                    } else {
-                        std::map<int, std::map < std::pair<int, int>, int>> *wm = &this->GCNcontentBin.find(f->getId())->second;
-                        if (wm->find(p->getLength()) == wm->end()) {
-                            std::map<std::pair<int, int>, int> m;
-                            m.insert(pair<pair<int, int>, int>(k, 1));
-                            wm->insert(pair<int, std::map < std::pair<int, int>, int>>(p->getLength(), m));
-                        } else {
-                            std::map<std::pair<int, int>, int> *m = &wm->find(p->getLength())->second;
-                            if (m->find(k) == m->end()) {
-                                m->insert(pair<pair<int, int>, int>(k, 1));
-                            } else {
-                                (*m)[k]++;
-                            }
+    try {
+        while (fParser.iterate('#', "\t")) {
+            if (fParser.getNWords() != 3) {
+                cerr << "Bed file with a wrong format " << endl;
+                exit(-1);
+            }
+            if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
+                f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
+            }
+            if (f) {
+                if (static_cast<unsigned long int> (atoi(fParser.getWords()[2])) <= f->getLength()) {
+                    Peak *p = new Peak();
+                    p->setChr(fParser.getWords()[0]);
+                    p->setStart(atoi(fParser.getWords()[1]));
+                    p->setEnd(atoi(fParser.getWords()[2]) - 1);
+                    try {
+                        char *seq = f->getSubStr(p->getStart(), p->getLength());
+                        if (!seq) {
+                            throw exceptions::OutOfRangeException("Error retrieving sequences from container");
                         }
+                        p->setSeq(&seq);
+                        p->calculateContent();
+                        if (p->getNRCount() >= 50 && p->getNPercent() < maxNPercent) {
+                            pair<int, int> k = p->getGCNcontentBin();
+
+                            if (this->GCNcontentBin.find(f->getId()) == this->GCNcontentBin.end()) {
+                                std::map<int, std::map < std::pair<int, int>, int>> wm;
+                                std::map<std::pair<int, int>, int> m;
+                                m.insert(pair<pair<int, int>, int>(k, 1));
+                                wm.insert(pair<int, std::map < std::pair<int, int>, int>>(p->getLength(), m));
+                                this->GCNcontentBin.insert(pair<string, std::map<int, std::map < std::pair<int, int>, int>>>(f->getId(), wm));
+                            } else {
+                                std::map<int, std::map < std::pair<int, int>, int>> *wm = &this->GCNcontentBin.find(f->getId())->second;
+                                if (wm->find(p->getLength()) == wm->end()) {
+                                    std::map<std::pair<int, int>, int> m;
+                                    m.insert(pair<pair<int, int>, int>(k, 1));
+                                    wm->insert(pair<int, std::map < std::pair<int, int>, int>>(p->getLength(), m));
+                                } else {
+                                    std::map<std::pair<int, int>, int> *m = &wm->find(p->getLength())->second;
+                                    if (m->find(k) == m->end()) {
+                                        m->insert(pair<pair<int, int>, int>(k, 1));
+                                    } else {
+                                        (*m)[k]++;
+                                    }
+                                }
+                            }
+                            kmersFactory.scanSequences(p->getSeq(), false);
+                            this->peaks.push_back(p);
+                        } else {
+                            delete p;
+                        }
+                    } catch (exceptions::OutOfRangeException ex) {
+                        throw ex;
                     }
-                    kmersFactory.scanSequences(p->getSeq(), false);
-                    this->peaks.push_back(std::move(p));
-                } else {
-                    delete p;
+
                 }
             }
         }
+    } catch (exceptions::FileNotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::ErrorReadingFromFileException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::NotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error retrieving sequences" << endl;
+        exit(-1);
     }
 
     if (Global::instance()->isInfo()) {
@@ -201,7 +215,7 @@ void BedFactory::minus_ocur(char nt) {
     }
 }
 
-void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, unsigned long int hit_Num, KmersFactory &kmersFactory) {
+void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, unsigned long int hit_Num, KmersFactory & kmersFactory) {
     char *seq;
     clock_t begin = clock();
     unsigned long int i, l, window_len, total_controlNum;
@@ -215,188 +229,199 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
 
     kmersFactory.clearKmerControlData();
 
-    for (auto chr_it = this->GCNcontentBin.begin(); chr_it != this->GCNcontentBin.end(); ++chr_it) {
-        Seq *f = chrFactory.getSequenceFromID(chr_it->first);
-        std::map<int, std::map < std::pair<int, int>, int>> wm = chr_it->second;
-
-        if (Global::instance()->isInfo()) {
-            cout << "\tINFO ==> \t" << "Chromosome number: " << distance(this->GCNcontentBin.begin(), chr_it) + 1 << ", name: " << f->getId() << " and size: " << f->getLength() << endl;
-        }
-
-        for (auto window_it = wm.begin(); window_it != wm.end(); ++window_it) {
-            std::map<std::pair<int, int>, std::vector < Peak *>> GCNcontentControls;
-            window_len = window_it->first;
-            std::map<std::pair<int, int>, int> contentBin = window_it->second;
-
-            this->GCCount = this->NCount = 0;
+    try {
+        for (auto chr_it = this->GCNcontentBin.begin(); chr_it != this->GCNcontentBin.end(); ++chr_it) {
+            Seq *f = chrFactory.getSequenceFromID(chr_it->first);
+            std::map<int, std::map < std::pair<int, int>, int>> wm = chr_it->second;
 
             if (Global::instance()->isInfo()) {
-                begin = clock();
-                cout << "\tINFO ==> \t\t" << "Window "
-                        << distance(wm.begin(), window_it) + 1 << "/" << wm.size()
-                        << ", with length: " << window_len << " and "
-                        << contentBin.size() << " bins" << endl;
-            }
-            for (unsigned long int j = 0; j < window_len; j++) {
-                this->plus_ocur(f->getSeq()[j]);
-            }
-            if (this->NCount < window_len - Global::instance()->getOrder() - 1) {
-                n_binID = 0;
-                Ncontent = static_cast<double> (this->NCount) / static_cast<double> (window_len);
-                GCcontent = static_cast<double> (this->GCCount) / static_cast<double> (window_len - this->NCount);
-                gc_binID = int(GCcontent / Global::instance()->getBin1());
-                if (Ncontent != 0) {
-                    n_binID = int(Ncontent / Global::instance()->getBin2()) + 1;
-                }
-                pair<int, int> k(gc_binID, n_binID);
-
-                if (contentBin.find(k) != contentBin.end()) {
-                    Peak *p = new Peak();
-                    p->setChr(f->getId());
-                    p->setStart(0);
-                    p->setEnd(window_len - 1);
-                    p->setGCCount(this->GCCount);
-                    p->setNCount(this->NCount);
-                    if (GCNcontentControls.find(k) == GCNcontentControls.end()) {
-                        std::vector < Peak *> v;
-                        v.push_back(std::move(p));
-                        GCNcontentControls.insert(pair<std::pair<int, int>, std::vector < Peak *>>(k, v));
-                    } else {
-                        GCNcontentControls[k].push_back(std::move(p));
-                    }
-                }
+                cout << "\tINFO ==> \t" << "Chromosome number: " << distance(this->GCNcontentBin.begin(), chr_it) + 1 << ", name: " << f->getId() << " and size: " << f->getLength() << endl;
             }
 
-            for (unsigned long int j = 1; j < f->getLength() - window_len + 1; j++) {
-                this->minus_ocur(f->getSeq()[j - 1]);
-                this->plus_ocur(f->getSeq()[j + window_len - 1]);
+            for (auto window_it = wm.begin(); window_it != wm.end(); ++window_it) {
+                std::map<std::pair<int, int>, std::vector < Peak *>> GCNcontentControls;
+                window_len = window_it->first;
+                std::map<std::pair<int, int>, int> contentBin = window_it->second;
+
+                this->GCCount = this->NCount = 0;
+
+                if (Global::instance()->isInfo()) {
+                    begin = clock();
+                    cout << "\tINFO ==> \t\t" << "Window "
+                            << distance(wm.begin(), window_it) + 1 << "/" << wm.size()
+                            << ", with length: " << window_len << " and "
+                            << contentBin.size() << " bins" << endl;
+                }
+                for (unsigned long int j = 0; j < window_len; j++) {
+                    this->plus_ocur(f->getSeq()[j]);
+                }
                 if (this->NCount < window_len - Global::instance()->getOrder() - 1) {
                     n_binID = 0;
                     Ncontent = static_cast<double> (this->NCount) / static_cast<double> (window_len);
                     GCcontent = static_cast<double> (this->GCCount) / static_cast<double> (window_len - this->NCount);
-                    gc_binID = int(GCcontent / Global::instance()->getBin1());
+                    gc_binID = static_cast<int> (GCcontent / Global::instance()->getBin1());
                     if (Ncontent != 0) {
-                        n_binID = int(Ncontent / Global::instance()->getBin2()) + 1;
+                        n_binID = static_cast<int> (Ncontent / Global::instance()->getBin2()) + 1;
                     }
                     pair<int, int> k(gc_binID, n_binID);
 
                     if (contentBin.find(k) != contentBin.end()) {
                         Peak *p = new Peak();
                         p->setChr(f->getId());
-                        p->setStart(j);
-                        p->setEnd(j + window_len - 1);
+                        p->setStart(0);
+                        p->setEnd(window_len - 1);
                         p->setGCCount(this->GCCount);
                         p->setNCount(this->NCount);
                         if (GCNcontentControls.find(k) == GCNcontentControls.end()) {
                             std::vector < Peak *> v;
-                            v.push_back(std::move(p));
+                            v.push_back(p);
                             GCNcontentControls.insert(pair<std::pair<int, int>, std::vector < Peak *>>(k, v));
                         } else {
-                            GCNcontentControls[k].push_back(std::move(p));
+                            GCNcontentControls[k].push_back(p);
                         }
                     }
                 }
-            }
 
-            if (Global::instance()->isInfo()) {
-                cout << "\tINFO ==> \t\t\t" << GCNcontentControls.size() << " control peaks bin generated in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
-            }
+                for (unsigned long int j = 1; j < f->getLength() - window_len + 1; j++) {
+                    this->minus_ocur(f->getSeq()[j - 1]);
+                    this->plus_ocur(f->getSeq()[j + window_len - 1]);
+                    if (this->NCount < window_len - Global::instance()->getOrder() - 1) {
+                        n_binID = 0;
+                        Ncontent = static_cast<double> (this->NCount) / static_cast<double> (window_len);
+                        GCcontent = static_cast<double> (this->GCCount) / static_cast<double> (window_len - this->NCount);
+                        gc_binID = static_cast<int> (GCcontent / Global::instance()->getBin1());
+                        if (Ncontent != 0) {
+                            n_binID = static_cast<int> (Ncontent / Global::instance()->getBin2()) + 1;
+                        }
+                        pair<int, int> k(gc_binID, n_binID);
 
-            /*
-             * Generating hit_Num of random sequences for each peak that is not in controls
-             */
-            l = 0;
-            for (auto bin_it = contentBin.begin(); bin_it != contentBin.end(); ++bin_it) {
-                std::pair<int, int> k = bin_it->first;
-
-                if (GCNcontentControls.find(k) == GCNcontentControls.end()) {
-                    if (Global::instance()->isInfo()) {
-                        cout << "\tINFO ==> \t\t\tNot hit for bin: " << k.first << "-" << k.second << endl;
-                    }
-                    for (auto peak_it = this->peaks.begin(); peak_it != this->peaks.end(); ++peak_it) {
-                        Peak *p = *peak_it;
-                        if (p->getGCNcontentBin() == k) {
-                            for (i = 0; i < hit_Num; i++) {
-                                char *s = shuffle(p->getSeq());
-                                kmersFactory.scanSequences(s, true);
-                                free(s);
+                        if (contentBin.find(k) != contentBin.end()) {
+                            Peak *p = new Peak();
+                            p->setChr(f->getId());
+                            p->setStart(j);
+                            p->setEnd(j + window_len - 1);
+                            p->setGCCount(this->GCCount);
+                            p->setNCount(this->NCount);
+                            if (GCNcontentControls.find(k) == GCNcontentControls.end()) {
+                                std::vector < Peak *> v;
+                                v.push_back(p);
+                                GCNcontentControls.insert(pair<std::pair<int, int>, std::vector < Peak *>>(k, v));
+                            } else {
+                                GCNcontentControls[k].push_back(p);
                             }
                         }
                     }
-                    l++;
                 }
-            }
 
-            if (Global::instance()->isInfo()) {
-                if (l != 0) {
-                    cout << "\tINFO ==> \t\t\t" << l << " content bin with none hits in controls" << endl;
+                if (Global::instance()->isInfo()) {
+                    cout << "\tINFO ==> \t\t\t" << GCNcontentControls.size() << " control peaks bin generated in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
                 }
-            }
 
-            for (auto control_it = GCNcontentControls.begin(); control_it != GCNcontentControls.end(); ++control_it) {
-                pair<int, int> k = control_it->first;
-                std::vector < Peak *> peaksVector = control_it->second;
-                peakNum = contentBin[k];
-                total_controlNum = hit_Num * peakNum;
+                /*
+                 * Generating hit_Num of random sequences for each peak that is not in controls
+                 */
+                l = 0;
+                for (auto bin_it = contentBin.begin(); bin_it != contentBin.end(); ++bin_it) {
+                    std::pair<int, int> k = bin_it->first;
 
-                if (peaksVector.size() < total_controlNum) {
-                    if (peaksVector.size() > 0) {
+                    if (GCNcontentControls.find(k) == GCNcontentControls.end()) {
                         if (Global::instance()->isInfo()) {
-                            cout << "\tINFO ==> \t\t\t" << total_controlNum << " sequences shuffled for bin " << k.first << "-" << k.second << endl;
+                            cout << "\tINFO ==> \t\t\tNot hit for bin: " << k.first << "-" << k.second << endl;
                         }
-                        if (peaksVector[0]->getStart() + window_len <= f->getLength()) {
-                            seq = f->getSubStr(peaksVector[0]->getStart(), window_len);
-                            for (i = 0; i < total_controlNum; i++) {
-                                char *s = shuffle(seq);
-                                kmersFactory.scanSequences(s, true);
-                                free(s);
+                        for (auto peak_it = this->peaks.begin(); peak_it != this->peaks.end(); ++peak_it) {
+                            Peak *p = *peak_it;
+                            if (p->getGCNcontentBin() == k) {
+                                for (i = 0; i < hit_Num; i++) {
+                                    kmersFactory.scanSequences(cstring::shuffle(p->getSeq()), true);
+                                }
                             }
-                            free(seq);
                         }
-                    } else {
-                        /*
-                         * This case should not occur, but let's be ready for it printing the flags
-                         */
-                        cout << "ERROR: No controls. " << k.first << "-" << k.second << " " << peaksVector.size() << " " << total_controlNum << endl;
+                        l++;
                     }
-                } else if (peaksVector.size() == total_controlNum) {
-                    if (Global::instance()->isInfo()) {
-                        cout << "\tINFO ==> \t\t\t" << total_controlNum << " sequences selected for bin " << k.first << "-" << k.second << endl;
+                }
+
+                if (Global::instance()->isInfo()) {
+                    if (l != 0) {
+                        cout << "\tINFO ==> \t\t\t" << l << " content bin with none hits in controls" << endl;
                     }
-                    for (i = 0; i < total_controlNum; i++) {
-                        if (peaksVector[i]->getStart() + window_len <= f->getLength()) {
-                            seq = f->getSubStr(peaksVector[i]->getStart(), window_len);
-                            kmersFactory.scanSequences(seq, true);
-                            free(seq);
+                }
+
+                for (auto control_it = GCNcontentControls.begin(); control_it != GCNcontentControls.end(); ++control_it) {
+                    pair<int, int> k = control_it->first;
+                    std::vector < Peak *> peaksVector = control_it->second;
+                    peakNum = contentBin[k];
+                    total_controlNum = hit_Num * peakNum;
+
+                    if (peaksVector.size() < total_controlNum) {
+                        if (peaksVector.size() > 0) {
+                            if (Global::instance()->isInfo()) {
+                                cout << "\tINFO ==> \t\t\t" << total_controlNum << " sequences shuffled for bin " << k.first << "-" << k.second << endl;
+                            }
+                            if (peaksVector[0]->getStart() + window_len <= f->getLength()) {
+                                seq = f->getSubStr(peaksVector[0]->getStart(), window_len);
+                                if (!seq) {
+                                    throw exceptions::OutOfRangeException("Error retrieving sequences from container");
+                                }
+                                for (i = 0; i < total_controlNum; i++) {
+                                    kmersFactory.scanSequences(cstring::shuffle(seq), true);
+                                }
+                                free(seq);
+                            }
+                        } else {
+                            /*
+                             * This case should not occur, but let's be ready for it printing the flags
+                             */
+                            cout << "ERROR: No controls. " << k.first << "-" << k.second << " " << peaksVector.size() << " " << total_controlNum << endl;
                         }
-                    }
-                } else {
-                    if (Global::instance()->isInfo()) {
-                        cout << "\tINFO ==> \t\t\t" << total_controlNum << " sequences randomly selected for bin " << k.first << "-" << k.second << endl;
-                    }
-                    i = 0;
-                    vector<int> index;
-                    while (1) {
-                        int randomIndex = rand() % peaksVector.size();
-                        if (find(index.begin(), index.end(), randomIndex) == index.end()) {
-                            index.push_back(randomIndex);
-                            if (peaksVector[randomIndex]->getStart() + window_len <= f->getLength()) {
-                                seq = f->getSubStr(peaksVector[randomIndex]->getStart(), window_len);
+                    } else if (peaksVector.size() == total_controlNum) {
+                        if (Global::instance()->isInfo()) {
+                            cout << "\tINFO ==> \t\t\t" << total_controlNum << " sequences selected for bin " << k.first << "-" << k.second << endl;
+                        }
+                        for (i = 0; i < total_controlNum; i++) {
+                            if (peaksVector[i]->getStart() + window_len <= f->getLength()) {
+                                seq = f->getSubStr(peaksVector[i]->getStart(), window_len);
+                                if (!seq) {
+                                    throw exceptions::OutOfRangeException("Error retrieving sequences from container");
+                                }
                                 kmersFactory.scanSequences(seq, true);
                                 free(seq);
-                                i++;
-                                if (i == total_controlNum) {
-                                    break;
+                            }
+                        }
+                    } else {
+                        if (Global::instance()->isInfo()) {
+                            cout << "\tINFO ==> \t\t\t" << total_controlNum << " sequences randomly selected for bin " << k.first << "-" << k.second << endl;
+                        }
+                        i = 0;
+                        vector<int> index;
+                        while (1) {
+                            int randomIndex = rand() % peaksVector.size();
+                            if (find(index.begin(), index.end(), randomIndex) == index.end()) {
+                                index.push_back(randomIndex);
+                                if (peaksVector[randomIndex]->getStart() + window_len <= f->getLength()) {
+                                    seq = f->getSubStr(peaksVector[randomIndex]->getStart(), window_len);
+                                    if (!seq) {
+                                        throw exceptions::OutOfRangeException("Error retrieving sequences from container");
+                                    }
+                                    kmersFactory.scanSequences(seq, true);
+                                    free(seq);
+                                    i++;
+                                    if (i == total_controlNum) {
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                for (auto it = peaksVector.begin(); it != peaksVector.end(); ++it) {
-                    delete (*it);
+                    for (auto it = peaksVector.begin(); it != peaksVector.end(); ++it) {
+                        delete (*it);
+                    }
                 }
             }
         }
+    } catch (exceptions::NotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error retrieving sequences" << endl;
+        exit(-1);
     }
 
     if (Global::instance()->isInfo()) {
@@ -404,9 +429,8 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
     }
 }
 
-void BedFactory::generatingControlsFromShufflingPeaks(unsigned long int hit_Num, kmers::KmersFactory& kmersFactory) {
+void BedFactory::generatingControlsFromShufflingPeaks(unsigned long int hit_Num, kmers::KmersFactory & kmersFactory) {
     unsigned long int i;
-    char *seq;
     if (Global::instance()->isInfo()) {
         cout << "\tINFO ==> Generating controls shuffling input peaks" << endl;
     }
@@ -416,9 +440,8 @@ void BedFactory::generatingControlsFromShufflingPeaks(unsigned long int hit_Num,
     for (auto peaks_it = this->peaks.begin(); peaks_it != this->peaks.end(); ++peaks_it) {
         Peak *p = *peaks_it;
         for (i = 0; i < hit_Num; i++) {
-            seq = p->randomizePeakSeq();
+            string seq = p->randomizePeakSeq();
             kmersFactory.scanSequences(seq, true);
-            free(seq);
         }
     }
 
@@ -427,28 +450,44 @@ void BedFactory::generatingControlsFromShufflingPeaks(unsigned long int hit_Num,
     }
 }
 
-void BedFactory::readControlsFromFile(std::string controlFileName, FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory) {
+void BedFactory::readControlsFromFile(std::string controlFileName, FastaFactory &chrFactory, kmers::KmersFactory & kmersFactory) {
     FILE *bedFile = (FILE *) checkPointerError(fopen(controlFileName.c_str(), "r"), "Can't open bed file", __FILE__, __LINE__, -1);
     FileParserFactory fParser(bedFile);
     Seq *f = NULL;
     kmersFactory.clearKmerControlData();
 
-    while (fParser.iterate('#', "\t")) {
-        if (fParser.getNWords() != 3) {
-            printLog(stderr, "Bed file with a wrong format ", __FILE__, __LINE__, -1);
-        }
-        if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
-            f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
-        }
-        if (f) {
-            if (static_cast<unsigned long int> (atoi(fParser.getWords()[1]) + atoi(fParser.getWords()[2])) < f->getLength()) {
-                char *seq = f->getSubStr(atoi(fParser.getWords()[1]), atoi(fParser.getWords()[2]));
-                if (seq) {
+    try {
+        while (fParser.iterate('#', "\t")) {
+            if (fParser.getNWords() != 3) {
+                cerr << "Bed file with a wrong format " << endl;
+                exit(-1);
+            }
+            if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
+                f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
+            }
+            if (f) {
+                if (static_cast<unsigned long int> (atoi(fParser.getWords()[1]) + atoi(fParser.getWords()[2])) < f->getLength()) {
+                    char *seq = f->getSubStr(atoi(fParser.getWords()[1]), atoi(fParser.getWords()[2]));
+                    if (!seq) {
+                        throw exceptions::OutOfRangeException("Error retrieving sequences from container");
+                    }
                     kmersFactory.scanSequences(seq, true);
                     free(seq);
                 }
             }
         }
+    } catch (exceptions::FileNotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::ErrorReadingFromFileException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::NotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error retrieving sequences" << endl;
+        exit(-1);
     }
     fclose(bedFile);
 }

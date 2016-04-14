@@ -142,6 +142,7 @@ int main(int argc, char** argv) {
     cout << "%SUITE_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;
 
     delete Global::instance();
+    delete TimeUtils::instance();
     return (EXIT_SUCCESS);
 }
 

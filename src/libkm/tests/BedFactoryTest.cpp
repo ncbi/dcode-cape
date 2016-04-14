@@ -58,27 +58,42 @@ void testCreatePeaksFromBedFile(string bFName, string dirName, string testName) 
     kmersFactory.createGenomeWideKmers();
 
     string test("TGAGAGGAAAGCTTTCCCACATTATACAGCTTCTGAAAGGGTTGCTTGACCCACAGATGTGAAGCTGAGGCTGAAGGAGACTGATGTGGTTTCTCCTCAGTTTCTCTGTGCAGCACCAGGTGGCAGCAGAGGTCAGCAAGGCAAACCCGAGCCCGGGGATGCGGAGTGGGGGCAGCTACGTCCTCTCTTG");
+    
+    try {
+        fParser.setFileToParse(testName);
+        while (fParser.iterate('#', "\t")) {
+            map<string, unsigned long int> inMap;
+            char *n = strchr(fParser.getWords()[2], '-');
+            *n = '\0';
+            string start(fParser.getWords()[2]);
+            i = atoi(fParser.getWords()[2]);
+            inMap.insert(pair<string, unsigned long int>("start", i));
+            inMap.insert(pair<string, unsigned long int>("end", atoi(fParser.getWords()[2] + start.size() + 1)));
+            inMap.insert(pair<string, unsigned long int>("width", atoi(fParser.getWords()[3])));
+            inMap.insert(pair<string, unsigned long int>("gccount", atoi(fParser.getWords()[4])));
+            inMap.insert(pair<string, unsigned long int>("ncount", atoi(fParser.getWords()[5])));
+            inMap.insert(pair<string, unsigned long int>("nrcount", atoi(fParser.getWords()[6])));
 
-    fParser.setFileToParse(testName);
-    while (fParser.iterate('#', "\t")) {
-        map<string, unsigned long int> inMap;
-        char *n = strchr(fParser.getWords()[2], '-');
-        *n = '\0';
-        string start(fParser.getWords()[2]);
-        i = atoi(fParser.getWords()[2]);
-        inMap.insert(pair<string, unsigned long int>("start", i));
-        inMap.insert(pair<string, unsigned long int>("end", atoi(fParser.getWords()[2] + start.size() + 1)));
-        inMap.insert(pair<string, unsigned long int>("width", atoi(fParser.getWords()[3])));
-        inMap.insert(pair<string, unsigned long int>("gccount", atoi(fParser.getWords()[4])));
-        inMap.insert(pair<string, unsigned long int>("ncount", atoi(fParser.getWords()[5])));
-        inMap.insert(pair<string, unsigned long int>("nrcount", atoi(fParser.getWords()[6])));
-
-        testMap.insert(pair<unsigned long int, map<string, unsigned long int>>(i, inMap));
+            testMap.insert(pair<unsigned long int, map<string, unsigned long int>>(i, inMap));
+        }
+    } catch (exceptions::FileNotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::ErrorReadingFromFileException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
     }
 
     chrFactory.parseFastaInDirectory(dirName, prefix, sufix, false);
 
-    bedFactory.createPeaksFromBedFile(chrFactory, bFName, 0.7, kmersFactory);
+    try {
+        bedFactory.createPeaksFromBedFile(chrFactory, bFName, 0.7, kmersFactory);
+    } catch (exceptions::OutOfRangeException ex) {
+        cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Out of range " << i << endl;
+        return;
+    }
 
     if (bedFactory.getPeaks().size() != 88) {
         cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Peaks to print should be equal to 88 and it is " << i << endl;
@@ -108,13 +123,18 @@ void testCreatePeaksFromBedFile(string bFName, string dirName, string testName) 
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Sequence length not equal to width" << endl;
         }
         if (p->getStart() == 237640 && p->getEnd() == 237829) {
-            if (strcmp(p->getSeq(), test.c_str()) != 0) {
+            if (strncmp(p->getSeq(), test.c_str(), p->getLength()) != 0) {
                 cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=First peak is not equal to the test" << endl;
             }
         }
     }
 
-    bedFactory.generatingControlsFromChromosomes(chrFactory, 3, kmersFactory);
+    try {
+        bedFactory.generatingControlsFromChromosomes(chrFactory, 3, kmersFactory);
+    } catch (exceptions::OutOfRangeException ex) {
+        cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Out of range " << i << endl;
+        return;
+    }
     kmersFactory.buildKmers();
     if (kmersFactory.getKmers().size() != 11848) {
         cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong number of kmers 11848 != " << kmersFactory.getKmers().size() << endl;
@@ -131,7 +151,12 @@ void testReadingControlsFromFile(string dirName, string controlName) {
 
     chrFactory.parseFastaInDirectory(dirName, prefix, sufix, false);
 
-    bedFactory.readControlsFromFile(controlName, chrFactory, kmersFactory);
+    try {
+        bedFactory.readControlsFromFile(controlName, chrFactory, kmersFactory);
+    } catch (exceptions::OutOfRangeException ex) {
+        cout << "%TEST_FAILED% time=0 testname=testReadingControlsFromFile (BedFactoryTest) message=Out of range " << endl;
+        return;
+    }
     if (kmersFactory.getTotalNRNTControl() != 1065) {
         cout << "%TEST_FAILED% time=0 testname=testReadingControlsFromFile (BedFactoryTest) message=Wrong calculation of Total non N 1065 != " << kmersFactory.getTotalNRNTControl() << endl;
     }
@@ -163,8 +188,9 @@ int main(int argc, char** argv) {
     cout << "%TEST_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(begin) << " second testReadingControlsFromFile (BedFactoryTest)" << endl;
 
     cout << "%SUITE_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;
-    
+
     delete Global::instance();
+    delete TimeUtils::instance();
     return (EXIT_SUCCESS);
 }
 

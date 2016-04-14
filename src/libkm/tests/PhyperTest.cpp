@@ -33,7 +33,7 @@ void testPhyperTest() {
 
     double pvalue = phyper(x, m, n, k, false, false);
     if (fabs(pvalue - 0.866574039066821) >= 10e-15) {
-        printf("%%TEST_FAILED%% time=0 testname=testPhyperTest (PhyperTest) message=Wrong pValue. 0.866574 != %f\n", pvalue);
+        std::cout << "%%TEST_FAILED%% time=0 testname=testPhyperTest (PhyperTest) message=Wrong pValue. 0.866574 != " << pvalue << std::endl;
     }
 }
 
@@ -50,5 +50,7 @@ int main(int argc, char** argv) {
 
     std::cout << "%SUITE_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << std::endl;
 
+    delete Global::instance();
+    delete TimeUtils::instance();
     return (EXIT_SUCCESS);
 }

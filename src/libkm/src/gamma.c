@@ -107,15 +107,8 @@ double gammafn(double x) {
 
             /* exact 0 or "-n" checked already above */
 
-            /* The answer is less than half precision */
-            /* because x too near a negative integer. */
-            if (x < -0.5 && fabs(x - (int) (x - 0.5) / x) < dxrel) {
-                fprintf(stderr, "gammafn\n");
-            }
-
             /* The argument is so close to 0 that the result would overflow. */
             if (y < xsml) {
-                fprintf(stderr, "gammafn\n");
                 if (x > 0) return INFINITY;
                 else return -INFINITY;
             }
@@ -138,12 +131,10 @@ double gammafn(double x) {
         /* gamma(x) for	 y = |x| > 10. */
 
         if (x > xmax) { /* Overflow */
-            fprintf(stderr, "gammafn\n");
             return INFINITY;
         }
 
         if (x < xmin) { /* Underflow */
-            fprintf(stderr, "gammafn\n");
             return 0.;
         }
 
@@ -157,17 +148,8 @@ double gammafn(double x) {
         if (x > 0)
             return value;
 
-        if (fabs((x - (int) (x - 0.5)) / x) < dxrel) {
-
-            /* The answer is less than half precision because */
-            /* the argument is too near a negative integer. */
-
-            fprintf(stderr, "gammafn\n");
-        }
-
         double sinpiy = sin(M_PI * y);
         if (sinpiy == 0) { /* Negative integer arg - overflow */
-            fprintf(stderr, "gammafn\n");
             return INFINITY;
         }
 

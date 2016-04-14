@@ -31,6 +31,7 @@
 #include "Exceptions.h"
 #include "FastaFactory.h"
 #include "Global.h"
+#include "cstring.h"
 #include "KmersFactory.h"
 #include "BedFactory.h"
 #include "bmath.h"
@@ -127,7 +128,7 @@ void testWriteKmersToFile() {
     k->setSig(20.48735117540051);
     k->setPf(1.49479032886669);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAA", move(k)));
+    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAA", k));
 
     //            AAAAAAAAAC 3.66936367681041e-05 4.43540924245372 1.62318695308535
     k = new Kmer();
@@ -139,7 +140,7 @@ void testWriteKmersToFile() {
     k->setSig(4.43540924245372);
     k->setPf(1.62318695308535);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAC", move(k)));
+    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAC", k));
 
     //            AAAAAAAAAG 1.56360980495561e-03 2.80587161489318 1.33064397039723
     k = new Kmer();
@@ -151,7 +152,7 @@ void testWriteKmersToFile() {
     k->setSig(2.80587161489318);
     k->setPf(1.33064397039723);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAG", move(k)));
+    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAG", k));
 
     //            AAAAAAAAAT 2.19631497914574e-01 0.65830537647355 1.08933620086384
     k = new Kmer();
@@ -163,7 +164,7 @@ void testWriteKmersToFile() {
     k->setSig(0.65830537647355);
     k->setPf(1.08933620086384);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAT", move(k)));
+    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAT", k));
 
     //            AAAAAAAACA 1.07873928249526e-02 1.96708350606356 1.41176344238936
     k = new Kmer();
@@ -175,7 +176,7 @@ void testWriteKmersToFile() {
     k->setSig(1.96708350606356);
     k->setPf(1.41176344238936);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACA", move(k)));
+    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACA", k));
 
     //            AAAAAAAACC 1.05511751710985e-03 2.97669916672645 1.74193392488365
     k = new Kmer();
@@ -187,7 +188,7 @@ void testWriteKmersToFile() {
     k->setSig(2.97669916672645);
     k->setPf(1.74193392488365);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACC", move(k)));
+    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACC", k));
 
     //            AAAAAAAACG 3.26401549435001e-01 0.48624778830827 1.28571313503317
     k = new Kmer();
@@ -199,7 +200,7 @@ void testWriteKmersToFile() {
     k->setSig(0.48624778830827);
     k->setPf(1.28571313503317);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACG", move(k)));
+    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACG", k));
 
     //            AAAAAAAACT 1.48116148621570e-02 1.82939758918367 1.64515981794567
     k = new Kmer();
@@ -211,7 +212,7 @@ void testWriteKmersToFile() {
     k->setSig(1.82939758918367);
     k->setPf(1.64515981794567);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACT", move(k)));
+    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACT", k));
 
     //            AAAAAAAAGA 2.70816098140979e-01 0.56732552342117 1.09793716170358
     k = new Kmer();
@@ -223,7 +224,7 @@ void testWriteKmersToFile() {
     k->setSig(0.56732552342117);
     k->setPf(1.09793716170358);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAGA", move(k)));
+    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAGA", k));
     //            AAAAAAAAGC 1.88687646220172e-03 2.72425653308383 1.63888742212561
     k = new Kmer();
     k->setControlFreq(101);
@@ -235,24 +236,23 @@ void testWriteKmersToFile() {
     k->setSig(INFINITY);
     k->setPf(1.63888742212561);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAGC", move(k)));
+    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAGC", k));
 
     kmersFactory.writeKmersToFile("/tmp/kmers.bin", true);
 }
 
-void testReadKmersFromFile() {
+void testReadKmersFromFile(std::string fileName, bool binary) {
     KmersFactory kmersFactory;
-    char *comp;
     string rc_kmer;
 
-    kmersFactory.readKmersFromFile("/tmp/kmers.bin", true);
+    kmersFactory.readKmersFromFile(fileName, binary);
 
     if (std::fabs(kmersFactory.getKmerSig("AAAAAAAAAA") - 20.48735117540051) >= 10E-15) {
-        cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig. for kmer  != AAAAAAAAAA" << endl;
+        cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig. for kmer  != AAAAAAAAAA " << kmersFactory.getKmerSig("AAAAAAAAAA") << endl;
     }
 
     if (std::fabs(kmersFactory.getKmerSig("AAAAAAAAGC") - (20.48735117540051 + 10)) >= 10E-15) {
-        cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig. for kmer  != AAAAAAAAAA" << endl;
+        cout << "%TEST_FAILED% time=0 testname=testReadKmersFromFile (KmerFactoryTest) message=Wrong sig. for kmer  != AAAAAAAAGC " << kmersFactory.getKmerSig("AAAAAAAAGC") << endl;
     }
 
     for (auto it = kmersFactory.getKmers().begin(); it != kmersFactory.getKmers().end(); ++it) {
@@ -260,10 +260,7 @@ void testReadKmersFromFile() {
         string kmer = it->first;
         Kmer *k = it->second;
 
-        comp = complement(kmer.c_str());
-        rc_kmer = comp;
-        free(comp);
-        reverse(rc_kmer.begin(), rc_kmer.end());
+        rc_kmer = cstring::reverseComplement(kmer);
 
         //                AAAAAAAAAA 3.25573332278254e-21 20.48735117540051 1.49479032886669
         if (kmer.compare("AAAAAAAAAA") == 0 || rc_kmer.compare("AAAAAAAAAA") == 0) {
@@ -522,7 +519,7 @@ void testReadKmersFromFile() {
         }
     }
 
-    remove("/tmp/kmers.bin");
+    //remove(fileName.c_str());
 }
 
 int main(int argc, char** argv) {
@@ -553,12 +550,13 @@ int main(int argc, char** argv) {
 
     begin = clock();
     cout << "%TEST_STARTED% testReadKmersFromFile (KmerFactoryTest)" << endl;
-    testReadKmersFromFile();
+    testReadKmersFromFile("/tmp/kmers.bin", true);
     cout << "%TEST_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(begin) << " second testReadKmersFromFile (KmerFactoryTest)" << endl;
-
+    
     cout << "%SUITE_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;
 
     delete Global::instance();
+    delete TimeUtils::instance();
     return (EXIT_SUCCESS);
 }
 

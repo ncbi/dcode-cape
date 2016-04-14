@@ -229,6 +229,7 @@ int main(int argc, char** argv) {
     if (chrsBinFile) fclose(chrsBinFile);
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->getTimeMinFrom(start) << " minutes" << endl;
+    delete TimeUtils::instance();
     return 0;
 }
 

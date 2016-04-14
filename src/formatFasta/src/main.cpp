@@ -162,6 +162,8 @@ int main(int argc, char** argv) {
     cout << "in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     cout << "Total elapse time: " << TimeUtils::instance()->getTimeMinFrom(start) << " minutes" << endl;
+    delete Global::instance();
+    delete TimeUtils::instance();
     return 0;
 }
 

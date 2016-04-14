@@ -15,17 +15,6 @@ extern "C" {
 #define PRINTFILELINE printFileLine(__FILE__, __LINE__)
 
     /**
-     * Print a message in the file and exit if the exit_status is different of zero
-     * 
-     * @param out the file to printout the message
-     * @param msg the message to be printed out
-     * @param file the source code file (__FILE__) or NULL to not print this info
-     * @param line the source code line (__LINE__) or 0
-     * @param exit_status the exit status (Exit the program is this number is different of zero)
-     */
-    extern void printLog(FILE *out, const char *msg, const char *file, int line, int exit_status);
-
-    /**
      * Check if the void pointer is NULL and print out a message. If the exit_status
      * is different of zero it exit the program 
      * 

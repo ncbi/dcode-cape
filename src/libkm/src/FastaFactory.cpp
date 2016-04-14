@@ -11,12 +11,14 @@
 #include <dirent.h>
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <string>
 #include <vector>
 #include <memory>
 #include <unordered_map>
 #include <utility>
+#include <fstream>
 
 #include "berror.h"
 #include "bmemory.h"
@@ -75,7 +77,6 @@ long unsigned int FastaFactory::parseFastaFile(FILE *fName, int numberSeqTotalRe
         fread(&i, sizeof (unsigned long int), 1, fName);
         for (unsigned long int j = 0; j < i; j++) {
             fasta = new Seq();
-
             fread(&len, sizeof (unsigned long int), 1, fName);
             buffer = (char *) allocate(sizeof (char) * len, __FILE__, __LINE__);
             fread(buffer, sizeof (char), len, fName);
@@ -100,51 +101,62 @@ long unsigned int FastaFactory::parseFastaFile(FILE *fName, int numberSeqTotalRe
         size_t numLines = 0;
         size_t seq_length = 0;
 
-        while (fParser.iterate('#')) {
-            char *line = fParser.getLine();
-            str_length = fParser.getLineLength();
-            if (*line == '>') {
-                if (seq_end != seq) {
-                    seq = (char *) reallocate(seq, sizeof (char) * (seq_length + 1), __FILE__, __LINE__);
-                    *(seq + seq_length) = 0;
-                    fasta->setSeq(&seq);
-                    fasta->setLength(strlen(seq));
-                    if (Global::instance()->isDebug3()) cout << "\tDEBUG3 ==> Adding seq: " << fasta->getId().c_str() << " with " << fasta->getLength() << " bp" << endl;
-                    sequenceContainer.insert(pair<string, Seq *> (fasta->getId(),fasta));
-                    if (++numberSeqCurrentRead == numberSeqTotalRead) {
-                        pos = pos + sizeof (char) * (readTotal + numLines);
-                        fseeko(fName, pos, SEEK_SET);
-                        break;
+        try {
+            while (fParser.iterate('#')) {
+                char *line = fParser.getLine();
+                str_length = fParser.getLineLength();
+                //cout << str_length << " " << fParser.getLine() << endl;
+                if (*line == '>') {
+                    if (seq_end != seq) {
+                        seq = (char *) reallocate(seq, sizeof (char) * (seq_length + 1), __FILE__, __LINE__);
+                        *(seq + seq_length) = 0;
+                        fasta->setSeq(&seq);
+                        fasta->setLength(strlen(seq));
+                        if (Global::instance()->isDebug3()) cout << "\tDEBUG3 ==> Adding seq: " << fasta->getId().c_str() << " with " << fasta->getLength() << " bp" << endl;
+                        sequenceContainer.insert(pair<string, Seq *> (fasta->getId(), fasta));
+                        if (++numberSeqCurrentRead == numberSeqTotalRead) {
+                            pos = pos + sizeof (char) * (readTotal + numLines);
+                            fseeko(fName, pos, SEEK_SET);
+                            break;
+                        }
                     }
+                    seq_length = 0;
+                    seq = NULL;
+                    readTotal += str_length;
+                    fasta = new Seq();
+                    char *s = strndup(line + 1, str_length - 1);
+                    fasta->setId(s);
+                    free(s);
+                } else {
+                    checkPointerError(fasta, "Fasta file does not start with the header (>)", __FILE__, __LINE__, -1);
+                    readTotal += str_length;
+                    seq_length += str_length;
+
+                    seq = (char *) reallocate(seq, sizeof (char) * seq_length, __FILE__, __LINE__);
+                    seq_end = seq + (seq_length - str_length);
+                    memcpy(seq_end, line, str_length);
+                    seq_end += str_length;
                 }
-                seq_length = 0;
-                seq = NULL;
-                readTotal += str_length;
-                fasta = new Seq();
-                char *s = strndup(line + 1, str_length - 1);
-                fasta->setId(s);
-                free(s);
-            } else {
-                checkPointerError(fasta, "Fasta file does not start with the header (>)", __FILE__, __LINE__, -1);
-                readTotal += str_length;
-                seq_length += str_length;
-
-                seq = (char *) reallocate(seq, sizeof (char) * seq_length, __FILE__, __LINE__);
-                seq_end = seq + (seq_length - str_length);
-                memcpy(seq_end, line, str_length);
-                seq_end += str_length;
+                numLines++;
             }
-            numLines++;
-        }
 
-        if (numberSeqCurrentRead != numberSeqTotalRead && seq && strlen(seq) > 0) {
-            numberSeqCurrentRead++;
-            seq = (char *) reallocate(seq, sizeof (char) * (seq_length + 1), __FILE__, __LINE__);
-            *(seq + seq_length) = 0;
-            fasta->setSeq(&seq);
-            fasta->setLength(seq_length);
-            if (Global::instance()->isDebug3()) cout << "\tDEBUG3 ==> Adding seq: " << fasta->getId().c_str() << " with " << fasta->getLength() << " bp" << endl;
-            sequenceContainer.insert(pair<string, Seq *> (fasta->getId(), fasta));
+            if (numberSeqCurrentRead != numberSeqTotalRead && seq && strlen(seq) > 0) {
+                numberSeqCurrentRead++;
+                seq = (char *) reallocate(seq, sizeof (char) * (seq_length + 1), __FILE__, __LINE__);
+                *(seq + seq_length) = 0;
+                fasta->setSeq(&seq);
+                fasta->setLength(seq_length);
+                if (Global::instance()->isDebug3()) cout << "\tDEBUG3 ==> Adding seq: " << fasta->getId().c_str() << " with " << fasta->getLength() << " bp" << endl;
+                sequenceContainer.insert(pair<string, Seq *> (fasta->getId(), fasta));
+            }
+        } catch (exceptions::FileNotFoundException ex) {
+            cerr << ex.what() << endl;
+            cerr << "Error parsing file" << endl;
+            exit(-1);
+        } catch (exceptions::ErrorReadingFromFileException ex) {
+            cerr << ex.what() << endl;
+            cerr << "Error parsing file" << endl;
+            exit(-1);
         }
     }
 
@@ -200,40 +212,48 @@ void FastaFactory::parseFastaInDirectory(std::string dirName, std::string prefix
 
 void FastaFactory::writeSequencesToFile(std::string fileName, bool binary) {
     unsigned long int i, len;
-    FILE *outputFile = NULL;
     Seq *f;
 
     if (binary) {
-        outputFile = (FILE *) checkPointerError(fopen(fileName.c_str(), "wb"), "Can't open output file", __FILE__, __LINE__, -1);
+        std::ofstream outputFile(fileName, std::ofstream::binary);
+        if (!outputFile.is_open()) {
+            cerr << "Can't open output file " << fileName << endl;
+            exit(-1);
+        }
         i = sequenceContainer.size();
-        fwrite(&i, sizeof (unsigned long int), 1, outputFile);
+        outputFile.write((char *) &i, sizeof (unsigned long int));
         for (auto it = sequenceContainer.begin(); it != sequenceContainer.end(); ++it) {
             f = it->second;
             len = f->getId().size() + 1;
-            fwrite(&len, sizeof (unsigned long int), 1, outputFile);
-            fwrite(f->getId().c_str(), sizeof (char), len, outputFile);
+            outputFile.write((char *) &len, sizeof (unsigned long int));
+            outputFile.write(f->getId().c_str(), len);
             len = f->getLength() + 1;
-            fwrite(&len, sizeof (unsigned long int), 1, outputFile);
-            fwrite(f->getSeq(), sizeof (char), len, outputFile);
+            outputFile.write((char *) &len, sizeof (unsigned long int));
+            outputFile.write(f->getSeq(), len);
         }
+        outputFile.close();
     } else {
-        outputFile = (FILE *) checkPointerError(fopen(fileName.c_str(), "w"), "Can't open output file", __FILE__, __LINE__, -1);
+        ofstream outputFile(fileName);
+        if (!outputFile.is_open()) {
+            cerr << "Can't open output file " << fileName << endl;
+            exit(-1);
+        }
         for (auto it = sequenceContainer.begin(); it != sequenceContainer.end(); ++it) {
             f = it->second;
-            fprintf(outputFile, ">%s\n", f->getId().c_str());
+            outputFile << ">" << f->getId() << endl;
             for (i = 0; i < f->getLength(); i += 50) {
                 char t = 0;
                 if (i + 50 < f->getLength()) {
                     t = f->getSeq()[i + 50];
                     f->getSeq()[i + 50] = 0;
                 }
-                fprintf(outputFile, "%s\n", f->getSeq() + i);
+                outputFile << (f->getSeq() + i) << endl;
                 if (i + 50 < f->getLength()) {
                     f->getSeq()[i + 50] = t;
                 }
             }
         }
+        outputFile.close();
     }
 
-    fclose(outputFile);
 }

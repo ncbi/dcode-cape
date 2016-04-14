@@ -122,17 +122,28 @@ void TFBSFactory::createTFBSFileIndexMap(std::string dirName, std::string prefix
 void TFBSFactory::createPWMIndexFromTibInfoFile(std::string tibInfoFileName) {
     FileParserFactory fParser(tibInfoFileName);
 
-    while (fParser.iterate('#', " ")) {
-        if (fParser.getNWords() != 3) {
-            printLog(stderr, "Tib info file with a wrong format ", __FILE__, __LINE__, -1);
+    try {
+        while (fParser.iterate('#', " ")) {
+            if (fParser.getNWords() != 3) {
+                cerr << "Tib info file with a wrong format " << endl;
+                exit(-1);
+            }
+            Tib *tib = new Tib();
+            tib->setName(fParser.getWords()[2]);
+            tib->setLen(atol(fParser.getWords()[1]));
+            if (longestPWM < tib->getLen()) {
+                longestPWM = tib->getLen();
+            }
+            pwmIndex.push_back(tib);
         }
-        Tib *tib = new Tib();
-        tib->setName(fParser.getWords()[2]);
-        tib->setLen(atol(fParser.getWords()[1]));
-        if (longestPWM < tib->getLen()) {
-            longestPWM = tib->getLen();
-        }
-        pwmIndex.push_back(tib);
+    } catch (exceptions::FileNotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::ErrorReadingFromFileException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
     }
 }
 
@@ -251,7 +262,7 @@ void TFBSFactory::extractTFBSFromFile(long int from, long int to, Seq *chr) {
             if ((start >= from) && (end <= to)) {
                 tfbsElement->setStart(start);
                 tfbsElement->setEnd(end);
-                tfbs.push_back(move(tfbsElement));
+                tfbs.push_back(tfbsElement);
             } else {
                 delete (*tfbsPtrIt);
             }

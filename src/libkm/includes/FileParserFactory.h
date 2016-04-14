@@ -56,7 +56,7 @@ namespace parsers {
         }
 
         size_t getLineLength() {
-            return (str - line - 1);
+            return lineLength;
         }
 
         void setBufferSize(size_t bufferSize) {
@@ -82,6 +82,7 @@ namespace parsers {
         size_t backupSize;
         size_t backupTotalSize;
         size_t read;
+        size_t lineLength;
         bool closeFile;
     };
 

@@ -88,7 +88,7 @@ namespace peak {
 
         std::pair<int, int> getGCNcontentBin();
 
-        char *randomizePeakSeq();
+        std::string randomizePeakSeq();
 
     private:
         std::string chr;

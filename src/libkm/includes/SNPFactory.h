@@ -87,7 +87,6 @@ namespace snp {
 
         void setSeq(char** seq) {
             this->seq = *seq;
-            this->length = strlen(this->seq);
         }
 
         std::vector<double>& getDescriptors() {

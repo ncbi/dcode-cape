@@ -38,6 +38,7 @@ FileParserFactory::FileParserFactory() {
     this->backupTotalSize = 0;
     this->backupSize = 0;
     this->read = 0;
+    this->lineLength = 0;
 }
 
 FileParserFactory::FileParserFactory(FILE* fileToParse) {
@@ -55,11 +56,17 @@ FileParserFactory::FileParserFactory(FILE* fileToParse) {
     this->backupTotalSize = 0;
     this->backupSize = 0;
     this->read = 0;
+    this->lineLength = 0;
 }
 
 FileParserFactory::FileParserFactory(string fileToParseName) {
     this->closeFile = false;
+    try{
     setFileToParse(fileToParseName);
+    }catch(exceptions::FileNotFoundException ex){
+        cerr << ex.what() << endl;
+        exit(-1);
+    }
     this->words = NULL;
     this->wordsSize = 0;
     this->nWords = 0;
@@ -72,6 +79,7 @@ FileParserFactory::FileParserFactory(string fileToParseName) {
     this->backupTotalSize = 0;
     this->backupSize = 0;
     this->read = 0;
+    this->lineLength = 0;
 }
 
 FileParserFactory::~FileParserFactory() {
@@ -100,9 +108,11 @@ void FileParserFactory::clean() {
     this->backupTotalSize = 0;
     this->backupSize = 0;
     this->read = 0;
+    this->lineLength = 0;
 }
 
 bool FileParserFactory::iterate(const char dontStartWith, const char *delimiter) {
+    size_t i;
     char *newLinePtr;
 
     if (!fileToParse) {
@@ -110,7 +120,6 @@ bool FileParserFactory::iterate(const char dontStartWith, const char *delimiter)
     }
 
     while (1) {
-
         if (!str || *str == 0) {
             if (feof(fileToParse)) return false;
 
@@ -138,35 +147,43 @@ bool FileParserFactory::iterate(const char dontStartWith, const char *delimiter)
         if ((newLinePtr = strchr(str, '\n')) != NULL) {
             *newLinePtr = 0;
             if (backup && *backup != 0) {
-                *(backup + backupSize) = 0;
+                i = backupSize;
                 backupSize += (bufferEndPtr - str);
                 if (backupSize > backupTotalSize) {
                     backupTotalSize = backupSize;
                     backup = (char *) reallocate(backup, sizeof (char) * (backupTotalSize + 1), __FILE__, __LINE__);
                 }
-                strncat(backup, str, backupTotalSize);
+                for (size_t j = 0; i < backupTotalSize; i++) {
+                    backup[i] = str[j];
+                    if (str[j++] == 0) break;
+                }
                 line = backup;
+                lineLength = i;
             } else {
                 line = str;
             }
             backupSize = 0;
             str = newLinePtr + 1;
+            if (line != backup) {
+                lineLength = str - line - 1;
+            }
             if (*line != dontStartWith) {
                 nWords = strsep_ptr(&words, &wordsSize, line, delimiter);
                 return true;
             }
         } else {
             if (str && *str != 0) {
-                if (backup) {
-                    *(backup + backupSize) = 0;
-                }
+                i = backupSize;
                 backupSize += (bufferEndPtr - str);
                 if (backupSize > backupTotalSize) {
                     backup = (char *) reallocate(backup, sizeof (char) * (backupSize + 1), __FILE__, __LINE__);
                     *(backup + backupTotalSize) = 0;
                     backupTotalSize = backupSize;
                 }
-                strncat(backup, str, backupTotalSize);
+                for (size_t j = 0; i < backupTotalSize; i++) {
+                    backup[i] = str[j];
+                    if (str[j++] == 0) break;
+                }
                 *str = 0;
             }
         }
@@ -175,6 +192,7 @@ bool FileParserFactory::iterate(const char dontStartWith, const char *delimiter)
 }
 
 bool FileParserFactory::iterate(const char dontStartWith) {
+    size_t i;
     char *newLinePtr;
 
     if (!fileToParse) {
@@ -182,7 +200,6 @@ bool FileParserFactory::iterate(const char dontStartWith) {
     }
 
     while (1) {
-
         if (!str || *str == 0) {
             if (feof(fileToParse)) return false;
 
@@ -209,33 +226,42 @@ bool FileParserFactory::iterate(const char dontStartWith) {
 
         if ((newLinePtr = strchr(str, '\n')) != NULL) {
             *newLinePtr = 0;
+            lineLength = 0;
             if (backup && *backup != 0) {
-                *(backup + backupSize) = 0;
+                i = backupSize;
                 backupSize += (bufferEndPtr - str);
                 if (backupSize > backupTotalSize) {
                     backupTotalSize = backupSize;
                     backup = (char *) reallocate(backup, sizeof (char) * (backupTotalSize + 1), __FILE__, __LINE__);
                 }
-                strncat(backup, str, backupTotalSize);
+                for (size_t j = 0; i < backupTotalSize; i++) {
+                    backup[i] = str[j];
+                    if (str[j++] == 0) break;
+                }
+                lineLength = i;
                 line = backup;
             } else {
                 line = str;
             }
             backupSize = 0;
             str = newLinePtr + 1;
+            if (line != backup) {
+                lineLength = str - line - 1;
+            }
             if (*line != dontStartWith) return true;
         } else {
             if (str && *str != 0) {
-                if (backup) {
-                    *(backup + backupSize) = 0;
-                }
+                i = backupSize;
                 backupSize += (bufferEndPtr - str);
                 if (backupSize > backupTotalSize) {
                     backup = (char *) reallocate(backup, sizeof (char) * (backupSize + 1), __FILE__, __LINE__);
                     *(backup + backupTotalSize) = 0;
                     backupTotalSize = backupSize;
                 }
-                strncat(backup, str, backupTotalSize);
+                for (size_t j = 0; i < backupTotalSize; i++) {
+                    backup[i] = str[j];
+                    if (str[j++] == 0) break;
+                }
                 *str = 0;
             }
         }

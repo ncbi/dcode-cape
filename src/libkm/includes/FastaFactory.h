@@ -14,6 +14,9 @@
 #ifndef FASTAFACTORY_H
 #define FASTAFACTORY_H
 
+#include "Exceptions.h"
+
+
 namespace sequence {
 
     class Seq {
@@ -27,7 +30,10 @@ namespace sequence {
         Seq(const Seq& orig);
         virtual ~Seq();
 
-        char *getSubStr(int pos, int length) {
+        char *getSubStr(unsigned long int pos, unsigned long int length) {
+            if (pos >= this->length || length > this->length) {
+                throw exceptions::OutOfRangeException("Your parameters are out of range");
+            }
             return strndup(seq + pos, length);
         }
 

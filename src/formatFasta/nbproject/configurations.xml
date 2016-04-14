@@ -61,7 +61,6 @@
           <output>../../bin/formatFasta</output>
           <linkerAddLib>
             <pElem>../libkm/build</pElem>
-            <pElem>../../../../../../../.homebrew/lib</pElem>
           </linkerAddLib>
           <commandLine>-lkm -lm</commandLine>
         </linkerTool>

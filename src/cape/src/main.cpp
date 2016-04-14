@@ -160,61 +160,71 @@ int main(int argc, char** argv) {
         print_usage(stderr, -1);
     }
 
-    fParser.setFileToParse(inFileName);
-    inFileName.clear();
+    try {
+        fParser.setFileToParse(inFileName);
+        inFileName.clear();
 
-    while (fParser.iterate('#', "\t")) {
-        if (fParser.getNWords() >= 2) {
-            string field(fParser.getWords()[0]);
-            if (field.compare("in") == 0) {
-                inFileName = fParser.getWords()[1];
-            }
-            if (field.compare("out") == 0) {
-                outputFile = (FILE *) checkPointerError(fopen(fParser.getWords()[1], "w"), "\nCan't open output file. See -i option\n", __FILE__, __LINE__, -1);
-            }
-            if (field.compare("order") == 0) {
-                Global::instance()->setOrder(static_cast<unsigned long int> (atoi(fParser.getWords()[1])));
-            }
-            if (field.compare("chrs") == 0) {
-                chrsBinFile = (FILE *) checkPointerError(fopen(fParser.getWords()[1], "rb"), "\nCan't open chromosome binary file. See -i option\n", __FILE__, __LINE__, -1);
-            }
-            if (field.compare("weight") == 0) {
-                weightFileName = fParser.getWords()[1];
-            }
-            if (field.compare("neighbors") == 0) {
-                neighbors = static_cast<unsigned long int> (atoi(fParser.getWords()[1]));
-            }
-            if (field.compare("model") == 0) {
-                svmModelName = fParser.getWords()[1];
-            }
-            if (field.compare("probability") == 0) {
-                svmPredict.setPredictProbability(atoi(fParser.getWords()[1]));
-            }
-            if (field.compare("fimo") == 0) {
-                string fimoTmpName(fParser.getWords()[1]);
-                if (fimoTmpName.compare("0") != 0) {
-                    fimoFileName = fParser.getWords()[1];
+        while (fParser.iterate('#', "\t")) {
+            if (fParser.getNWords() >= 2) {
+                string field(fParser.getWords()[0]);
+                if (field.compare("in") == 0) {
+                    inFileName = fParser.getWords()[1];
+                }
+                if (field.compare("out") == 0) {
+                    outputFile = (FILE *) checkPointerError(fopen(fParser.getWords()[1], "w"), "\nCan't open output file. See -i option\n", __FILE__, __LINE__, -1);
+                }
+                if (field.compare("order") == 0) {
+                    Global::instance()->setOrder(static_cast<unsigned long int> (atoi(fParser.getWords()[1])));
+                }
+                if (field.compare("chrs") == 0) {
+                    chrsBinFile = (FILE *) checkPointerError(fopen(fParser.getWords()[1], "rb"), "\nCan't open chromosome binary file. See -i option\n", __FILE__, __LINE__, -1);
+                }
+                if (field.compare("weight") == 0) {
+                    weightFileName = fParser.getWords()[1];
+                }
+                if (field.compare("neighbors") == 0) {
+                    neighbors = static_cast<unsigned long int> (atoi(fParser.getWords()[1]));
+                }
+                if (field.compare("model") == 0) {
+                    svmModelName = fParser.getWords()[1];
+                }
+                if (field.compare("probability") == 0) {
+                    svmPredict.setPredictProbability(atoi(fParser.getWords()[1]));
+                }
+                if (field.compare("fimo") == 0) {
+                    string fimoTmpName(fParser.getWords()[1]);
+                    if (fimoTmpName.compare("0") != 0) {
+                        fimoFileName = fParser.getWords()[1];
+                    }
+                }
+                if (field.compare("pwm_EnsembleID") == 0) {
+                    pwmEnsembleIDFileName = fParser.getWords()[1];
+                }
+                if (field.compare("expression") == 0) {
+                    expressionFileName = fParser.getWords()[1];
+                }
+                if (field.compare("expression_code") == 0) {
+                    expressionCode = fParser.getWords()[1];
+                }
+                if (field.compare("abbrev-mtf-mapped") == 0) {
+                    abbrevmtfmappedFileName = fParser.getWords()[1];
+                }
+                if (field.compare("TibInfoFileName") == 0) {
+                    tibInfoFileName = fParser.getWords()[1];
+                }
+                if (field.compare("TFBSIdxDirName") == 0) {
+                    tFBSIdxDirName = fParser.getWords()[1];
                 }
             }
-            if (field.compare("pwm_EnsembleID") == 0) {
-                pwmEnsembleIDFileName = fParser.getWords()[1];
-            }
-            if (field.compare("expression") == 0) {
-                expressionFileName = fParser.getWords()[1];
-            }
-            if (field.compare("expression_code") == 0) {
-                expressionCode = fParser.getWords()[1];
-            }
-            if (field.compare("abbrev-mtf-mapped") == 0) {
-                abbrevmtfmappedFileName = fParser.getWords()[1];
-            }
-            if (field.compare("TibInfoFileName") == 0) {
-                tibInfoFileName = fParser.getWords()[1];
-            }
-            if (field.compare("TFBSIdxDirName") == 0) {
-                tFBSIdxDirName = fParser.getWords()[1];
-            }
         }
+    } catch (exceptions::FileNotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::ErrorReadingFromFileException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
     }
 
     if (inFileName.empty()) {
@@ -285,6 +295,7 @@ int main(int argc, char** argv) {
     cout << chrFactory.getSequenceContainter().size() << " chromosomes loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     if (!pwmEnsembleIDFileName.empty() && !expressionFileName.empty()) {
+        cout << "Creating PWM indexes from files" << endl;
         fimoFactory.createTissueIndexFromFiles(pwmEnsembleIDFileName, expressionFileName);
     }
 
@@ -324,6 +335,7 @@ int main(int argc, char** argv) {
     fclose(chrsBinFile);
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;
+    delete TimeUtils::instance();
     return 0;
 }
 

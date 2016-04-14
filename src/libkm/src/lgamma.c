@@ -66,14 +66,6 @@ double lgammafn_sign(double x, int *sgn) {
 
     ans = M_LN_SQRT_PId2 + (x - 0.5) * log(y) - x - log(sinpiy) - lgammacor(y);
 
-    if (fabs((x - trunc(x - 0.5)) * ans / x) < dxrel) {
-
-        /* The answer is less than half precision because
-         * the argument is too near a negative integer. */
-
-        fprintf(stderr, "lgamma\n");
-    }
-
     return ans;
 }
 

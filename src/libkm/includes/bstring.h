@@ -23,31 +23,6 @@ extern "C" {
     extern size_t strsep_ptr(char ***tokens, size_t *len, char *src, const char *delimiter);
 
     /**
-     * Count the number of occurrences of characters in c in the string str
-     * 
-     * @param str the string to count on
-     * @param c the character to be counted ended by \0
-     * @return the number of occurrences 
-     */
-    int countCharacter(const char *str, const char *c);
-
-    /**
-     * Create a new string with the complement sequence of input
-     * 
-     * @param input the sequence 
-     * @return a new char * with the complement sequence
-     */
-    char *complement(const char *input);
-
-    /**
-     * Shuffle the string
-     * 
-     * @param input the input string to be shuffle 
-     * @return a new char * with the shuffle string
-     */
-    char *shuffle(const char *input);
-
-    /**
      * Change the string to upper characters
      * 
      * @param src the string to be changed

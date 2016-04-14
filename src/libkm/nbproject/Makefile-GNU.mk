@@ -47,6 +47,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/src/bmemory.o \
 	${OBJECTDIR}/src/bstring.o \
 	${OBJECTDIR}/src/chebyshev.o \
+	${OBJECTDIR}/src/cstring.o \
 	${OBJECTDIR}/src/gamma.o \
 	${OBJECTDIR}/src/lgamma.o \
 	${OBJECTDIR}/src/lgammacor.o \
@@ -65,7 +66,7 @@ TESTFILES= \
 	${TESTDIR}/TestFiles/fimoFactoryTest \
 	${TESTDIR}/TestFiles/kmerFactoryTest \
 	${TESTDIR}/TestFiles/peakTest \
-	${TESTDIR}/TestFiles/f5 \
+	${TESTDIR}/TestFiles/phyperTest \
 	${TESTDIR}/TestFiles/tFBSFactoryTest
 
 # Test Object Files
@@ -165,6 +166,11 @@ ${OBJECTDIR}/src/chebyshev.o: src/chebyshev.c
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/chebyshev.o src/chebyshev.c
 
+${OBJECTDIR}/src/cstring.o: src/cstring.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/cstring.o src/cstring.cpp
+
 ${OBJECTDIR}/src/gamma.o: src/gamma.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
@@ -226,9 +232,9 @@ ${TESTDIR}/TestFiles/peakTest: ${TESTDIR}/tests/PeakTest.o ${OBJECTFILES:%.o=%_n
 	${MKDIR} -p ${TESTDIR}/TestFiles
 	${LINK.cc}   -o ${TESTDIR}/TestFiles/peakTest $^ ${LDLIBSOPTIONS} 
 
-${TESTDIR}/TestFiles/f5: ${TESTDIR}/tests/PhyperTest.o ${OBJECTFILES:%.o=%_nomain.o}
+${TESTDIR}/TestFiles/phyperTest: ${TESTDIR}/tests/PhyperTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/f5 $^ ${LDLIBSOPTIONS} 
+	${LINK.cc}   -o ${TESTDIR}/TestFiles/phyperTest $^ ${LDLIBSOPTIONS} 
 
 ${TESTDIR}/TestFiles/tFBSFactoryTest: ${TESTDIR}/tests/TFBSFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
@@ -439,6 +445,19 @@ ${OBJECTDIR}/src/chebyshev_nomain.o: ${OBJECTDIR}/src/chebyshev.o src/chebyshev.
 	    ${CP} ${OBJECTDIR}/src/chebyshev.o ${OBJECTDIR}/src/chebyshev_nomain.o;\
 	fi
 
+${OBJECTDIR}/src/cstring_nomain.o: ${OBJECTDIR}/src/cstring.o src/cstring.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	@NMOUTPUT=`${NM} ${OBJECTDIR}/src/cstring.o`; \
+	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
+	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
+	then  \
+	    ${RM} "$@.d";\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/cstring_nomain.o src/cstring.cpp;\
+	else  \
+	    ${CP} ${OBJECTDIR}/src/cstring.o ${OBJECTDIR}/src/cstring_nomain.o;\
+	fi
+
 ${OBJECTDIR}/src/gamma_nomain.o: ${OBJECTDIR}/src/gamma.o src/gamma.c 
 	${MKDIR} -p ${OBJECTDIR}/src
 	@NMOUTPUT=`${NM} ${OBJECTDIR}/src/gamma.o`; \
@@ -527,7 +546,7 @@ ${OBJECTDIR}/src/svm_nomain.o: ${OBJECTDIR}/src/svm.o src/svm.cpp
 	    ${TESTDIR}/TestFiles/fimoFactoryTest || true; \
 	    ${TESTDIR}/TestFiles/kmerFactoryTest || true; \
 	    ${TESTDIR}/TestFiles/peakTest || true; \
-	    ${TESTDIR}/TestFiles/f5 || true; \
+	    ${TESTDIR}/TestFiles/phyperTest || true; \
 	    ${TESTDIR}/TestFiles/tFBSFactoryTest || true; \
 	else  \
 	    ./${TEST} || true; \

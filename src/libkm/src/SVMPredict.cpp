@@ -44,12 +44,12 @@ SVMPredict::~SVMPredict() {
 
 void SVMPredict::svmLoadModel(std::string fileName) {
     if ((this->model = svm_load_model(fileName.c_str())) == 0) {
-        fprintf(stderr, "can't open model file %s\n", fileName.c_str());
+        cerr << "Can't open model file " << fileName << endl;
         exit(1);
     }
     if (this->predict_probability) {
         if (svm_check_probability_model(this->model) == 0) {
-            fprintf(stderr, "Model does not support probability estimates\n");
+            cerr << "Model does not support probability estimates" << endl;
             exit(1);
         }
     } else {

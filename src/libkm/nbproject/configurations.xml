@@ -19,6 +19,7 @@
       <itemPath>includes/bmath.h</itemPath>
       <itemPath>includes/bmemory.h</itemPath>
       <itemPath>includes/bstring.h</itemPath>
+      <itemPath>includes/cstring.h</itemPath>
       <itemPath>includes/svm.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -55,6 +56,7 @@
       <itemPath>src/bmemory.c</itemPath>
       <itemPath>src/bstring.c</itemPath>
       <itemPath>src/chebyshev.c</itemPath>
+      <itemPath>src/cstring.cpp</itemPath>
       <itemPath>src/gamma.c</itemPath>
       <itemPath>src/lgamma.c</itemPath>
       <itemPath>src/lgammacor.c</itemPath>
@@ -245,7 +247,7 @@
           </incDir>
         </ccTool>
         <linkerTool>
-          <output>${TESTDIR}/TestFiles/f5</output>
+          <output>${TESTDIR}/TestFiles/phyperTest</output>
         </linkerTool>
       </folder>
       <folder path="TestFiles/f6">
@@ -323,6 +325,8 @@
       </item>
       <item path="includes/bstring.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="includes/cstring.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="includes/svm.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="resources/57epigenomes.RPKM.pc" ex="false" tool="3" flavor2="0">
@@ -384,6 +388,8 @@
       <item path="src/bstring.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/chebyshev.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/cstring.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/gamma.c" ex="false" tool="0" flavor2="0">
       </item>

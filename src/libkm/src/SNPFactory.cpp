@@ -19,6 +19,7 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <fstream>
 
 #include "berror.h"
 #include "bmemory.h"
@@ -62,7 +63,6 @@ SNP::~SNP() {
 void SNP::calculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned long int featNumber) {
     unsigned long int i, startPos, endPos;
     double overlapMutated = 0.0;
-    unsigned long int len = static_cast<unsigned long int> (strlen(seq));
 
     for (i = 0; i < featNumber; i++) {
         descriptors.push_back(0.0000);
@@ -73,13 +73,13 @@ void SNP::calculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
     } else {
         startPos = pos - Global::instance()->getOrder() + 1;
     }
-    if (pos + Global::instance()->getOrder() >= len) {
-        endPos = len - Global::instance()->getOrder();
+    if (pos + Global::instance()->getOrder() >= length) {
+        endPos = length - Global::instance()->getOrder();
     } else {
         endPos = pos;
     }
 
-    for (i = 0; i <= len - Global::instance()->getOrder(); i++) {
+    for (i = 0; i <= length - Global::instance()->getOrder(); i++) {
         char t = seq[i + Global::instance()->getOrder()];
         seq[i + Global::instance()->getOrder()] = 0;
 
@@ -115,64 +115,81 @@ void SNPFactory::parseSNPFile(std::string snpFileName, unsigned long int neighbo
     SNP *snp;
     int snpPos, startPos, endPos;
 
-    while (fParser.iterate('#', "\t")) {
-        if (fParser.getNWords() != 5) {
-            printLog(stderr, "Input SNP file with a wrong format ", __FILE__, __LINE__, -1);
-        }
-        if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
-            f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
-        }
-        if (f) {
-            snp = new SNP();
-            snp->setId(fParser.getWords()[2]);
-            snp->setChr(fParser.getWords()[0]);
-
-            snp->setRef(fParser.getWords()[3][0]);
-            snp->setAlt(fParser.getWords()[4][0]);
-            snpPos = atoi(fParser.getWords()[1]) - 1;
-            if (snpPos - 1 >= 0 && snpPos - 1 < static_cast<int> (f->getLength())) {
-                snp->setChrPos(snpPos);
-            } else {
-                printLog(stderr, "SNP position out of range", __FILE__, __LINE__, -1);
+    try {
+        while (fParser.iterate('#', "\t")) {
+            if (fParser.getNWords() != 5) {
+                cerr << "Input SNP file with a wrong format " << endl;
+                exit(-1);
             }
-            if (static_cast<int> (snpPos - neighbors - 1) < 0) {
-                startPos = 0;
-                snp->setPos(snpPos);
-            } else {
-                startPos = snpPos - neighbors;
-                snp->setPos(neighbors);
+            if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
+                f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
             }
-            if (snpPos + neighbors >= f->getLength()) {
-                endPos = f->getLength() - 1;
-            } else {
-                endPos = snpPos + neighbors;
-            }
+            if (f) {
+                snp = new SNP();
+                snp->setId(fParser.getWords()[2]);
+                snp->setChr(fParser.getWords()[0]);
 
-            char *seq = f->getSubStr(startPos, endPos - startPos + 1);
-            toUpper(&seq);
-            snp->setSeq(&seq);
-
-            if (Global::instance()->isDebug3()) {
-                cout << snp->getRef() << " " << snp->getSeq()[snp->getPos()]
-                        << " " << snp->getPos()
-                        << " " << snp->getLength()
-                        << " " << snp->getSeq()
-                        << endl;
-            }
-
-            if (snp->getSeq()[snp->getPos()] != snp->getRef()) {
-                fprintf(stderr, "\nERROR1:\n\n%c != %c\n\n", snp->getSeq()[snp->getPos()], fParser.getWords()[3][0]);
-                fprintf(stderr, "%c\t%c\t%lu\n\n", snp->getRef(), snp->getSeq()[snp->getPos()], snp->getPos());
-                fprintf(stderr, "ID: %s\n", snp->getId().c_str());
-                fprintf(stderr, "%s\n\n", snp->getSeq());
-                if (Global::instance()->isDebug3()) {
-                    printLog(stderr, "SNP is not in the chromosome position provided", __FILE__, __LINE__, -1);
+                snp->setRef(fParser.getWords()[3][0]);
+                snp->setAlt(fParser.getWords()[4][0]);
+                snpPos = atoi(fParser.getWords()[1]) - 1;
+                if (snpPos - 1 >= 0 && snpPos - 1 < static_cast<int> (f->getLength())) {
+                    snp->setChrPos(snpPos);
+                } else {
+                    cerr << "SNP position out of range" << endl;
+                    exit(-1);
                 }
-                delete snp;
-            } else {
-                snps.push_back(snp);
+                if (static_cast<int> (snpPos - neighbors - 1) < 0) {
+                    startPos = 0;
+                    snp->setPos(snpPos);
+                } else {
+                    startPos = snpPos - static_cast<int> (neighbors);
+                    snp->setPos(neighbors);
+                }
+                if (snpPos + neighbors >= f->getLength()) {
+                    endPos = f->getLength() - 1;
+                } else {
+                    endPos = snpPos + static_cast<int> (neighbors);
+                }
+
+                char *seq = f->getSubStr(startPos, endPos - startPos + 1);
+                toUpper(&seq);
+                snp->setSeq(&seq);
+                snp->setLength(endPos - startPos + 1);
+
+                if (Global::instance()->isDebug3()) {
+                    cout << snp->getRef() << " " << snp->getSeq()[snp->getPos()]
+                            << " " << snp->getPos()
+                            << " " << snp->getLength()
+                            << " " << snp->getSeq()
+                            << endl;
+                }
+
+                if (snp->getSeq()[snp->getPos()] != snp->getRef()) {
+                    cerr << "\nERROR1:\n\n" << snp->getSeq()[snp->getPos()] << " != " << fParser.getWords()[3][0] << "\n\n";
+                    cerr << snp->getRef() << "\t" << snp->getSeq()[snp->getPos()] << "\t" << snp->getPos() << "\n\n";
+                    cerr << snp->getSeq() << "\n\n";
+                    if (Global::instance()->isDebug3()) {
+                        cerr << "SNP is not in the chromosome position provided" << endl;
+                        exit(-1);
+                    }
+                    delete snp;
+                } else {
+                    snps.push_back(snp);
+                }
             }
         }
+    } catch (exceptions::FileNotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::ErrorReadingFromFileException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::NotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error retrieving sequences" << endl;
+        exit(-1);
     }
 }
 
@@ -187,10 +204,10 @@ void SNPFactory::writeEnhansersFastaFile(std::string fastaFile, bool binary) {
         Seq *f = new Seq();
         id = snp->getId();
         f->setId(id);
-        seq = strdup(snp->getSeq());
-        f->setLength(strlen(seq));
+        seq = strndup(snp->getSeq(), snp->getLength());
+        f->setLength(snp->getLength());
         f->setSeq(&seq);
-        fastaFactory.getSequenceContainter().insert(pair<string, Seq*>(id, move(f)));
+        fastaFactory.getSequenceContainter().insert(pair<string, Seq*>(id, f));
     }
 
     fastaFactory.writeSequencesToFile(fastaFile, binary);
@@ -204,8 +221,9 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
     Seq *f = NULL;
     SNP *snp;
     int snpPos, startPos, endPos;
-    FILE *featuresFile = stderr;
-    FILE *zscoreFile = stderr;
+
+    ofstream featuresFile;
+    ofstream zscoreFile;
 
     std::pair<std::string, double> cPair;
 
@@ -213,8 +231,18 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
     double target_label = 0.0;
 
     if (Global::instance()->isDebug3()) {
-        featuresFile = fopen("CAPE_debug_3_features.txt", "w");
-        zscoreFile = fopen("CAPE_debug_3_zscores.txt", "w");
+        featuresFile.open("CAPE_debug_3_features.txt");
+        if (!featuresFile.is_open()) {
+            cerr << "Can't open features debug file named: CAPE_debug_3_features.txt" << endl;
+            exit(-1);
+        }
+        featuresFile.precision(8);
+        zscoreFile.open("CAPE_debug_3_zscores.txt");
+        if (!zscoreFile.is_open()) {
+            cerr << "Can't open zscores debug file named: CAPE_debug_3_zscores.txt" << endl;
+            exit(-1);
+        }
+        zscoreFile.precision(8);
     }
 
     if (!fimoFactory.getSnpIDContainer().empty() || tFBSFactory.isReady()) {
@@ -232,94 +260,121 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
     }
 
     cout.precision(4);
-    while (fParser.iterate('#', "\t")) {
-        if (fParser.getNWords() != 5) {
-            printLog(stderr, "Input SNP file with a wrong format ", __FILE__, __LINE__, -1);
-        }
-        if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
-            f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
-        }
-        if (f) {
-            snp = new SNP();
-            snp->setId(fParser.getWords()[2]);
-            snp->setChr(fParser.getWords()[0]);
-
-            snp->setRef(fParser.getWords()[3][0]);
-            snp->setAlt(fParser.getWords()[4][0]);
-            snpPos = atoi(fParser.getWords()[1]) - 1;
-            if (snpPos - 1 >= 0 && snpPos - 1 < static_cast<int> (f->getLength())) {
-                snp->setChrPos(snpPos);
-            } else {
-                printLog(stderr, "SNP position out of range", __FILE__, __LINE__, -1);
+    try {
+        while (fParser.iterate('#', "\t")) {
+            if (fParser.getNWords() != 5) {
+                cerr << "Input SNP file with a wrong format" << endl;
+                exit(-1);
             }
-            if (static_cast<int> (snpPos - neighbors - 1) < 0) {
-                startPos = 0;
-                snp->setPos(snpPos);
-            } else {
-                startPos = snpPos - neighbors;
-                snp->setPos(neighbors);
+            if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
+                f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
             }
-            if (snpPos + neighbors >= f->getLength()) {
-                endPos = f->getLength() - 1;
-            } else {
-                endPos = snpPos + neighbors;
-            }
+            if (f) {
+                snp = new SNP();
+                snp->setId(fParser.getWords()[2]);
+                snp->setChr(fParser.getWords()[0]);
 
-            char *seq = f->getSubStr(startPos, endPos - startPos + 1);
-            toUpper(&seq);
-            snp->setSeq(&seq);
-
-            if (snp->getSeq()[snp->getPos()] != snp->getRef()) {
-                fprintf(stderr, "\nERROR1:\n\n%c != %c\n\n", snp->getSeq()[snp->getPos()], fParser.getWords()[3][0]);
-                fprintf(stderr, "%c\t%c\t%lu\n\n", snp->getRef(), snp->getSeq()[snp->getPos()], snp->getPos());
-                fprintf(stderr, "%s\n\n", snp->getSeq());
-                if (Global::instance()->isDebug3()) {
-                    printLog(stderr, "SNP is not in the chromosome position provided", __FILE__, __LINE__, -1);
+                snp->setRef(fParser.getWords()[3][0]);
+                snp->setAlt(fParser.getWords()[4][0]);
+                snpPos = atoi(fParser.getWords()[1]) - 1;
+                if (snpPos - 1 >= 0 && snpPos - 1 < static_cast<int> (f->getLength())) {
+                    snp->setChrPos(snpPos);
+                } else {
+                    cerr << "SNP position out of range" << endl;
+                    exit(-1);
                 }
-                delete snp;
-            } else {
-                count++;
-                snp->calculateKmerDescriptors(kmersFactory, featNumber);
-
-                /*
-                 * Calculating overall sum for mean and sd
-                 */
-                for (i = 0; i < 3; i++) {
-                    mean[i] += snp->getDescriptors()[i];
+                if (static_cast<int> (snpPos - neighbors - 1) < 0) {
+                    startPos = 0;
+                    snp->setPos(snpPos);
+                } else {
+                    startPos = snpPos - static_cast<int> (neighbors);
+                    snp->setPos(neighbors);
+                }
+                if (snpPos + neighbors >= f->getLength()) {
+                    endPos = f->getLength() - 1;
+                } else {
+                    endPos = snpPos + static_cast<int> (neighbors);
                 }
 
-                if (featNumber == 5) {
-                    if (!fimoFactory.getSnpIDContainer().empty()) {
-                        auto fimoMapIt = fimoFactory.getSnpIDContainer().find(snp->getId());
-                        if (fimoMapIt != fimoFactory.getSnpIDContainer().end()) {
-                            snp->getDescriptors()[3] = fimoMapIt->second[0];
-                            snp->getDescriptors()[4] = fimoMapIt->second[1];
-                        }
-                    } else {
-                        overlapValue = neighborSum = 0;
-                        tFBSFactory.extractTFBSFromFile(startPos, endPos, f);
-                        for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
-                            TFBS *t = *it;
-                            cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), expressionCode);
-                            if (fabs(cPair.second) >= 1.0) {
-                                if (t->getStart() <= snpPos && t->getEnd() >= snpPos) {
-                                    if (overlapValue < cPair.second) {
-                                        overlapValue = cPair.second;
-                                    }
-                                } else {
-                                    neighborSum += cPair.second;
-                                }
-                            }
-                        }
-                        snp->getDescriptors()[3] = overlapValue;
-                        snp->getDescriptors()[4] = neighborSum;
+                try {
+                    char *seq = f->getSubStr(startPos, endPos - startPos + 1);
+                    toUpper(&seq);
+                    snp->setSeq(&seq);
+                    snp->setLength(endPos - startPos + 1);
+                } catch (exceptions::OutOfRangeException ex) {
+                    cerr << "Sequence length to retrieve is out of range" << endl;
+                    exit(-1);
+                }
+                if (snp->getSeq()[snp->getPos()] != snp->getRef()) {
+                    cerr << "\nERROR1:\n\n" << snp->getSeq()[snp->getPos()] << " != " << fParser.getWords()[3][0] << "\n\n";
+                    cerr << snp->getRef() << "\t" << snp->getSeq()[snp->getPos()] << "\t" << snp->getPos() << "\n\n";
+                    cerr << snp->getSeq() << "\n\n";
+                    if (Global::instance()->isDebug3()) {
+                        cerr << "SNP is not in the chromosome position provided" << endl;
+                        exit(-1);
                     }
-                    mean[3] += snp->getDescriptors()[3];
-                    mean[4] += snp->getDescriptors()[4];
+                    delete snp;
+                } else {
+                    count++;
+                    snp->calculateKmerDescriptors(kmersFactory, featNumber);
+
+                    /*
+                     * Calculating overall sum for mean and sd
+                     */
+                    for (i = 0; i < 3; i++) {
+                        mean[i] += snp->getDescriptors()[i];
+                    }
+
+                    if (featNumber == 5) {
+                        if (!fimoFactory.getSnpIDContainer().empty()) {
+                            auto fimoMapIt = fimoFactory.getSnpIDContainer().find(snp->getId());
+                            if (fimoMapIt != fimoFactory.getSnpIDContainer().end()) {
+                                snp->getDescriptors()[3] = fimoMapIt->second[0];
+                                snp->getDescriptors()[4] = fimoMapIt->second[1];
+                            }
+                        } else {
+                            overlapValue = neighborSum = 0;
+                            try {
+                                tFBSFactory.extractTFBSFromFile(startPos, endPos, f);
+                                for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
+                                    TFBS *t = *it;
+                                    cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), expressionCode);
+                                    if (fabs(cPair.second) >= 1.0) {
+                                        if (t->getStart() <= snpPos && t->getEnd() >= snpPos) {
+                                            if (overlapValue < cPair.second) {
+                                                overlapValue = cPair.second;
+                                            }
+                                        } else {
+                                            neighborSum += cPair.second;
+                                        }
+                                    }
+                                }
+                                snp->getDescriptors()[3] = overlapValue;
+                                snp->getDescriptors()[4] = neighborSum;
+                            } catch (exceptions::NotFoundException ex) {
+                                cerr << ex.what() << endl;
+                            }
+
+                        }
+                        mean[3] += snp->getDescriptors()[3];
+                        mean[4] += snp->getDescriptors()[4];
+                    }
+                    snps.push_back(snp);
                 }
-                snps.push_back(move(snp));
             }
         }
+    } catch (exceptions::FileNotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::ErrorReadingFromFileException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error parsing file" << endl;
+        exit(-1);
+    } catch (exceptions::NotFoundException ex) {
+        cerr << ex.what() << endl;
+        cerr << "Error retrieving sequences" << endl;
+        exit(-1);
     }
 
     /*
@@ -353,28 +408,28 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
         SNP *s = *it;
 
         if (Global::instance()->isDebug3()) {
-            fprintf(featuresFile, "%s\t", s->getId().c_str());
-            fprintf(zscoreFile, "%s\t", s->getId().c_str());
+            featuresFile << s->getId() << "\t";
+            zscoreFile << s->getId() << "\t";
         }
         for (i = 0; i < featNumber; i++) {
             x[i].index = i + 1;
             x[i].value = (s->getDescriptors()[i] - mean[i]) / sd[i];
             if (Global::instance()->isDebug3()) {
-                fprintf(featuresFile, "%.4f\t", s->getDescriptors()[i]);
-                fprintf(zscoreFile, "%.4f\t", x[i].value);
+                featuresFile << s->getDescriptors()[i] << "\t";
+                zscoreFile << x[i].value << "\t";
             }
         }
         if (Global::instance()->isDebug3()) {
-            fprintf(featuresFile, "\n");
-            fprintf(zscoreFile, "\n");
+            featuresFile << endl;
+            zscoreFile << endl;
         }
         svmPredict.svmPredictCalulation(x, target_label);
         s->setProbPos(svmPredict.getProbEstimates()[0]);
     }
 
     if (Global::instance()->isDebug3()) {
-        fclose(featuresFile);
-        fclose(zscoreFile);
+        featuresFile.close();
+        zscoreFile.close();
     }
     free(x);
     free(mean);

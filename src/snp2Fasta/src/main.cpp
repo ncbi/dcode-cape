@@ -148,16 +148,17 @@ int main(int argc, char** argv) {
     cout << "Reading chromosome sequences from binary file" << endl;
     chrFactory.parseFastaFile(chrsBinFile, -1, true, true);
     cout << chrFactory.getSequenceContainter().size() << " chromosomes loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
-    
+
     cout << "Reading input SNP coordinates from files" << endl;
     snpFactory.parseSNPFile(inName, length, chrFactory);
-    
+
     cout << "Writing fasta file" << endl;
     snpFactory.writeEnhansersFastaFile(outName, false);
 
     if (chrsBinFile) fclose(chrsBinFile);
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->getTimeMinFrom(start) << " minutes" << endl;
+    delete TimeUtils::instance();
     return 0;
 }
 
