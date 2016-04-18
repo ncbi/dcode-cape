@@ -15,6 +15,7 @@
 #include <time.h>
 
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <cstdlib>
 #include <string>
@@ -57,39 +58,39 @@ TimeUtils *TimeUtils::s_instance = 0;
 
 char *program_name;
 
-void print_usage(FILE *stream, int exit_code) {
-    fprintf(stream, "\n********************************************************************************\n");
-    fprintf(stream, "\nUsage: %s \n", program_name);
-    fprintf(stream, "\n\n%s options:\n\n", program_name);
-    fprintf(stream, "-v,   --verbose                     Print info\n");
-    fprintf(stream, "-h,   --help                        Display this usage information.\n");
-    fprintf(stream, "-i    --in                          Input config file\n");
+void print_usage(int exit_code) {
+    cerr << "\n********************************************************************************\n";
+    cerr << "\nUsage: " << program_name;
+    cerr << "\n\n" << program_name << " options:\n\n";
+    cerr << "-v,   --verbose                     Print info\n";
+    cerr << "-h,   --help                        Display this usage information.\n";
+    cerr << "-i    --in                          Input config file\n";
 
-    fprintf(stream, "\nInput conf file format (tab delimited), copy the next 9 lines to your config file:\n\n");
-    fprintf(stream, "in\tinput_file_name.txt\t\t\t# Input file with SNP coordinates\n");
-    fprintf(stream, "out\toutput_file_name.out\t\t\t# Output file with SNP coordinates and probabilities\n");
-    fprintf(stream, "order\t10\t\t\t\t\t# Order (default: 10)\n");
-    fprintf(stream, "chrs\t/path-to/hg19.fa.bin\t\t\t# Chromosomes files in binary mode. Format: hg19.fa.bin. Binary files created by formatFasta\n");
-    fprintf(stream, "weight\t/path-to/10mers_sigValue_sorted\t\t# Kmers weight file. Generated with kweight\n");
-    fprintf(stream, "neighbors\t100\t\t\t\t# Pb to be added before and after the SNP position. Default 100\n");
-    fprintf(stream, "model\t/path-to/svm.model\t\t\t# SVM Model\n");
-    fprintf(stream, "probability\t1\t\t\t\t# 1 if the model use probability estimates\n");
-    fprintf(stream, "fimo\tfimo_output_file.txt\t\t\t# Use FIMO output. Set to: 0 for not using FIMO output\n");
-    fprintf(stream, "pwm_EnsembleID\tpwm_EnsembleID_mapping\t\t# File mapping TF names with Ensembl IDs. Provided in resources folder\n");
-    fprintf(stream, "expression\t57epigenomes.RPKM.pc\t\t# Expression file\n");
-    fprintf(stream, "expression_code\tE116\t\t\t\t# Tissue code used to extract expression data from the expression file.\n\t\t\t\t\t\t  Extract this code from the tissue ID mapping file EG.name.txt\n");
-    fprintf(stream, "abbrev-mtf-mapped\tabbrev-mtf-mapped-to-whole-label.all.info.renamed\t\t\t\t# TF name cutoff P-Value mapped by our group\n\n");
-    fprintf(stream, "********************************************************************************\n");
-    fprintf(stream, "For internal use at NCBI:\n\n");
-    fprintf(stream, "\tThese parameters can be include into the input conf file to use FIMO\n\toutput through NCBI internal index files\n");
-    fprintf(stream, "\tPlease, note that \"fimo\" option should be set to \"0\" or simple\n\tdelete it from the input file\n\n");
-    fprintf(stream, "TibInfoFileName\ttib/hg19/tib.info\n");
-    fprintf(stream, "TFBSIdxDirName\tcommon/tib/hg19/5\t\t\t# The program reads files with name chrN.idx and chrN.tib\n\n");
-    fprintf(stream, "********************************************************************************\n");
-    fprintf(stream, "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n");
-    fprintf(stream, "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");
-    fprintf(stream, "********************************************************************************\n");
-    exit(0);
+    cerr << "\nInput conf file format (tab delimited), copy the next 9 lines to your config file:\n\n";
+    cerr << "in\tinput_file_name.txt\t\t\t# Input file with SNP coordinates\n";
+    cerr << "out\toutput_file_name.out\t\t\t# Output file with SNP coordinates and probabilities\n";
+    cerr << "order\t10\t\t\t\t\t# Order (default: 10)\n";
+    cerr << "chrs\t/path-to/hg19.fa.bin\t\t\t# Chromosomes files in binary mode. Format: hg19.fa.bin. Binary files created by formatFasta\n";
+    cerr << "weight\t/path-to/10mers_sigValue_sorted\t\t# Kmers weight file. Generated with kweight\n";
+    cerr << "neighbors\t100\t\t\t\t# Pb to be added before and after the SNP position. Default 100\n";
+    cerr << "model\t/path-to/svm.model\t\t\t# SVM Model\n";
+    cerr << "probability\t1\t\t\t\t# 1 if the model use probability estimates\n";
+    cerr << "fimo\tfimo_output_file.txt\t\t\t# Use FIMO output. Set to: 0 for not using FIMO output\n";
+    cerr << "pwm_EnsembleID\tpwm_EnsembleID_mapping\t\t# File mapping TF names with Ensembl IDs. Provided in resources folder\n";
+    cerr << "expression\t57epigenomes.RPKM.pc\t\t# Expression file\n";
+    cerr << "expression_code\tE116\t\t\t\t# Tissue code used to extract expression data from the expression file.\n\t\t\t\t\t\t  Extract this code from the tissue ID mapping file EG.name.txt\n";
+    cerr << "abbrev-mtf-mapped\tabbrev-mtf-mapped-to-whole-label.all.info.renamed\t\t\t\t# TF name cutoff P-Value mapped by our group\n\n";
+    cerr << "********************************************************************************\n";
+    cerr << "For internal use at NCBI:\n\n";
+    cerr << "\tThese parameters can be include into the input conf file to use FIMO\n\toutput through NCBI internal index files\n";
+    cerr << "\tPlease, note that \"fimo\" option should be set to \"0\" or simple\n\tdelete it from the input file\n\n";
+    cerr << "TibInfoFileName\ttib/hg19/tib.info\n";
+    cerr << "TFBSIdxDirName\tcommon/tib/hg19/5\t\t\t# The program reads files with name chrN.idx and chrN.tib\n\n";
+    cerr << "********************************************************************************\n";
+    cerr << "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n";
+    cerr << "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n";
+    cerr << "********************************************************************************\n";
+    exit(exit_code);
 }
 
 /*
@@ -112,7 +113,7 @@ int main(int argc, char** argv) {
     string abbrevmtfmappedFileName;
     string tibInfoFileName;
     string tFBSIdxDirName;
-    FILE *outputFile = NULL;
+    ofstream outputFile;
     unsigned long int neighbors = 100;
     FastaFactory chrFactory;
     SNPFactory snpFactory;
@@ -139,7 +140,7 @@ int main(int argc, char** argv) {
 
         switch (next_option) {
             case 'h':
-                print_usage(stdout, 0);
+                print_usage(0);
 
             case 'v':
                 Global::instance()->setVerbose(1);
@@ -157,7 +158,7 @@ int main(int argc, char** argv) {
 
     if (inFileName.empty()) {
         cerr << "\nInput file with SNP coordinates is required. See -i option" << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     try {
@@ -171,7 +172,7 @@ int main(int argc, char** argv) {
                     inFileName = fParser.getWords()[1];
                 }
                 if (field.compare("out") == 0) {
-                    outputFile = (FILE *) checkPointerError(fopen(fParser.getWords()[1], "w"), "\nCan't open output file. See -i option\n", __FILE__, __LINE__, -1);
+                    outputFile.open(fParser.getWords()[1]);
                 }
                 if (field.compare("order") == 0) {
                     Global::instance()->setOrder(static_cast<unsigned long int> (atoi(fParser.getWords()[1])));
@@ -229,53 +230,53 @@ int main(int argc, char** argv) {
 
     if (inFileName.empty()) {
         cerr << "\nInput file with SNP coordinates is required in config file." << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     if (weightFileName.empty()) {
         cerr << "\nKmer weight file is required in config file" << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     if (!chrsBinFile) {
         cerr << "\nChromosomes file in binary mode is required in config file" << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
-    if (!outputFile) {
+    if (!outputFile.is_open()) {
         cerr << "\nOutput file is required in config file." << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     if (fimoFileName.empty()) {
         if (pwmEnsembleIDFileName.empty()) {
             cerr << "\npwm_EnsembleID option is required in config file if FIMO ouput is provided." << endl;
-            print_usage(stderr, -1);
+            print_usage(-1);
         }
         if (expressionFileName.empty()) {
             cerr << "\nexpression option  is required in config file if FIMO ouput is provided." << endl;
-            print_usage(stderr, -1);
+            print_usage(-1);
         }
         if (expressionCode.empty()) {
             cerr << "\nexpression_code option  is required in config file if FIMO ouput is provided." << endl;
-            print_usage(stderr, -1);
+            print_usage(-1);
         }
         if (abbrevmtfmappedFileName.empty()) {
             cerr << "\nabbrev-mtf-mapped option  is required in config file if FIMO ouput is provided." << endl;
-            print_usage(stderr, -1);
+            print_usage(-1);
         }
     } else if (!tFBSIdxDirName.empty() || !tibInfoFileName.empty()) {
         if (expressionCode.empty()) {
             cerr << "\nexpression_code option  is required in config file if FIMO indexes are provided." << endl;
-            print_usage(stderr, -1);
+            print_usage(-1);
         }
         if (tFBSIdxDirName.empty()) {
             cerr << "\tTFBSIdxDirName option  is required in config file if FIMO indexes are provided." << endl;
-            print_usage(stderr, -1);
+            print_usage(-1);
         }
         if (tibInfoFileName.empty()) {
             cerr << "\tTibInfoFileName option  is required in config file if FIMO indexes are provided." << endl;
-            print_usage(stderr, -1);
+            print_usage(-1);
         }
 
         snpFactory.setExpressionCode(expressionCode);
@@ -322,16 +323,19 @@ int main(int argc, char** argv) {
     count = snpFactory.processSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory, tFBSFactory);
     cout << count << " SNP processed in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
-    fprintf(outputFile, "#chrom\tpos\trsID\trefAle\taltAle\tscore\n");
+    outputFile << "#chrom\tpos\trsID\trefAle\taltAle\tscore\n";
     for (auto it = snpFactory.getSnps().begin(); it != snpFactory.getSnps().end(); ++it) {
         SNP *s = *it;
 
-        fprintf(outputFile, "%s\t%lu\t%s\t%c\t%c\t%.6f\n",
-                s->getChr().c_str(), s->getChrPos() + 1, s->getId().c_str(),
-                s->getRef(), s->getAlt(), s->getProbPos());
+        outputFile << s->getChr() << "\t"
+                << s->getChrPos() + 1 << "\t"
+                << s->getId() << "\t" <<
+                s->getRef() << "\t"
+                << s->getAlt() << "\t"
+                << s->getProbPos() << endl;
     }
 
-    fclose(outputFile);
+    outputFile.close();
     fclose(chrsBinFile);
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;

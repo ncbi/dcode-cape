@@ -38,35 +38,35 @@ TimeUtils *TimeUtils::s_instance = 0;
 
 char *program_name;
 
-void print_usage(FILE *stream, int exit_code) {
-    fprintf(stream, "\n********************************************************************************\n");
-    fprintf(stream, "This option will read the enhancers coordinates and generate the controls by shuffling the enhancers sequences\n");
-    fprintf(stream, "kweight --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes/hg19_masked.fa.bin --poutput weight_file_kmers.txt --eoutput enhancers.fa\n\n");
-    fprintf(stream, "This option will read the enhancers coordinates and generate the controls from the chromosomes\n");
-    fprintf(stream, "kweight -g --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes/hg19_masked.fa.bin --poutput weight_file_kmers.txt --eoutput enhancers.fa\n\n");
-    fprintf(stream, "This option will read the enhancers coordinates and use the controls provided by the users\n");
-    fprintf(stream, "kweight --bed enhancers_coordinates.bed -m ./directory/hg19/hg19_masked.fa.bin --control users_control.txt --poutput weight_file_kmers.txt --eoutput enhancers.fa\n");
-    fprintf(stream, "Control file format:\n");
-    fprintf(stream, "chr<tab>start_position<tab>length\n\n");
-    fprintf(stream, "\n********************************************************************************\n");
-    fprintf(stream, "\nUsage: %s \n", program_name);
-    fprintf(stream, "\n\n%s options:\n\n", program_name);
-    fprintf(stream, "-v,   --verbose                     Print info\n");
-    fprintf(stream, "-h,   --help                        Display this usage information.\n");
-    fprintf(stream, "-b,   --bed                         Coordination of enhancers or DHS peaks.\n");
-    fprintf(stream, "-m,   --masked                      Chromosomes masked binary fasta file. Created with formatFasta.\n");
-    fprintf(stream, "-p,   --poutput                     Output file with the p-value for all kmers\n");
-    
-    fprintf(stream, "-o,   --order                       Order (default: 10).\n");    
-    fprintf(stream, "-g,   --genCtrl                     Generate control from chromosomes. Default: NO.\n");
-    fprintf(stream, "-n,   --hitNum                      Number of controls per peak (default: 10, if -g set default: 3).\n");
-    fprintf(stream, "-c,   --control                     Bed file with the control coordinates. This option will use your own control for the calculations.\n");
-    
-    fprintf(stream, "********************************************************************************\n");
-    fprintf(stream, "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n");
-    fprintf(stream, "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");
-    fprintf(stream, "********************************************************************************\n");
-    exit(0);
+void print_usage(int exit_code) {
+    cerr << "\n********************************************************************************\n";
+    cerr << "This option will read the enhancers coordinates and generate the controls by shuffling the enhancers sequences\n";
+    cerr << "kweight --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes/hg19_masked.fa.bin --poutput weight_file_kmers.txt --eoutput enhancers.fa\n\n";
+    cerr << "This option will read the enhancers coordinates and generate the controls from the chromosomes\n";
+    cerr << "kweight -g --bed enhancers_coordinates.bed -m ./directory/hg19/chromosomes/hg19_masked.fa.bin --poutput weight_file_kmers.txt --eoutput enhancers.fa\n\n";
+    cerr << "This option will read the enhancers coordinates and use the controls provided by the users\n";
+    cerr << "kweight --bed enhancers_coordinates.bed -m ./directory/hg19/hg19_masked.fa.bin --control users_control.txt --poutput weight_file_kmers.txt --eoutput enhancers.fa\n";
+    cerr << "Control file format:\n";
+    cerr << "chr<tab>start_position<tab>length\n\n";
+    cerr << "\n********************************************************************************\n";
+    cerr << "\nUsage: " << program_name;
+    cerr << "\n\n" << program_name << " options:\n\n";
+    cerr << "-v,   --verbose                     Print info\n";
+    cerr << "-h,   --help                        Display this usage information.\n";
+    cerr << "-b,   --bed                         Coordination of enhancers or DHS peaks.\n";
+    cerr << "-m,   --masked                      Chromosomes masked binary fasta file. Created with formatFasta.\n";
+    cerr << "-p,   --poutput                     Output file with the p-value for all kmers\n";
+
+    cerr << "-o,   --order                       Order (default: 10).\n";
+    cerr << "-g,   --genCtrl                     Generate control from chromosomes. Default: NO.\n";
+    cerr << "-n,   --hitNum                      Number of controls per peak (default: 10, if -g set default: 3).\n";
+    cerr << "-c,   --control                     Bed file with the control coordinates. This option will use your own control for the calculations.\n";
+
+    cerr << "********************************************************************************\n";
+    cerr << "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n";
+    cerr << "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n";
+    cerr << "********************************************************************************\n";
+    exit(exit_code);
 }
 
 int main(int argc, char** argv) {
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
 
         switch (next_option) {
             case 'h':
-                print_usage(stdout, 0);
+                print_usage(0);
 
             case 'v':
                 Global::instance()->setVerbose(1);
@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
             case 'p':
                 poutputFileName = optarg;
                 break;
-            
+
             case 'c':
                 controlFileName = optarg;
                 break;
@@ -169,17 +169,17 @@ int main(int argc, char** argv) {
 
     if (poutputFileName.empty()) {
         cerr << "\nKmer contingency table output is required. See -k option" << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     if (!chrsBinFile) {
         cerr << "\nCan't open chromosomes masked binary fasta file. See -m option" << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     if (bedFileName.empty()) {
         cerr << "\nBed file is required. See -b option" << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     TimeUtils::instance()->setStartTime();
@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
     cout << kmersFactory.getKmers().size() << " kmers generated in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     kmersFactory.writeKmersToFile(poutputFileName, binary);
-    
+
     if (chrsBinFile) fclose(chrsBinFile);
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->getTimeMinFrom(start) << " minutes" << endl;

@@ -49,22 +49,22 @@ TimeUtils *TimeUtils::s_instance = 0;
 
 char *program_name;
 
-void print_usage(FILE *stream, int exit_code) {
-    fprintf(stream, "\n********************************************************************************\n");
-    fprintf(stream, "\nUsage: %s \n", program_name);
-    fprintf(stream, "\n\n%s options:\n\n", program_name);
-    fprintf(stream, "-v,   --verbose                     Print info\n");
-    fprintf(stream, "-h,   --help                        Display this usage information.\n");
-    fprintf(stream, "-i,   --in                          Input file with SNP coordinates.\n");
-    fprintf(stream, "-c,   --chrs                        Chromosomes binary fasta file. Created with formatFasta.\n");
-    fprintf(stream, "-o,   --output                      Fasta file with the sequences\n");
-    fprintf(stream, "-l,   --length                      Sequence length to be added before and after the SNP position\n\n");
+void print_usage(int exit_code) {
+    cerr << "\n********************************************************************************\n";
+    cerr << "\nUsage: " << program_name;
+    cerr << "\n\n" << program_name << " options:\n\n";
+    cerr << "-v,   --verbose                     Print info\n";
+    cerr << "-h,   --help                        Display this usage information.\n";
+    cerr << "-i,   --in                          Input file with SNP coordinates.\n";
+    cerr << "-c,   --chrs                        Chromosomes binary fasta file. Created with formatFasta.\n";
+    cerr << "-o,   --output                      Fasta file with the sequences\n";
+    cerr << "-l,   --length                      Sequence length to be added before and after the SNP position\n\n";
 
-    fprintf(stream, "********************************************************************************\n");
-    fprintf(stream, "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n");
-    fprintf(stream, "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n");
-    fprintf(stream, "********************************************************************************\n");
-    exit(0);
+    cerr << "********************************************************************************\n";
+    cerr << "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n";
+    cerr << "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n";
+    cerr << "********************************************************************************\n";
+    exit(exit_code);
 }
 
 /*
@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
 
         switch (next_option) {
             case 'h':
-                print_usage(stdout, 0);
+                print_usage(0);
 
             case 'v':
                 Global::instance()->setVerbose(1);
@@ -125,22 +125,22 @@ int main(int argc, char** argv) {
 
     if (inName.empty()) {
         cerr << "\nInput SNP coordinate file is required. See -i option" << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     if (outName.empty()) {
         cerr << "\nOutput file is required. See -i option" << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     if (!chrsBinFile) {
         cerr << "\nCan't open chromosomes masked binary fasta file. See -c option" << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     if (length == 0) {
         cerr << "\nSequence length to be added before and after the SNP position is required. See -l option" << endl;
-        print_usage(stderr, -1);
+        print_usage(-1);
     }
 
     TimeUtils::instance()->setStartTime();

@@ -12,8 +12,6 @@
 extern "C" {
 #endif
     
-#define PRINTFILELINE printFileLine(__FILE__, __LINE__)
-
     /**
      * Check if the void pointer is NULL and print out a message. If the exit_status
      * is different of zero it exit the program 
