@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
     clock_t start = clock();
     int next_option, count;
     const char* const short_options = "vhci:d";
-    FILE *chrsBinFile = NULL;
+    string chrsBinFileName;
     string inFileName;
     string svmModelName;
     string weightFileName;
@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
                     Global::instance()->setOrder(static_cast<unsigned long int> (atoi(fParser.getWords()[1])));
                 }
                 if (field.compare("chrs") == 0) {
-                    chrsBinFile = (FILE *) checkPointerError(fopen(fParser.getWords()[1], "rb"), "\nCan't open chromosome binary file. See -i option\n", __FILE__, __LINE__, -1);
+                    chrsBinFileName = fParser.getWords()[1];
                 }
                 if (field.compare("weight") == 0) {
                     weightFileName = fParser.getWords()[1];
@@ -238,7 +238,7 @@ int main(int argc, char** argv) {
         print_usage(-1);
     }
 
-    if (!chrsBinFile) {
+    if (chrsBinFileName.empty()) {
         cerr << "\nChromosomes file in binary mode is required in config file" << endl;
         print_usage(-1);
     }
@@ -248,7 +248,7 @@ int main(int argc, char** argv) {
         print_usage(-1);
     }
 
-    if (fimoFileName.empty()) {
+    if (!fimoFileName.empty()) {
         if (pwmEnsembleIDFileName.empty()) {
             cerr << "\npwm_EnsembleID option is required in config file if FIMO ouput is provided." << endl;
             print_usage(-1);
@@ -292,7 +292,7 @@ int main(int argc, char** argv) {
 
     begin = clock();
     cout << "Reading chromosome sequences from binary file" << endl;
-    chrFactory.parseFastaFile(chrsBinFile, -1, true, true);
+    chrFactory.parseFastaFile(chrsBinFileName, true);
     cout << chrFactory.getSequenceContainter().size() << " chromosomes loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     if (!pwmEnsembleIDFileName.empty() && !expressionFileName.empty()) {
@@ -325,7 +325,7 @@ int main(int argc, char** argv) {
 
     outputFile << "#chrom\tpos\trsID\trefAle\taltAle\tscore\n";
     for (auto it = snpFactory.getSnps().begin(); it != snpFactory.getSnps().end(); ++it) {
-        SNP *s = *it;
+        shared_ptr<SNP> s = *it;
 
         outputFile << s->getChr() << "\t"
                 << s->getChrPos() + 1 << "\t"
@@ -336,7 +336,6 @@ int main(int argc, char** argv) {
     }
 
     outputFile.close();
-    fclose(chrsBinFile);
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;
     delete TimeUtils::instance();
