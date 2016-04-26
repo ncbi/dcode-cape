@@ -59,7 +59,7 @@ SNP::~SNP() {
 }
 
 void SNP::calculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned long int featNumber) {
-    unsigned long int i, startPos, endPos;
+    unsigned long int i, j, startPos, endPos;
     double overlapMutated = 0.0;
 
     for (i = 0; i < featNumber; i++) {
@@ -76,22 +76,19 @@ void SNP::calculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
     } else {
         endPos = pos;
     }
-
+    
+    j = Global::instance()->getOrder() - 1;
     for (i = 0; i <= length - Global::instance()->getOrder(); i++) {
         string sub(seq.c_str() + i, Global::instance()->getOrder());
-//        char t = seq[i + Global::instance()->getOrder()];
-//        seq[i + Global::instance()->getOrder()] = 0;
 
         if (i >= startPos && i <= endPos) {
-
             descriptors[1] += kmersFactory.getKmerSig(sub);
-            seq[pos] = alt;
+            sub = sub.replace(j, 1, &alt);
             overlapMutated += kmersFactory.getKmerSig(sub);
-            seq[pos] = ref;
+            j--;
         } else {
             descriptors[2] += kmersFactory.getKmerSig(sub);
         }
-        //seq[i + Global::instance()->getOrder()] = t;
     }
     descriptors[0] = std::fabs(descriptors[1] - overlapMutated);
 }
@@ -250,7 +247,7 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
         mean[i] = 0.0;
         sd[i] = 0.0;
     }
-
+    
     cout.precision(4);
     try {
         fParser.setFileToParse(snpFileName);
@@ -259,17 +256,19 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
                 cerr << "Input SNP file with a wrong format" << endl;
                 exit(-1);
             }
+            
             if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
                 f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
             }
+            
             if (f) {
-                make_shared<SNP>();
+                snp = make_shared<SNP>();
                 snp->setId(fParser.getWords()[2]);
                 snp->setChr(fParser.getWords()[0]);
-
                 snp->setRef(fParser.getWords()[3][0]);
                 snp->setAlt(fParser.getWords()[4][0]);
                 snpPos = atoi(fParser.getWords()[1]) - 1;
+                
                 if (snpPos - 1 >= 0 && snpPos - 1 < static_cast<int> (f->getLength())) {
                     snp->setChrPos(snpPos);
                 } else {
@@ -288,7 +287,7 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
                 } else {
                     endPos = snpPos + static_cast<int> (neighbors);
                 }
-
+                
                 try {
                     snp->setSeq(f->getSubStr(startPos, endPos - startPos + 1));
                     snp->setLength(endPos - startPos + 1);
@@ -296,6 +295,7 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
                     cerr << "Sequence length to retrieve is out of range" << endl;
                     exit(-1);
                 }
+                
                 if (snp->getSeq()[snp->getPos()] != snp->getRef()) {
                     cerr << "\nERROR1:\n\n" << snp->getSeq()[snp->getPos()] << " != " << fParser.getWords()[3][0] << "\n\n";
                     cerr << snp->getRef() << "\t" << snp->getSeq()[snp->getPos()] << "\t" << snp->getPos() << "\n\n";
@@ -423,7 +423,6 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
     }
     free(x);
     cout.precision(2);
-
     return count;
 }
 

@@ -86,6 +86,7 @@ namespace snp {
         }
 
         void setSeq(std::string seq) {
+            for (auto & c: seq) c = toupper(c);
             this->seq = seq;
         }
 
