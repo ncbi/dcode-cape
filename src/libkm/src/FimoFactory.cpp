@@ -11,6 +11,7 @@
 #include <stdbool.h>
 
 #include <iostream>
+#include <memory>
 #include <fstream>
 #include <cstdlib>
 #include <string>

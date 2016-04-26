@@ -11,6 +11,7 @@
 #include <string.h>
 #include <errno.h>
 #include <iostream>
+#include <memory>
 #include <stdbool.h>
 #include "berror.h"
 #include "bmemory.h"

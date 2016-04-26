@@ -9,6 +9,7 @@
 #include <locale.h>
 
 #include <iostream>
+#include <memory>
 
 #include "berror.h"
 #include "bmemory.h"

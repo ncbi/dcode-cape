@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <cstring>
 #include <string>
 #include <vector>
