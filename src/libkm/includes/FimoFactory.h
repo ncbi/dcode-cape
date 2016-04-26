@@ -192,7 +192,7 @@ namespace fimo {
 
         struct PointerCompare {
 
-            bool operator()(const Fimo* l, const Fimo* r) {
+            bool operator()(const std::shared_ptr<Fimo> l, const std::shared_ptr<Fimo> r) {
                 return *l != *r;
             }
         };

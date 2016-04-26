@@ -66,12 +66,12 @@ namespace peak {
             this->end = end;
         }
 
-        char *getSeq() {
+        std::string& getSeq() {
             return seq;
         }
 
-        void setSeq(char **seq) {
-            this->seq = *seq;
+        void setSeq(std::string seq) {
+            this->seq = seq;
         }
 
         unsigned long int getStart() const {
@@ -98,7 +98,7 @@ namespace peak {
         unsigned long int NCount;
         unsigned long int NRCount;
         double NPercent;
-        char *seq;
+        std::string seq;
     };
 
     class BedFactory {
@@ -106,7 +106,7 @@ namespace peak {
         BedFactory();
         virtual ~BedFactory();
 
-        std::vector<Peak*>& getPeaks() {
+        std::vector<std::shared_ptr<Peak>>& getPeaks() {
             return peaks;
         }
 
@@ -125,7 +125,7 @@ namespace peak {
     private:
         unsigned long int NCount;
         unsigned long int GCCount;
-        std::vector<Peak *> peaks;
+        std::vector<std::shared_ptr<Peak>> peaks;
         std::map<std::string, std::map<int, std::map<std::pair<int, int>, int>>> GCNcontentBin;
 
         void plus_ocur(char nt);

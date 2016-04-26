@@ -9,10 +9,12 @@
 #include <string.h>
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <memory>
 #include <map>
 #include <vector>
+#include <fstream>
 
 #include "berror.h"
 #include "bmemory.h"
@@ -25,48 +27,6 @@ using namespace parsers;
 
 FileParserFactory::FileParserFactory() {
     this->closeFile = false;
-    this->fileToParse = NULL;
-    this->words = NULL;
-    this->wordsSize = 0;
-    this->nWords = 0;
-    this->buffer = NULL;
-    this->bufferEndPtr = NULL;
-    this->str = NULL;
-    this->line = NULL;
-    this->backup = NULL;
-    this->bufferSize = 10000000;
-    this->backupTotalSize = 0;
-    this->backupSize = 0;
-    this->read = 0;
-    this->lineLength = 0;
-}
-
-FileParserFactory::FileParserFactory(FILE* fileToParse) {
-    this->closeFile = false;
-    setFileToParse(fileToParse);
-    this->words = NULL;
-    this->wordsSize = 0;
-    this->nWords = 0;
-    this->buffer = NULL;
-    this->bufferEndPtr = NULL;
-    this->str = NULL;
-    this->line = NULL;
-    this->backup = NULL;
-    this->bufferSize = 10000000;
-    this->backupTotalSize = 0;
-    this->backupSize = 0;
-    this->read = 0;
-    this->lineLength = 0;
-}
-
-FileParserFactory::FileParserFactory(string fileToParseName) {
-    this->closeFile = false;
-    try{
-    setFileToParse(fileToParseName);
-    }catch(exceptions::FileNotFoundException ex){
-        cerr << ex.what() << endl;
-        exit(-1);
-    }
     this->words = NULL;
     this->wordsSize = 0;
     this->nWords = 0;
@@ -83,19 +43,18 @@ FileParserFactory::FileParserFactory(string fileToParseName) {
 }
 
 FileParserFactory::~FileParserFactory() {
-    if (this->closeFile && this->fileToParse) fclose(this->fileToParse);
+    if (this->closeFile && this->fileToParse.is_open()) this->fileToParse.close();
     if (this->words) free(this->words);
     if (this->buffer) free(this->buffer);
     if (this->backup) free(this->backup);
 }
 
 void FileParserFactory::clean() {
-    if (this->closeFile && this->fileToParse) fclose(this->fileToParse);
+    if (this->closeFile && this->fileToParse.is_open()) this->fileToParse.close();
     if (this->words) free(this->words);
     if (this->buffer) free(this->buffer);
     if (this->backup) free(this->backup);
     this->closeFile = false;
-    this->fileToParse = NULL;
     this->words = NULL;
     this->wordsSize = 0;
     this->nWords = 0;
@@ -115,26 +74,24 @@ bool FileParserFactory::iterate(const char dontStartWith, const char *delimiter)
     size_t i;
     char *newLinePtr;
 
-    if (!fileToParse) {
-        throw exceptions::FileNotFoundException("Can't do an iteration in a NULL file");
+    if (!fileToParse.is_open()) {
+        throw exceptions::FileNotFoundException("Please, open the file correctly");
     }
 
     while (1) {
         if (!str || *str == 0) {
-            if (feof(fileToParse)) return false;
+            if (fileToParse.eof()) return false;
 
             if (!buffer) {
                 buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
             }
 
-            read = fread(buffer, sizeof (char), bufferSize, fileToParse);
-            if (ferror(fileToParse)) {
-                throw exceptions::ErrorReadingFromFileException("Error reading from file");
-            }
+            fileToParse.read(buffer, sizeof (char) * bufferSize);
+            read = fileToParse.gcount();
             buffer[read] = 0;
             bufferEndPtr = buffer + read;
 
-            if (feof(fileToParse)) {
+            if (fileToParse.eof()) {
                 if (buffer[read - 1] != '\n') {
                     buffer[read] = '\n';
                     buffer[read + 1] = 0;
@@ -195,26 +152,24 @@ bool FileParserFactory::iterate(const char dontStartWith) {
     size_t i;
     char *newLinePtr;
 
-    if (!fileToParse) {
+    if (!fileToParse.is_open()) {
         throw exceptions::FileNotFoundException("Can't do an iteration in a NULL file");
     }
 
     while (1) {
         if (!str || *str == 0) {
-            if (feof(fileToParse)) return false;
+            if (fileToParse.eof()) return false;
 
             if (!buffer) {
                 buffer = (char *) allocate(sizeof (char) * (bufferSize + 1), __FILE__, __LINE__);
             }
 
-            read = fread(buffer, sizeof (char), bufferSize, fileToParse);
-            if (ferror(fileToParse)) {
-                throw exceptions::ErrorReadingFromFileException("Error reading from file");
-            }
+            fileToParse.read(buffer, sizeof (char) * bufferSize);
+            read = fileToParse.gcount();
             buffer[read] = 0;
             bufferEndPtr = buffer + read;
 
-            if (feof(fileToParse)) {
+            if (fileToParse.eof()) {
                 if (buffer[read - 1] != '\n') {
                     buffer[read] = '\n';
                     buffer[read + 1] = 0;

@@ -116,10 +116,10 @@ void testKmersPValue() {
 
 void testWriteKmersToFile() {
     KmersFactory kmersFactory;
-    Kmer *k;
+    shared_ptr<Kmer> k;
 
     //            AAAAAAAAAA 3.25573332278254e-21 20.48735117540051 1.49479032886669
-    k = new Kmer();
+    k = make_shared<Kmer>();
     k->setControlFreq(11);
     k->setNegativeControl(12);
     k->setNegativePeak(13);
@@ -128,10 +128,10 @@ void testWriteKmersToFile() {
     k->setSig(20.48735117540051);
     k->setPf(1.49479032886669);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAA", k));
+    kmersFactory.getKmers().insert(make_pair("AAAAAAAAAA", k));
 
     //            AAAAAAAAAC 3.66936367681041e-05 4.43540924245372 1.62318695308535
-    k = new Kmer();
+    k = make_shared<Kmer>();
     k->setControlFreq(21);
     k->setNegativeControl(22);
     k->setNegativePeak(23);
@@ -140,10 +140,10 @@ void testWriteKmersToFile() {
     k->setSig(4.43540924245372);
     k->setPf(1.62318695308535);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAC", k));
+    kmersFactory.getKmers().insert(make_pair("AAAAAAAAAC", k));
 
     //            AAAAAAAAAG 1.56360980495561e-03 2.80587161489318 1.33064397039723
-    k = new Kmer();
+    k = make_shared<Kmer>();
     k->setControlFreq(31);
     k->setNegativeControl(32);
     k->setNegativePeak(33);
@@ -152,10 +152,10 @@ void testWriteKmersToFile() {
     k->setSig(2.80587161489318);
     k->setPf(1.33064397039723);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAG", k));
+    kmersFactory.getKmers().insert(make_pair("AAAAAAAAAG", k));
 
     //            AAAAAAAAAT 2.19631497914574e-01 0.65830537647355 1.08933620086384
-    k = new Kmer();
+    k = make_shared<Kmer>();
     k->setControlFreq(41);
     k->setNegativeControl(42);
     k->setNegativePeak(43);
@@ -164,10 +164,10 @@ void testWriteKmersToFile() {
     k->setSig(0.65830537647355);
     k->setPf(1.08933620086384);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAAT", k));
+    kmersFactory.getKmers().insert(make_pair("AAAAAAAAAT", k));
 
     //            AAAAAAAACA 1.07873928249526e-02 1.96708350606356 1.41176344238936
-    k = new Kmer();
+    k = make_shared<Kmer>();
     k->setControlFreq(51);
     k->setNegativeControl(52);
     k->setNegativePeak(53);
@@ -176,10 +176,10 @@ void testWriteKmersToFile() {
     k->setSig(1.96708350606356);
     k->setPf(1.41176344238936);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACA", k));
+    kmersFactory.getKmers().insert(make_pair("AAAAAAAACA", k));
 
     //            AAAAAAAACC 1.05511751710985e-03 2.97669916672645 1.74193392488365
-    k = new Kmer();
+    k = make_shared<Kmer>();
     k->setControlFreq(61);
     k->setNegativeControl(62);
     k->setNegativePeak(63);
@@ -188,10 +188,10 @@ void testWriteKmersToFile() {
     k->setSig(2.97669916672645);
     k->setPf(1.74193392488365);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACC", k));
+    kmersFactory.getKmers().insert(make_pair("AAAAAAAACC", k));
 
     //            AAAAAAAACG 3.26401549435001e-01 0.48624778830827 1.28571313503317
-    k = new Kmer();
+    k = make_shared<Kmer>();
     k->setControlFreq(71);
     k->setNegativeControl(72);
     k->setNegativePeak(73);
@@ -200,10 +200,10 @@ void testWriteKmersToFile() {
     k->setSig(0.48624778830827);
     k->setPf(1.28571313503317);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACG", k));
+    kmersFactory.getKmers().insert(make_pair("AAAAAAAACG", k));
 
     //            AAAAAAAACT 1.48116148621570e-02 1.82939758918367 1.64515981794567
-    k = new Kmer();
+    k = make_shared<Kmer>();
     k->setControlFreq(81);
     k->setNegativeControl(82);
     k->setNegativePeak(83);
@@ -212,10 +212,10 @@ void testWriteKmersToFile() {
     k->setSig(1.82939758918367);
     k->setPf(1.64515981794567);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAACT", k));
+    kmersFactory.getKmers().insert(make_pair("AAAAAAAACT", k));
 
     //            AAAAAAAAGA 2.70816098140979e-01 0.56732552342117 1.09793716170358
-    k = new Kmer();
+    k = make_shared<Kmer>();
     k->setControlFreq(91);
     k->setNegativeControl(92);
     k->setNegativePeak(93);
@@ -224,9 +224,9 @@ void testWriteKmersToFile() {
     k->setSig(0.56732552342117);
     k->setPf(1.09793716170358);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAGA", k));
+    kmersFactory.getKmers().insert(make_pair("AAAAAAAAGA", k));
     //            AAAAAAAAGC 1.88687646220172e-03 2.72425653308383 1.63888742212561
-    k = new Kmer();
+    k = make_shared<Kmer>();
     k->setControlFreq(101);
     k->setNegativeControl(102);
     k->setNegativePeak(103);
@@ -236,7 +236,7 @@ void testWriteKmersToFile() {
     k->setSig(INFINITY);
     k->setPf(1.63888742212561);
 
-    kmersFactory.getKmers().insert(pair<string, Kmer*>("AAAAAAAAGC", k));
+    kmersFactory.getKmers().insert(make_pair("AAAAAAAAGC", k));
 
     kmersFactory.writeKmersToFile("/tmp/kmers.bin", true);
 }
@@ -258,7 +258,7 @@ void testReadKmersFromFile(std::string fileName, bool binary) {
     for (auto it = kmersFactory.getKmers().begin(); it != kmersFactory.getKmers().end(); ++it) {
         bool right = false;
         string kmer = it->first;
-        Kmer *k = it->second;
+        shared_ptr<Kmer> k = it->second;
 
         rc_kmer = cstring::reverseComplement(kmer);
 

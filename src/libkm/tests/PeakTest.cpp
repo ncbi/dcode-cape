@@ -45,8 +45,9 @@ using namespace std;
 void testRandomizePeakSeq() {
     peak::Peak peak;
     peak.setChr("chr1");
-    char *seq = strdup("NNNAAGCAAATGGC");
-    peak.setSeq(&seq);
+    
+    string seq = "NNNAAGCAAATGGC";
+    peak.setSeq("NNNAAGCAAATGGC");
     string result = peak.randomizePeakSeq();
     if (cstring::countCharacter(seq, "A") != cstring::countCharacter(result, "A")) {
         cout << "%TEST_FAILED% time=0 testname=testRandomizePeakSeq (PeakTest) message=Wrong test count A 1" << endl;
@@ -63,10 +64,9 @@ void testRandomizePeakSeq() {
     if (result.compare(0, 3, seq, 0, 3) != 0) {
         cout << "%TEST_FAILED% time=0 testname=testRandomizePeakSeq (PeakTest) message=Wrong test 1" << endl;
     }
-    free(seq);
-
-    seq = strdup("NNNAAGCAAATGGCNNAAGATGAG");
-    peak.setSeq(&seq);
+    
+    seq = "NNNAAGCAAATGGCNNAAGATGAG";
+    peak.setSeq("NNNAAGCAAATGGCNNAAGATGAG");
     result = peak.randomizePeakSeq();
     if (cstring::countCharacter(seq, "A") != cstring::countCharacter(result, "A")) {
         cout << "%TEST_FAILED% time=0 testname=testRandomizePeakSeq (PeakTest) message=Wrong test count A 2" << endl;
@@ -86,10 +86,9 @@ void testRandomizePeakSeq() {
     if (result.compare(14, 2, seq, 14, 2) != 0) {
         cout << "%TEST_FAILED% time=0 testname=testRandomizePeakSeq (PeakTest) message=Wrong test 4" << endl;
     }
-    free(seq);
 
-    seq = strdup("AAGCAAATGGCNNAAGATGAGNNN");
-    peak.setSeq(&seq);
+    seq = "AAGCAAATGGCNNAAGATGAGNNN";
+    peak.setSeq("AAGCAAATGGCNNAAGATGAGNNN");
     result = peak.randomizePeakSeq();
     if (cstring::countCharacter(seq, "A") != cstring::countCharacter(result, "A")) {
         cout << "%TEST_FAILED% time=0 testname=testRandomizePeakSeq (PeakTest) message=Wrong test count A 3" << endl;
@@ -109,10 +108,9 @@ void testRandomizePeakSeq() {
     if (result.compare(22, 3, seq, 22, 3) != 0) {
         cout << "%TEST_FAILED% time=0 testname=testRandomizePeakSeq (PeakTest) message=Wrong test 6" << endl;
     }
-    free(seq);
 
-    seq = strdup("AAGCAAATGGCNNAAGATGAGNNNAAGCAAATGGCNNAAGATGAGNNN");
-    peak.setSeq(&seq);
+    seq = "AAGCAAATGGCNNAAGATGAGNNNAAGCAAATGGCNNAAGATGAGNNN";
+    peak.setSeq("AAGCAAATGGCNNAAGATGAGNNNAAGCAAATGGCNNAAGATGAGNNN");
     result = peak.randomizePeakSeq();
     if (cstring::countCharacter(seq, "A") != cstring::countCharacter(result, "A")) {
         cout << "%TEST_FAILED% time=0 testname=testRandomizePeakSeq (PeakTest) message=Wrong test count A 4" << endl;

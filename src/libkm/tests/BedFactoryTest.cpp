@@ -12,6 +12,7 @@
 #include <stdbool.h>
 
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <cstdlib>
 #include <string>
@@ -101,7 +102,7 @@ void testCreatePeaksFromBedFile(string bFName, string dirName, string testName) 
 
 
     for (auto it = bedFactory.getPeaks().begin(); it != bedFactory.getPeaks().end(); ++it) {
-        Peak *p = *it;
+        shared_ptr<Peak> p = *it;
         map<string, unsigned long int> inMap = testMap.find(p->getStart())->second;
         if (inMap.find("width")->second != p->getLength()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong width: "
@@ -119,11 +120,11 @@ void testCreatePeaksFromBedFile(string bFName, string dirName, string testName) 
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong NRCount: "
                     << p->getNRCount() << "!=" << inMap.find("nrcount")->second << endl;
         }
-        if (strlen(p->getSeq()) != p->getLength()) {
+        if (p->getSeq().size() != p->getLength()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Sequence length not equal to width" << endl;
         }
         if (p->getStart() == 237640 && p->getEnd() == 237829) {
-            if (strncmp(p->getSeq(), test.c_str(), p->getLength()) != 0) {
+            if (p->getSeq().compare(test) != 0) {
                 cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=First peak is not equal to the test" << endl;
             }
         }

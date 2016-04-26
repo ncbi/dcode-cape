@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <memory>
 #include <map>

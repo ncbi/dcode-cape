@@ -22,22 +22,11 @@ namespace parsers {
     class FileParserFactory {
     public:
         FileParserFactory();
-        FileParserFactory(FILE *fileToParse);
-        FileParserFactory(std::string fileToParseName);
         virtual ~FileParserFactory();
 
-        FILE* getFileToParse() {
-            return fileToParse;
-        }
-
-        void setFileToParse(FILE* fileToParse) {
-            this->fileToParse = fileToParse;
-            this->closeFile = false;
-        }
-
         void setFileToParse(std::string fileToParseName) {
-            this->fileToParse = (FILE *) fopen(fileToParseName.c_str(), "r");
-            if (!this->fileToParse) {
+            this->fileToParse.open(fileToParseName);
+            if (!this->fileToParse.is_open()) {
                 throw exceptions::FileNotFoundException("Can't open file: " + fileToParseName);
             }
             this->closeFile = true;
@@ -69,7 +58,7 @@ namespace parsers {
         void clean();
 
     private:
-        FILE *fileToParse;
+        std::ifstream fileToParse;
         char **words;
         size_t wordsSize;
         size_t nWords;

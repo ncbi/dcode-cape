@@ -57,10 +57,9 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
     long int start, end;
     string name;
     std::pair<std::string, double> cPair;
-    TFBS *t;
+    shared_ptr<TFBS> t;
 
-    FILE *fName = (FILE *) checkPointerError(fopen(fastaFile.c_str(), "r"), "Can't open input file", __FILE__, __LINE__, -1);
-    fastaFactory.parseFastaFile(fName, -1, true, false);
+    fastaFactory.parseFastaFile(fastaFile, false);
 
     fimoFactory.createTissueIndexFromFiles(pwm_tFName, tissue_file);
 
@@ -352,8 +351,6 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
     } catch (exceptions::NotFoundException ex) {
         cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message=" << ex.what() << endl;
     } 
-
-    fclose(fName);
 }
 
 int main() {

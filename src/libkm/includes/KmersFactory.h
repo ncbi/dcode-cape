@@ -102,7 +102,7 @@ namespace kmers {
             this->kmersGenome = kmersGenome;
         }
 
-        std::map<std::string, Kmer *>& getKmers() {
+        std::map<std::string, std::shared_ptr<Kmer>>& getKmers() {
             return kmers;
         }
 
@@ -142,7 +142,7 @@ namespace kmers {
 
     private:
         std::set<std::string> kmersGenome;
-        std::map<std::string, Kmer *> kmers;
+        std::map<std::string, std::shared_ptr<Kmer>> kmers;
         std::map<std::string, unsigned long int> kmer2controlFreq;
         std::map<std::string, unsigned long int> kmer2peakFreq;
         unsigned long int totalNRnt_control;

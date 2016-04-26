@@ -15,6 +15,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include <inttypes.h>
 
 #include <iostream>
 #include <string>
@@ -58,9 +59,6 @@ KmersFactory::KmersFactory() {
 }
 
 KmersFactory::~KmersFactory() {
-    for (auto it = this->getKmers().begin(); it != this->getKmers().end(); ++it) {
-        delete (it->second);
-    }
 }
 
 void KmersFactory::createGenomeWideKmers() {
@@ -138,13 +136,13 @@ void KmersFactory::buildKmers() {
         if ((controlFreq_it = this->kmer2controlFreq.find(kmer)) != this->kmer2controlFreq.end()) {
             kmerControlFreq = controlFreq_it->second;
         }
-        Kmer *k = new Kmer();
+        shared_ptr<Kmer> k = make_shared<Kmer>();
         k->setPeakFreq(kmerPeakFreq);
         k->setControlFreq(kmerControlFreq);
         k->setNegativePeak(this->totalNRnt_peak - kmerPeakFreq);
         k->setNegativeControl(this->totalNRnt_control - kmerControlFreq);
         k->calculatePValue(this->totalNRnt_peak, this->totalNRnt_control);
-        this->getKmers().insert(pair<std::string, Kmer *>(kmer, k));
+        this->getKmers().insert(make_pair(kmer, k));
     }
 }
 
@@ -195,13 +193,13 @@ void KmersFactory::scanSequences(string inputSeq, bool control) {
 }
 
 void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
-    unsigned long int i, index;
+    uint64_t i, index;
     double value;
-    Kmer *k, *kr;
+    shared_ptr<Kmer> k, kr;
     string rc_kmer;
     double maxSig = NAN;
     vector<string> infSig;
-    map<string, Kmer *>::iterator it;
+    map<string, shared_ptr < Kmer>>::iterator it;
 
     if (binary) {
         ifstream poutputFile(fileName, std::ifstream::binary);
@@ -210,13 +208,13 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
             exit(-1);
         }
 
-        poutputFile.read((char *) &i, sizeof (unsigned long int));
+        poutputFile.read((char *) &i, sizeof (uint64_t));
         Global::instance()->setOrder(i);
         string seq(i, '\0');
-        poutputFile.read((char *) &index, sizeof (unsigned long int));
+        poutputFile.read((char *) &index, sizeof (uint64_t));
         while (index) {
-            k = new Kmer();
-            kr = new Kmer();
+            k = make_shared<Kmer>();
+            kr = make_shared<Kmer>();
 
             poutputFile.read(&seq[0], sizeof (char) * Global::instance()->getOrder());
             rc_kmer = cstring::reverseComplement(seq);
@@ -237,42 +235,41 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
             k->setPf(value);
             kr->setPf(value);
 
-            poutputFile.read((char *) &i, sizeof (unsigned long int));
+            poutputFile.read((char *) &i, sizeof (uint64_t));
             k->setControlFreq(i);
             kr->setControlFreq(i);
 
-            poutputFile.read((char *) &i, sizeof (unsigned long int));
+            poutputFile.read((char *) &i, sizeof (uint64_t));
             k->setNegativeControl(i);
             kr->setNegativeControl(i);
 
-            poutputFile.read((char *) &i, sizeof (unsigned long int));
+            poutputFile.read((char *) &i, sizeof (uint64_t));
             k->setNegativePeak(i);
             kr->setNegativePeak(i);
 
-            poutputFile.read((char *) &i, sizeof (unsigned long int));
+            poutputFile.read((char *) &i, sizeof (uint64_t));
             k->setPeakFreq(i);
             kr->setPeakFreq(i);
 
-            this->kmers.insert(pair<string, Kmer *>(seq, k));
+            this->kmers.insert(make_pair(seq, k));
             if (rc_kmer.compare(seq) != 0) {
-                this->kmers.insert(pair<string, Kmer *>(rc_kmer, kr));
-            } else {
-                delete kr;
+                this->kmers.insert(make_pair(rc_kmer, kr));
             }
             index--;
         }
         poutputFile.close();
     } else {
-        FileParserFactory fParser(fileName);
+        FileParserFactory fParser;
 
         try {
+            fParser.setFileToParse(fileName);
             while (fParser.iterate('#', "\t")) {
                 if (fParser.getNWords() != 4) {
                     cerr << "Input kmer weight file with a wrong format " << endl;
                     exit(-1);
                 }
-                k = new Kmer();
-                kr = new Kmer();
+                k = make_shared<Kmer>();
+                kr = make_shared<Kmer>();
                 rc_kmer = cstring::reverseComplement(fParser.getWords()[0]);
 
                 k->setValue(strtod(fParser.getWords()[1], NULL));
@@ -289,12 +286,10 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
                 k->setPf(strtod(fParser.getWords()[3], NULL));
                 kr->setPf(k->getPf());
 
-                this->kmers.insert(pair<string, Kmer *>(fParser.getWords()[0], k));
+                this->kmers.insert(make_pair(fParser.getWords()[0], k));
 
                 if (rc_kmer.compare(fParser.getWords()[0]) != 0) {
-                    this->kmers.insert(pair<string, Kmer *>(rc_kmer, kr));
-                } else {
-                    delete kr;
+                    this->kmers.insert(make_pair(rc_kmer, kr));
                 }
             }
         } catch (exceptions::FileNotFoundException ex) {
@@ -307,7 +302,6 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
             exit(-1);
         }
     }
-
 
     if (!infSig.empty()) {
         if (Global::instance()->isInfo()) {
@@ -324,7 +318,7 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
 }
 
 void KmersFactory::writeKmersToFile(std::string fileName, bool binary) {
-    unsigned long int i;
+    uint64_t i;
     double value;
 
     if (binary) {
@@ -334,12 +328,12 @@ void KmersFactory::writeKmersToFile(std::string fileName, bool binary) {
             exit(-1);
         }
         i = Global::instance()->getOrder();
-        poutputFile.write((char *) &i, sizeof (unsigned long int));
+        poutputFile.write((char *) &i, sizeof (uint64_t));
         i = this->kmers.size();
-        poutputFile.write((char *) &i, sizeof (unsigned long int));
+        poutputFile.write((char *) &i, sizeof (uint64_t));
         for (auto it = this->kmers.begin(); it != this->kmers.end(); ++it) {
             string kmer = it->first;
-            Kmer *k = it->second;
+            shared_ptr<Kmer> k = it->second;
             poutputFile.write(kmer.c_str(), sizeof (char) * Global::instance()->getOrder());
             value = k->getValue();
             poutputFile.write((char *) &value, sizeof (double));
@@ -348,13 +342,13 @@ void KmersFactory::writeKmersToFile(std::string fileName, bool binary) {
             value = k->getPf();
             poutputFile.write((char *) &value, sizeof (double));
             i = k->getControlFreq();
-            poutputFile.write((char *) &i, sizeof (unsigned long int));
+            poutputFile.write((char *) &i, sizeof (uint64_t));
             i = k->getNegativeControl();
-            poutputFile.write((char *) &i, sizeof (unsigned long int));
+            poutputFile.write((char *) &i, sizeof (uint64_t));
             i = k->getNegativePeak();
-            poutputFile.write((char *) &i, sizeof (unsigned long int));
+            poutputFile.write((char *) &i, sizeof (uint64_t));
             i = k->getPeakFreq();
-            poutputFile.write((char *) &i, sizeof (unsigned long int));
+            poutputFile.write((char *) &i, sizeof (uint64_t));
         }
     } else {
         ofstream outputFile(fileName);
@@ -365,7 +359,7 @@ void KmersFactory::writeKmersToFile(std::string fileName, bool binary) {
         outputFile.precision(12);
         for (auto it = this->kmers.begin(); it != this->kmers.end(); ++it) {
             string kmer = it->first;
-            Kmer *k = it->second;
+            shared_ptr<Kmer> k = it->second;
             outputFile << kmer << "\t" << k->getValue() << "\t" << k->getSig() << "\t" << k->getPf() << endl;
         }
         outputFile.close();
@@ -373,7 +367,7 @@ void KmersFactory::writeKmersToFile(std::string fileName, bool binary) {
 }
 
 double KmersFactory::getKmerSig(std::string kmer) {
-    std::map<std::string, Kmer *>::iterator it;
+    std::map<std::string, shared_ptr < Kmer>>::iterator it;
     it = this->kmers.find(kmer);
     if (it == this->kmers.end()) {
         return 0.0;

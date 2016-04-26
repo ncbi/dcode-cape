@@ -90,13 +90,13 @@ namespace tfbs {
 
         void createTFBSFileIndexMap(std::string dirName, std::string prefix, std::string idxExtension, std::string tibExtension);
         void createPWMIndexFromTibInfoFile(std::string tibInfoFileName);
-        void extractTFBSFromFile(long int from, long int to, sequence::Seq *chr);
+        void extractTFBSFromFile(long int from, long int to, std::shared_ptr<sequence::Seq> chr);
 
-        std::vector<Tib *>& getPwmIndex() {
+        std::vector<std::shared_ptr<Tib>>& getPwmIndex() {
             return pwmIndex;
         }
 
-        std::vector<TFBS *>& getTfbs() {
+        std::vector<std::shared_ptr<TFBS>>& getTfbs() {
             return tfbs;
         }
 
@@ -113,13 +113,13 @@ namespace tfbs {
         }
 
     private:
-        std::vector<Tib *> pwmIndex;
+        std::vector<std::shared_ptr<Tib>> pwmIndex;
         long int longestPWM;
-        std::vector<TFBS *> tfbs;
-        std::unordered_map<std::string, std::pair<FILE *, FILE *>> tfbsFileIndex;
+        std::vector<std::shared_ptr<TFBS>> tfbs;
+        std::unordered_map<std::string, std::pair<std::shared_ptr<std::ifstream>, std::shared_ptr<std::ifstream>>> tfbsFileIndex;
         std::string currentChr;
-        FILE *chrIdxFile;
-        FILE *chrTibFile;
+        std::shared_ptr<std::ifstream> chrIdxFile;
+        std::shared_ptr<std::ifstream>chrTibFile;
     };
 }
 

@@ -12,6 +12,7 @@
 #include <dirent.h>
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -60,25 +61,18 @@ TFBS::~TFBS() {
 
 TFBSFactory::TFBSFactory() {
     longestPWM = 0;
-    this->chrIdxFile = NULL;
-    this->chrTibFile = NULL;
+    this->chrIdxFile = nullptr;
+    this->chrTibFile = nullptr;
 }
 
 TFBSFactory::~TFBSFactory() {
-    for (auto it = pwmIndex.begin(); it != pwmIndex.end(); ++it) {
-        delete (*it);
-    }
-    for (auto it = tfbs.begin(); it != tfbs.end(); ++it) {
-        delete (*it);
-    }
     for (auto it = tfbsFileIndex.begin(); it != tfbsFileIndex.end(); ++it) {
-        pair<FILE *, FILE*> cPair = it->second;
-        if (cPair.first) fclose(cPair.first);
-        if (cPair.second) fclose(cPair.second);
+        if (it->second.first->is_open()) it->second.first->close();
+        if (it->second.second->is_open()) it->second.second->close();
     }
 }
 
-void TFBSFactory::createTFBSFileIndexMap(std::string dirName, std::string prefix, std::string idxExtension, std::string tibExtension) {
+void TFBSFactory::createTFBSFileIndexMap(string dirName, string prefix, string idxExtension, string tibExtension) {
     struct dirent *dp;
     DIR *dirp = (DIR *) checkPointerError(opendir(dirName.c_str()), "Can't open input directory", __FILE__, __LINE__, -1);
 
@@ -104,31 +98,33 @@ void TFBSFactory::createTFBSFileIndexMap(std::string dirName, std::string prefix
             }
         }
         if (read) {
-            pair<FILE *, FILE*> cPair;
             fName.replace(fName.size() - idxExtension.size(), idxExtension.size(), "");
-            cPair.first = (FILE *) checkPointerError(fopen((dirName + "/" + fName + idxExtension).c_str(), "rb"), "Can't open input file", __FILE__, __LINE__, -1);
-            cPair.second = (FILE *) checkPointerError(fopen((dirName + "/" + fName + tibExtension).c_str(), "rb"), "Can't open input file", __FILE__, __LINE__, -1);
-            if (!cPair.first || !cPair.second) {
+            shared_ptr<ifstream> idxStream = make_shared<ifstream>();
+            idxStream->open(dirName + "/" + fName + idxExtension, ifstream::binary);
+            shared_ptr<ifstream> tibStream = make_shared<ifstream>();
+            tibStream->open(dirName + "/" + fName + tibExtension, ifstream::binary);
+            if (!idxStream->is_open() || !tibStream->is_open()) {
                 cerr << "ERROR!!" << endl;
                 cerr << "Can't open TFBS index files" << endl;
                 exit(-1);
             }
-            tfbsFileIndex.insert(pair<string, pair < FILE *, FILE*>>(fName, cPair));
+            tfbsFileIndex.insert(make_pair(fName, make_pair(idxStream, tibStream)));
         }
     }
     closedir(dirp);
 }
 
-void TFBSFactory::createPWMIndexFromTibInfoFile(std::string tibInfoFileName) {
-    FileParserFactory fParser(tibInfoFileName);
+void TFBSFactory::createPWMIndexFromTibInfoFile(string tibInfoFileName) {
+    FileParserFactory fParser;
 
     try {
+        fParser.setFileToParse(tibInfoFileName);
         while (fParser.iterate('#', " ")) {
             if (fParser.getNWords() != 3) {
                 cerr << "Tib info file with a wrong format " << endl;
                 exit(-1);
             }
-            Tib *tib = new Tib();
+            shared_ptr<Tib> tib = make_shared<Tib>();
             tib->setName(fParser.getWords()[2]);
             tib->setLen(atol(fParser.getWords()[1]));
             if (longestPWM < tib->getLen()) {
@@ -152,12 +148,12 @@ public:
     TFBSList();
     virtual ~TFBSList();
 
-    std::vector<TFBS*>& GetElements() {
+    vector<shared_ptr<TFBS>>&GetElements() {
         return elements;
     }
 
 private:
-    std::vector<TFBS *> elements;
+    vector<shared_ptr<TFBS>> elements;
 };
 
 TFBSList::TFBSList() {
@@ -168,17 +164,16 @@ TFBSList::~TFBSList() {
 
 }
 
-void TFBSFactory::extractTFBSFromFile(long int from, long int to, Seq *chr) {
+void TFBSFactory::extractTFBSFromFile(long int from, long int to, shared_ptr<Seq> chr) {
     long int i, j, k;
-    unsigned long int *offset = NULL;
     uint32_t b;
     uint16_t intFromByte;
     bool seek_performed = false;
     long int start, end, rFrom, rTo;
-    TFBS *tfbsElement;
-    TFBSList *tfbsPtr;
-    std::vector<TFBSList *> tfbsList;
-    unordered_map<string, pair < FILE *, FILE *>>::iterator tfbsFileIndexIt;
+    shared_ptr<TFBS> tfbsElement;
+    shared_ptr<TFBSList> tfbsPtr;
+    vector<shared_ptr < TFBSList>> tfbsList;
+    unordered_map<string, pair<shared_ptr<ifstream>, shared_ptr<ifstream>>>::iterator tfbsFileIndexIt;
 
     if (chr->getId().compare(currentChr) != 0) {
         tfbsFileIndexIt = tfbsFileIndex.find(chr->getId());
@@ -191,8 +186,8 @@ void TFBSFactory::extractTFBSFromFile(long int from, long int to, Seq *chr) {
         chrTibFile = tfbsFileIndexIt->second.second;
     }
 
-    if (!chrIdxFile || !chrTibFile) {
-        throw NotFoundException("Current indexes pointers are NULL");
+    if (!chrIdxFile->is_open() || !chrTibFile->is_open()) {
+        throw NotFoundException("Current indexes files are not available");
     }
 
     rFrom = from - longestPWM - 1;
@@ -208,36 +203,35 @@ void TFBSFactory::extractTFBSFromFile(long int from, long int to, Seq *chr) {
         throw OutOfRangeException("Positions out of range in CreateTFBSFromFile");
     }
 
-    offset = (unsigned long int *) allocate(sizeof (unsigned long int) * (rTo - rFrom + 1), __FILE__, __LINE__);
-    if (fseek(chrIdxFile, (rFrom - 1)*4, SEEK_SET) == -1) {
-        checkPointerError(NULL, "Error trying to seek the offset position in the index file", __FILE__, __LINE__, -1);
+    vector<unsigned long int> offset((rTo - rFrom + 1));
+    try {
+        chrIdxFile->seekg((rFrom - 1)*4);
+    } catch (ios::failure ex) {
+        cerr << ex.what() << endl;
+        exit(-1);
     }
 
     for (i = rFrom; i <= rTo; i++) {
-        fread(&b, 4, 1, chrIdxFile);
-        if (ferror(chrIdxFile)) {
-            checkPointerError(NULL, "Error while reading the index file", __FILE__, __LINE__, -1);
-        }
+        chrIdxFile->read((char *) &b, 4);
         offset[i - rFrom] = b;
     }
 
     for (i = rFrom; i <= rTo; i++) {
         if (offset[ i - rFrom ] > 0) {
             if (!seek_performed) {
-                if (fseek(chrTibFile, 2 * offset[ i - rFrom ], SEEK_SET) == -1) {
-                    checkPointerError(NULL, "Error trying to seek the offset position in the tib file", __FILE__, __LINE__, -1);
+                try {
+                    chrTibFile->seekg(2 * offset[ i - rFrom ]);
+                } catch (ios::failure ex) {
+                    cerr << ex.what() << endl;
+                    exit(-1);
                 }
             }
             for (j = i + 1; j <= rTo; j++) {
                 if (offset[ j - rFrom ] > 0) {
-                    tfbsPtr = new TFBSList();
+                    tfbsPtr = make_shared<TFBSList>();
                     for (k = 0; k < static_cast<long int> (offset[ j - rFrom ] - offset[ i - rFrom ]); k++) {
-                        fread(&intFromByte, 2, 1, chrTibFile);
-                        if (ferror(chrTibFile)) {
-                            checkPointerError(NULL, "Error while reading the tib file", __FILE__, __LINE__, -1);
-                        }
-
-                        tfbsElement = new TFBS(i - rFrom, intFromByte);
+                        chrTibFile->read((char *) &intFromByte, 2);
+                        tfbsElement = make_shared<TFBS>(i - rFrom, intFromByte);
                         tfbsPtr->GetElements().push_back(tfbsElement);
                     }
 
@@ -263,14 +257,9 @@ void TFBSFactory::extractTFBSFromFile(long int from, long int to, Seq *chr) {
                 tfbsElement->setStart(start);
                 tfbsElement->setEnd(end);
                 tfbs.push_back(tfbsElement);
-            } else {
-                delete (*tfbsPtrIt);
             }
         }
-        delete (*tfbsListIt);
     }
-
-    free(offset);
 }
 
 

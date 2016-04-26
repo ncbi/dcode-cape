@@ -17,6 +17,7 @@
 #include <dirent.h>
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -49,7 +50,6 @@ using namespace kmers;
 Peak::Peak() {
     this->start = 0;
     this->end = 0;
-    this->seq = NULL;
     this->GCCount = 0;
     this->NCount = 0;
     this->NRCount = 0;
@@ -57,15 +57,12 @@ Peak::Peak() {
 }
 
 Peak::~Peak() {
-    if (this->seq) free(this->seq);
 }
 
 void Peak::calculateContent() {
-    char *s = this->seq;
-    while (*s != '\0') {
-        if (*s == 'G' || *s == 'C') this->GCCount++;
-        else if (*s == 'N') this->NCount++;
-        s++;
+    for(auto it = seq.begin(); it != seq.end(); ++it){
+        if (*it == 'G' || *it == 'C') this->GCCount++;
+        else if (*it == 'N') this->NCount++;
     }
     this->NRCount = this->getLength() - this->NCount;
     this->NPercent = double(this->NCount) / double(this->getLength());
@@ -83,7 +80,6 @@ pair<int, int> Peak::getGCNcontentBin() {
 }
 
 std::string Peak::randomizePeakSeq() {
-    string seq = this->seq;
     string::iterator it1;
     for (auto it = seq.begin(); it != seq.end(); ++it) {
         if (*it != 'N' && *it != 'n') {
@@ -103,19 +99,16 @@ BedFactory::BedFactory() {
 }
 
 BedFactory::~BedFactory() {
-    for (auto it = this->getPeaks().begin(); it != this->getPeaks().end(); ++it) {
-        delete (*it);
-    }
 }
 
 void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string bedFileName, double maxNPercent, KmersFactory &kmersFactory) {
 
-    FILE *bedFile = (FILE *) checkPointerError(fopen(bedFileName.c_str(), "r"), "Can't open bed file", __FILE__, __LINE__, -1);
-    FileParserFactory fParser(bedFile);
-    Seq *f = NULL;
+    FileParserFactory fParser;
+    std::shared_ptr<Seq> f = NULL;
 
-    kmersFactory.clearKmerPeakData();
     try {
+        fParser.setFileToParse(bedFileName);
+        kmersFactory.clearKmerPeakData();
         while (fParser.iterate('#', "\t")) {
             if (fParser.getNWords() != 3) {
                 cerr << "Bed file with a wrong format " << endl;
@@ -126,16 +119,12 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
             }
             if (f) {
                 if (static_cast<unsigned long int> (atoi(fParser.getWords()[2])) <= f->getLength()) {
-                    Peak *p = new Peak();
+                    shared_ptr<Peak> p = make_shared<Peak>();
                     p->setChr(fParser.getWords()[0]);
                     p->setStart(atoi(fParser.getWords()[1]));
                     p->setEnd(atoi(fParser.getWords()[2]) - 1);
                     try {
-                        char *seq = f->getSubStr(p->getStart(), p->getLength());
-                        if (!seq) {
-                            throw exceptions::OutOfRangeException("Error retrieving sequences from container");
-                        }
-                        p->setSeq(&seq);
+                        p->setSeq(f->getSubStr(p->getStart(), p->getLength()));
                         p->calculateContent();
                         if (p->getNRCount() >= 50 && p->getNPercent() < maxNPercent) {
                             pair<int, int> k = p->getGCNcontentBin();
@@ -143,19 +132,19 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
                             if (this->GCNcontentBin.find(f->getId()) == this->GCNcontentBin.end()) {
                                 std::map<int, std::map < std::pair<int, int>, int>> wm;
                                 std::map<std::pair<int, int>, int> m;
-                                m.insert(pair<pair<int, int>, int>(k, 1));
-                                wm.insert(pair<int, std::map < std::pair<int, int>, int>>(p->getLength(), m));
-                                this->GCNcontentBin.insert(pair<string, std::map<int, std::map < std::pair<int, int>, int>>>(f->getId(), wm));
+                                m.insert(make_pair(k, 1));
+                                wm.insert(make_pair(p->getLength(), m));
+                                this->GCNcontentBin.insert(make_pair(f->getId(), wm));
                             } else {
                                 std::map<int, std::map < std::pair<int, int>, int>> *wm = &this->GCNcontentBin.find(f->getId())->second;
                                 if (wm->find(p->getLength()) == wm->end()) {
                                     std::map<std::pair<int, int>, int> m;
-                                    m.insert(pair<pair<int, int>, int>(k, 1));
-                                    wm->insert(pair<int, std::map < std::pair<int, int>, int>>(p->getLength(), m));
+                                    m.insert(make_pair(k, 1));
+                                    wm->insert(make_pair(p->getLength(), m));
                                 } else {
                                     std::map<std::pair<int, int>, int> *m = &wm->find(p->getLength())->second;
                                     if (m->find(k) == m->end()) {
-                                        m->insert(pair<pair<int, int>, int>(k, 1));
+                                        m->insert(make_pair(k, 1));
                                     } else {
                                         (*m)[k]++;
                                     }
@@ -163,8 +152,6 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
                             }
                             kmersFactory.scanSequences(p->getSeq(), false);
                             this->peaks.push_back(p);
-                        } else {
-                            delete p;
                         }
                     } catch (exceptions::OutOfRangeException ex) {
                         throw ex;
@@ -190,7 +177,6 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
     if (Global::instance()->isInfo()) {
         cout << "\tINFO ==> " << "Total number of non N for peaks: " << kmersFactory.getTotalNRNTPeak() << endl;
     }
-    fclose(bedFile);
 }
 
 void BedFactory::plus_ocur(char nt) {
@@ -216,7 +202,7 @@ void BedFactory::minus_ocur(char nt) {
 }
 
 void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, unsigned long int hit_Num, KmersFactory & kmersFactory) {
-    char *seq;
+    string seq;
     clock_t begin = clock();
     unsigned long int i, l, window_len, total_controlNum;
     int gc_binID, n_binID;
@@ -231,7 +217,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
 
     try {
         for (auto chr_it = this->GCNcontentBin.begin(); chr_it != this->GCNcontentBin.end(); ++chr_it) {
-            Seq *f = chrFactory.getSequenceFromID(chr_it->first);
+            std::shared_ptr<Seq> f = chrFactory.getSequenceFromID(chr_it->first);
             std::map<int, std::map < std::pair<int, int>, int>> wm = chr_it->second;
 
             if (Global::instance()->isInfo()) {
@@ -239,7 +225,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
             }
 
             for (auto window_it = wm.begin(); window_it != wm.end(); ++window_it) {
-                std::map<std::pair<int, int>, std::vector < Peak *>> GCNcontentControls;
+                std::map<std::pair<int, int>, std::vector <shared_ptr<Peak> >> GCNcontentControls;
                 window_len = window_it->first;
                 std::map<std::pair<int, int>, int> contentBin = window_it->second;
 
@@ -266,16 +252,16 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                     pair<int, int> k(gc_binID, n_binID);
 
                     if (contentBin.find(k) != contentBin.end()) {
-                        Peak *p = new Peak();
+                        shared_ptr<Peak> p = make_shared<Peak>();
                         p->setChr(f->getId());
                         p->setStart(0);
                         p->setEnd(window_len - 1);
                         p->setGCCount(this->GCCount);
                         p->setNCount(this->NCount);
                         if (GCNcontentControls.find(k) == GCNcontentControls.end()) {
-                            std::vector < Peak *> v;
+                            std::vector <shared_ptr<Peak>> v;
                             v.push_back(p);
-                            GCNcontentControls.insert(pair<std::pair<int, int>, std::vector < Peak *>>(k, v));
+                            GCNcontentControls.insert(make_pair(k, v));
                         } else {
                             GCNcontentControls[k].push_back(p);
                         }
@@ -296,16 +282,16 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                         pair<int, int> k(gc_binID, n_binID);
 
                         if (contentBin.find(k) != contentBin.end()) {
-                            Peak *p = new Peak();
+                            shared_ptr<Peak> p = make_shared<Peak>();
                             p->setChr(f->getId());
                             p->setStart(j);
                             p->setEnd(j + window_len - 1);
                             p->setGCCount(this->GCCount);
                             p->setNCount(this->NCount);
                             if (GCNcontentControls.find(k) == GCNcontentControls.end()) {
-                                std::vector < Peak *> v;
+                                std::vector <shared_ptr<Peak>> v;
                                 v.push_back(p);
-                                GCNcontentControls.insert(pair<std::pair<int, int>, std::vector < Peak *>>(k, v));
+                                GCNcontentControls.insert(make_pair(k, v));
                             } else {
                                 GCNcontentControls[k].push_back(p);
                             }
@@ -329,7 +315,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                             cout << "\tINFO ==> \t\t\tNot hit for bin: " << k.first << "-" << k.second << endl;
                         }
                         for (auto peak_it = this->peaks.begin(); peak_it != this->peaks.end(); ++peak_it) {
-                            Peak *p = *peak_it;
+                            shared_ptr<Peak> p = *peak_it;
                             if (p->getGCNcontentBin() == k) {
                                 for (i = 0; i < hit_Num; i++) {
                                     kmersFactory.scanSequences(cstring::shuffle(p->getSeq()), true);
@@ -348,7 +334,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
 
                 for (auto control_it = GCNcontentControls.begin(); control_it != GCNcontentControls.end(); ++control_it) {
                     pair<int, int> k = control_it->first;
-                    std::vector < Peak *> peaksVector = control_it->second;
+                    std::vector <shared_ptr<Peak>> peaksVector = control_it->second;
                     peakNum = contentBin[k];
                     total_controlNum = hit_Num * peakNum;
 
@@ -359,13 +345,9 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                             }
                             if (peaksVector[0]->getStart() + window_len <= f->getLength()) {
                                 seq = f->getSubStr(peaksVector[0]->getStart(), window_len);
-                                if (!seq) {
-                                    throw exceptions::OutOfRangeException("Error retrieving sequences from container");
-                                }
                                 for (i = 0; i < total_controlNum; i++) {
                                     kmersFactory.scanSequences(cstring::shuffle(seq), true);
                                 }
-                                free(seq);
                             }
                         } else {
                             /*
@@ -378,13 +360,9 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                             cout << "\tINFO ==> \t\t\t" << total_controlNum << " sequences selected for bin " << k.first << "-" << k.second << endl;
                         }
                         for (i = 0; i < total_controlNum; i++) {
+                            seq = f->getSubStr(peaksVector[i]->getStart(), window_len);
                             if (peaksVector[i]->getStart() + window_len <= f->getLength()) {
-                                seq = f->getSubStr(peaksVector[i]->getStart(), window_len);
-                                if (!seq) {
-                                    throw exceptions::OutOfRangeException("Error retrieving sequences from container");
-                                }
                                 kmersFactory.scanSequences(seq, true);
-                                free(seq);
                             }
                         }
                     } else {
@@ -398,12 +376,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                             if (find(index.begin(), index.end(), randomIndex) == index.end()) {
                                 index.push_back(randomIndex);
                                 if (peaksVector[randomIndex]->getStart() + window_len <= f->getLength()) {
-                                    seq = f->getSubStr(peaksVector[randomIndex]->getStart(), window_len);
-                                    if (!seq) {
-                                        throw exceptions::OutOfRangeException("Error retrieving sequences from container");
-                                    }
-                                    kmersFactory.scanSequences(seq, true);
-                                    free(seq);
+                                    kmersFactory.scanSequences(f->getSubStr(peaksVector[randomIndex]->getStart(), window_len), true);
                                     i++;
                                     if (i == total_controlNum) {
                                         break;
@@ -411,9 +384,6 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                                 }
                             }
                         }
-                    }
-                    for (auto it = peaksVector.begin(); it != peaksVector.end(); ++it) {
-                        delete (*it);
                     }
                 }
             }
@@ -438,7 +408,7 @@ void BedFactory::generatingControlsFromShufflingPeaks(unsigned long int hit_Num,
     kmersFactory.clearKmerControlData();
 
     for (auto peaks_it = this->peaks.begin(); peaks_it != this->peaks.end(); ++peaks_it) {
-        Peak *p = *peaks_it;
+        shared_ptr<Peak> p = *peaks_it;
         for (i = 0; i < hit_Num; i++) {
             string seq = p->randomizePeakSeq();
             kmersFactory.scanSequences(seq, true);
@@ -451,12 +421,12 @@ void BedFactory::generatingControlsFromShufflingPeaks(unsigned long int hit_Num,
 }
 
 void BedFactory::readControlsFromFile(std::string controlFileName, FastaFactory &chrFactory, kmers::KmersFactory & kmersFactory) {
-    FILE *bedFile = (FILE *) checkPointerError(fopen(controlFileName.c_str(), "r"), "Can't open bed file", __FILE__, __LINE__, -1);
-    FileParserFactory fParser(bedFile);
-    Seq *f = NULL;
-    kmersFactory.clearKmerControlData();
+    FileParserFactory fParser;
+    std::shared_ptr<Seq> f = nullptr;
 
     try {
+        fParser.setFileToParse(controlFileName);
+        kmersFactory.clearKmerControlData();
         while (fParser.iterate('#', "\t")) {
             if (fParser.getNWords() != 3) {
                 cerr << "Bed file with a wrong format " << endl;
@@ -467,12 +437,7 @@ void BedFactory::readControlsFromFile(std::string controlFileName, FastaFactory 
             }
             if (f) {
                 if (static_cast<unsigned long int> (atoi(fParser.getWords()[1]) + atoi(fParser.getWords()[2])) < f->getLength()) {
-                    char *seq = f->getSubStr(atoi(fParser.getWords()[1]), atoi(fParser.getWords()[2]));
-                    if (!seq) {
-                        throw exceptions::OutOfRangeException("Error retrieving sequences from container");
-                    }
-                    kmersFactory.scanSequences(seq, true);
-                    free(seq);
+                    kmersFactory.scanSequences(f->getSubStr(atoi(fParser.getWords()[1]), atoi(fParser.getWords()[2])), true);
                 }
             }
         }
@@ -489,6 +454,5 @@ void BedFactory::readControlsFromFile(std::string controlFileName, FastaFactory 
         cerr << "Error retrieving sequences" << endl;
         exit(-1);
     }
-    fclose(bedFile);
 }
 

@@ -81,12 +81,12 @@ namespace snp {
             this->ref = ref;
         }
 
-        char* getSeq() {
+        std::string getSeq() {
             return seq;
         }
 
-        void setSeq(char** seq) {
-            this->seq = *seq;
+        void setSeq(std::string seq) {
+            this->seq = seq;
         }
 
         std::vector<double>& getDescriptors() {
@@ -107,7 +107,7 @@ namespace snp {
         std::string id;
         std::string chr;
         unsigned long int length;
-        char *seq;
+        std::string seq;
         unsigned long int pos;
         unsigned long int chrPos;
         char ref;
@@ -124,7 +124,7 @@ namespace snp {
         SNPFactory(const SNPFactory& orig);
         virtual ~SNPFactory();
 
-        std::vector<SNP*>& getSnps() {
+        std::vector<std::shared_ptr<SNP>>& getSnps() {
             return snps;
         }
         
@@ -141,7 +141,7 @@ namespace snp {
         int processSNPFromFile(std::string snpFileName, unsigned long int neighbors, sequence::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict, fimo::FimoFactory & fimoFactory, tfbs::TFBSFactory & tFBSFactory);
     private:
         std::string expressionCode;
-        std::vector<SNP *> snps;
+        std::vector<std::shared_ptr<SNP>> snps;
 
     };
 }

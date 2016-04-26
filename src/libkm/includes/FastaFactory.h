@@ -27,14 +27,14 @@ namespace sequence {
             this->length = 0;
             this->seq = NULL;
         }
-        Seq(const Seq& orig);
+
         virtual ~Seq();
 
-        char *getSubStr(unsigned long int pos, unsigned long int length) {
+        std::string getSubStr(unsigned long int pos, unsigned long int length) {
             if (pos >= this->length || length > this->length) {
                 throw exceptions::OutOfRangeException("Your parameters are out of range");
             }
-            return strndup(seq + pos, length);
+            return std::string(seq + pos, length);
         }
 
         std::string getId() const {
@@ -51,6 +51,10 @@ namespace sequence {
 
         void setSeq(char **seq) {
             this->seq = *seq;
+        }
+
+        void setSeq(std::string seq) {
+            this->seq = strndup(seq.c_str(), seq.size());
         }
 
         std::string getDescription() const {
@@ -82,12 +86,12 @@ namespace sequence {
         FastaFactory(const FastaFactory& orig);
         virtual ~FastaFactory();
 
-        std::unordered_map<std::string, Seq*>& getSequenceContainter() {
+        std::unordered_map<std::string, std::shared_ptr<Seq>>&getSequenceContainter() {
             return sequenceContainer;
         }
 
-        Seq *getSequenceFromID(std::string id) {
-            std::unordered_map<std::string, Seq *>::iterator it = sequenceContainer.find(id);
+        std::shared_ptr<Seq> getSequenceFromID(std::string id) {
+            std::unordered_map<std::string, std::shared_ptr < Seq>>::iterator it = sequenceContainer.find(id);
             if (it == sequenceContainer.end()) {
                 throw exceptions::NotFoundException("Id " + id + " was not found in the sequence container");
             }
@@ -95,10 +99,10 @@ namespace sequence {
         }
 
         void parseFastaInDirectory(std::string dirName, std::string prefix, std::string sufix, bool binary);
-        long unsigned int parseFastaFile(FILE *fName, int numberSeqTotalRead, bool cleanContainers, bool binary);
+        long unsigned int parseFastaFile(std::string fName, bool binary);
         void writeSequencesToFile(std::string fileName, bool binary);
     private:
-        std::unordered_map<std::string, Seq *> sequenceContainer;
+        std::unordered_map<std::string, std::shared_ptr<Seq>> sequenceContainer;
     };
 
 }

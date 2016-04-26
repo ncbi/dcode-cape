@@ -47,22 +47,20 @@ void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::st
     char **words = NULL;
     size_t nWords = 0;
     size_t wordsSize = 0;
-    FileParserFactory fParser(pwm_EnsembleID);
+    FileParserFactory fParser;
     unordered_map<string, set < string>> tFNameReverseMap;
     unordered_map<string, set < string>>::iterator tFNameReverseMapIt;
     vector<string> header;
 
     try {
+        fParser.setFileToParse(pwm_EnsembleID);
         while (fParser.iterate('#', "\t")) {
             if (fParser.getNWords() < 2) {
                 cerr << "Input pwm_tFName file with a wrong format " << endl;
                 exit(-1);
             }
             nWords = strsep_ptr(&words, &wordsSize, fParser.getWords()[fParser.getNWords() - 1], ";");
-            set<string> a;
             for (size_t i = 0; i < nWords; i++) {
-                a.insert(words[i]);
-
                 tFNameReverseMapIt = tFNameReverseMap.find(words[i]);
                 if (tFNameReverseMapIt == tFNameReverseMap.end()) {
                     set<string> s;
@@ -137,8 +135,9 @@ void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::st
 }
 
 void FimoFactory::createCutoffIndexFromFile(std::string cutoffFileName, size_t column) {
-    FileParserFactory fParser(cutoffFileName);
+    FileParserFactory fParser;
     try {
+        fParser.setFileToParse(cutoffFileName);
         while (fParser.iterate('#', " ")) {
             if (fParser.getNWords() <= column) {
                 cerr << "Input cutoff file with less columns of required " << endl;
@@ -158,9 +157,9 @@ void FimoFactory::createCutoffIndexFromFile(std::string cutoffFileName, size_t c
 }
 
 void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueCode, unsigned long int snpPos) {
-    FileParserFactory fParser(fimoOuputName);
-    unordered_map<string, set < Fimo *, PointerCompare>> fimoMap;
-    unordered_map <string, set < Fimo *, PointerCompare>>::iterator fimoIt;
+    FileParserFactory fParser;
+    unordered_map<string, set < shared_ptr<Fimo>, PointerCompare>> fimoMap;
+    unordered_map <string, set < shared_ptr<Fimo>, PointerCompare>>::iterator fimoIt;
     unordered_map<string, set < string>> ensemblMap;
     unordered_map<string, set < string>>::iterator ensemblMapIt;
     pair < unordered_map<string, set < string>>::iterator, bool> res;
@@ -169,6 +168,7 @@ void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueC
     size_t wordsSize = 0;
 
     try {
+        fParser.setFileToParse(fimoOuputName);
         while (fParser.iterate('#', "\t")) {
             if (fParser.getNWords() != 8) {
                 cerr << "FIMO output file with a wrong format " << endl;
@@ -187,7 +187,7 @@ void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueC
                     if (pValue < getCutoffValue(words[i])) {
 
                         fimoIt = fimoMap.find(fParser.getWords()[1]);
-                        Fimo *f = new Fimo();
+                        shared_ptr<Fimo> f = make_shared<Fimo>();
                         f->setMotif(words[i]);
                         f->setId(fParser.getWords()[1]);
                         f->setStart(static_cast<unsigned long int> (atoi(fParser.getWords()[2]) - 1));
@@ -211,11 +211,11 @@ void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueC
                             }
                             snpIDContainer.insert(pair<string, vector<double>>(fParser.getWords()[1], v));
 
-                            set<Fimo *, PointerCompare> s;
+                            set<shared_ptr<Fimo>, PointerCompare> s;
                             s.insert(f);
-                            fimoMap.insert(pair<string, set < Fimo *, PointerCompare >> (fParser.getWords()[1], s));
+                            fimoMap.insert(make_pair (fParser.getWords()[1], s));
                         } else {
-                            pair < set < Fimo *, PointerCompare>::iterator, bool> iter;
+                            pair < set < shared_ptr<Fimo>, PointerCompare>::iterator, bool> iter;
 
                             iter = fimoIt->second.insert(f);
                             if (iter.second) {
@@ -232,8 +232,6 @@ void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueC
                                         snpMapIt->second[1] += motifExpression.second;
                                     }
                                 }
-                            } else {
-                                delete f;
                             }
                         }
                     }
@@ -251,10 +249,4 @@ void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueC
     }
 
     if (words) free(words);
-
-    for (auto it = fimoMap.begin(); it != fimoMap.end(); ++it) {
-        for (auto it1 = it->second.begin(); it1 != it->second.end(); ++it1) {
-            delete (*it1);
-        }
-    }
 }
