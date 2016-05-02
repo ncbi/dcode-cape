@@ -18,6 +18,7 @@
 #include <math.h>
 
 #include <iostream>
+#include <memory>
 #include <fstream>
 #include <cmath>
 #include <cstring>
