@@ -19,7 +19,6 @@
 
 #include "berror.h"
 #include "bmemory.h"
-#include "bstring.h"
 
 #include "Global.h"
 #include "TimeUtils.h"
@@ -37,47 +36,47 @@ TimeUtils *TimeUtils::s_instance = 0;
 
 void testIterate() {
     parsers::FileParserFactory fileParserFactory;
-    fileParserFactory.setFileToParse("resources/57epigenomes.RPKM.pc");
     int i = 0;
     try {
-        while (fileParserFactory.iterate('#', "\t")) {
-            if (fileParserFactory.getNWords() != 58) {
+        fileParserFactory.setFileToParse("resources/57epigenomes.RPKM.pc");
+        while (fileParserFactory.iterate("#", "\t")) {
+            if (fileParserFactory.getWords().size() != 58) {
                 cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file" << endl;
                 break;
             }
             if (i == 0) {
-                if (strncmp(fileParserFactory.getWords()[0], "gene_id", 7) != 0) {
+                if (fileParserFactory.getWords()[0].compare("gene_id") != 0) {
                     cout << "word: " << fileParserFactory.getWords()[0] << endl;
                     cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file" << endl;
                 }
-                if (strncmp(fileParserFactory.getWords()[57], "E128", 4) != 0) {
+                if (fileParserFactory.getWords()[57].compare("E128") != 0) {
                     cout << "word: " << fileParserFactory.getWords()[0] << endl;
                     cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file" << endl;
                 }
             } else if (i == 1) {
-                if (strncmp(fileParserFactory.getWords()[0], "ENSG00000000003", 15) != 0) {
+                if (fileParserFactory.getWords()[0].compare("ENSG00000000003") != 0) {
                     cout << "word: " << fileParserFactory.getWords()[0] << endl;
                     cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file" << endl;
                 }
-                if (strncmp(fileParserFactory.getWords()[57], "15.818", 6) != 0) {
+                if (fileParserFactory.getWords()[57].compare("15.818") != 0) {
                     cout << "word: " << fileParserFactory.getWords()[0] << endl;
                     cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file" << endl;
                 }
             } else if (i == 19794) {
-                if (strncmp(fileParserFactory.getWords()[0], "ENSG00000259765", 15) != 0) {
+                if (fileParserFactory.getWords()[0].compare("ENSG00000259765") != 0) {
                     cout << "word: " << fileParserFactory.getWords()[0] << endl;
                     cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file" << endl;
                 }
-                if (strncmp(fileParserFactory.getWords()[16], "0.129", 5) != 0) {
+                if (fileParserFactory.getWords()[16].compare("0.129") != 0) {
                     cout << "word: " << fileParserFactory.getWords()[0] << endl;
                     cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file" << endl;
                 }
             } else if (i == 19795) {
-                if (strncmp(fileParserFactory.getWords()[0], "ENSG00000259766", 15) != 0) {
+                if (fileParserFactory.getWords()[0].compare("ENSG00000259766") != 0) {
                     cout << "word: " << fileParserFactory.getWords()[0] << endl;
                     cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file" << endl;
                 }
-                if (strncmp(fileParserFactory.getWords()[57], "0.000", 5) != 0) {
+                if (fileParserFactory.getWords()[57].compare("0.000") != 0) {
                     cout << "word: " << fileParserFactory.getWords()[0] << endl;
                     cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file" << endl;
                 }
@@ -86,13 +85,11 @@ void testIterate() {
             i++;
         }
     } catch (exceptions::FileNotFoundException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
-        exit(-1);
-    } catch (exceptions::ErrorReadingFromFileException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
-        exit(-1);
+        cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file: resources/57epigenomes.RPKM.pc " << endl;
+        return;
+    } catch (ios::failure ex) {
+        cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file: resources/57epigenomes.RPKM.pc " << endl;
+        return;
     }
     if (i != 19796) {
         cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file. Read lines " << i << endl;

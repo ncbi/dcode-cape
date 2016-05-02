@@ -5,14 +5,8 @@
  * Created on February 26, 2016, 2:06 PM
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <iostream>
 #include <memory>
-#include <getopt.h>
-#include <stdbool.h>
-#include <time.h>
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -31,22 +25,20 @@ using namespace sequence;
 Global *Global::s_instance = 0;
 TimeUtils *TimeUtils::s_instance = 0;
 
-char *program_name;
-
-void print_usage(int exit_code) {
-    cerr <<"\n********************************************************************************\n";
+void print_usage(char *program_name, int exit_code) {
+    cerr << "\n********************************************************************************\n";
     cerr << "\nUsage: " << program_name;
     cerr << "\n\n" << program_name << " options:\n\n";
-    cerr <<"-v,   --verbose                     Print info\n";
-    cerr <<"-h,   --help                        Display this usage information.\n";
-    cerr <<"-r,   --reverse                     Read binary and print fasta\n";
-    cerr <<"-i,   --in                          Input file.\n";
-    cerr <<"-o,   --out                         Output file.\n";
-    cerr <<"-d,   --dir                         Directory with fasta files. Extension: .fa (all files will be combined in one binary file)\n";
-    cerr <<"********************************************************************************\n";
-    cerr <<"\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n";
-    cerr <<"            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n";
-    cerr <<"********************************************************************************\n";
+    cerr << "-v    Print info\n";
+    cerr << "-h    Display this usage information.\n";
+    cerr << "-r    Read binary and print fasta\n";
+    cerr << "-i    Input file.\n";
+    cerr << "-o    Output file.\n";
+    cerr << "-d    Directory with fasta files. Extension: .fa (all files will be combined in one binary file)\n";
+    cerr << "********************************************************************************\n";
+    cerr << "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n";
+    cerr << "            Roberto Vera Alvarez (e-mail: veraalva@ncbi.nlm.nih.gov)\n\n";
+    cerr << "********************************************************************************\n";
     exit(exit_code);
 }
 
@@ -56,76 +48,85 @@ void print_usage(int exit_code) {
 int main(int argc, char** argv) {
     clock_t begin = clock();
     clock_t start = clock();
-    int next_option;
-    const char* const short_options = "vhi:o:d:r";
     string dirName;
     string inName;
     string outName;
-    FILE *inFile;
     FastaFactory fastaFactory;
     bool reverse = false;
-    
-    program_name = argv[0];
 
-    srand(time(NULL));
-
-    const struct option long_options[] = {
-        { "help", 0, NULL, 'h'},
-        { "verbose", 0, NULL, 'v'},
-        { "out", 1, NULL, 'o'},
-        { "in", 1, NULL, 'i'},
-        { "dir", 1, NULL, 'd'},
-        { "reverse", 0, NULL, 'r'},
-        { NULL, 0, NULL, 0} /* Required at end of array.  */
-    };
-
-    do {
-        next_option = getopt_long(argc, argv, short_options, long_options, NULL);
-
-        switch (next_option) {
-            case 'h':
-                print_usage(0);
-
-            case 'v':
-                Global::instance()->setVerbose(1);
-                break;
-
-            case 'i':
-                inName = optarg;
-                break;
-
-            case 'o':
-                outName = optarg;
-                break;
-
-            case 'd':
-                dirName = optarg;
-                break;
-
-            case 'r':
+    for (int i = 1; i < argc; i++) {
+        string option(argv[i]);
+        if (option.compare(0, 1, "-") == 0 && option.size() == 2) {
+            if (option.compare(1, 1, "h") == 0) {
+                print_usage(argv[0], 0);
+            } else if (option.compare(1, 1, "v") == 0) {
+                Global::instance()->setVerbose(3);
+            } else if (option.compare(1, 1, "r") == 0) {
                 reverse = true;
-                break;
+            } else if (option.compare(1, 1, "i") == 0) {
+                i++;
+                if (i < argc) {
+                    inName = argv[i];
+                    if (inName.compare(0, 1, "-") == 0) {
+                        cerr << "Option i require an argument" << endl;
+                        print_usage(argv[0], -1);
+                    }
+                } else {
+                    cerr << "Option i require an argument" << endl;
+                    print_usage(argv[0], -1);
+                }
+            } else if (option.compare(1, 1, "o") == 0) {
+                i++;
+                if (i < argc) {
+                    outName = argv[i];
+                    if (outName.compare(0, 1, "-") == 0) {
+                        cerr << "Option o require an argument" << endl;
+                        print_usage(argv[0], -1);
+                    }
+                } else {
+                    cerr << "Option o require an argument" << endl;
+                    print_usage(argv[0], -1);
+                }
+            } else if (option.compare(1, 1, "d") == 0) {
+                i++;
+                if (i < argc) {
+                    dirName = argv[i];
+                    if (dirName.compare(0, 1, "-") == 0) {
+                        cerr << "Option d require an argument" << endl;
+                        print_usage(argv[0], -1);
+                    }
+                } else {
+                    cerr << "Option d require an argument" << endl;
+                    print_usage(argv[0], -1);
+                }
+            } else {
+                cerr << "Unsupported option: " << option << endl;
+                print_usage(argv[0], -1);
+            }
+        } else {
+            cerr << "Unsupported option: " << option << endl;
+            print_usage(argv[0], -1);
         }
-    } while (next_option != -1);
+    }
 
     if (outName.empty()) {
         cerr << "\nOutput file is required. See -o option" << endl;
-        print_usage( -1);
+        print_usage(argv[0], -1);
     }
 
     if (inName.empty() && dirName.empty()) {
         cerr << "\nInput file or directory name are required. See -i or -d options" << endl;
-        print_usage(-1);
+        print_usage(argv[0], -1);
     }
 
     if (reverse) {
         if (inName.empty()) {
             cerr << "\nIf reverse the input file is required. See -i option" << endl;
-            print_usage(-1);
+            print_usage(argv[0], -1);
         }
         if (!dirName.empty()) {
             cerr << "\nDirectory is not compatible with reverse option. Use -i for input file" << endl;
-            print_usage(-1);
+            print_usage(argv[0], -1);
         }
     }
 
@@ -136,23 +137,11 @@ int main(int argc, char** argv) {
             fastaFactory.parseFastaInDirectory(dirName, "", ".fa", false);
         } else if (!inName.empty()) {
             cout << "Reading sequences from file" << endl;
-            inFile = (FILE *) fopen(inName.c_str(), "r");
-            if (!inFile) {
-                cerr << "Can't open input file" << endl;
-                exit(-1);
-            }
-            fastaFactory.parseFastaFile(inFile, -1, true, false);
-            fclose(inFile);
+            fastaFactory.parseFastaFile(inName, false);
         }
     } else {
         cout << "Reading sequences from file" << endl;
-        inFile = (FILE *) fopen(inName.c_str(), "rb");
-        if (!inFile) {
-            cerr << "Can't open input file" << endl;
-            exit(-1);
-        }
-        fastaFactory.parseFastaFile(inFile, -1, true, true);
-        fclose(inFile);
+        fastaFactory.parseFastaFile(inName, true);
     }
     cout << fastaFactory.getSequenceContainter().size() << " sequences loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 

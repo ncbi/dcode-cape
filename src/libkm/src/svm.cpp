@@ -10,10 +10,10 @@
 
 #include <iostream>
 #include <memory>
+#include <random>
 
 #include "berror.h"
 #include "bmemory.h"
-#include "bstring.h"
 
 #include "svm.h"
 

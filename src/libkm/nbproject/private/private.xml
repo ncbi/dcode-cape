@@ -9,22 +9,16 @@
             <url>src/SNPFactory.cpp</url>
             <bookmark id="1">
                 <name/>
-                <line>354</line>
+                <line>359</line>
                 <key/>
             </bookmark>
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="KillerMutations">
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/TFBSFactory.cpp</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/FastaFactory.h</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/KmersFactory.cpp</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/FimoFactory.h</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/KmersFactory.h</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/FimoFactory.cpp</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/TFBSFactory.h</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/BedFactory.h</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/BedFactory.cpp</file>
             <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/FastaFactory.cpp</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/tests/TFBSFactoryTest.cpp</file>
         </group>
     </open-files>
 </project-private>

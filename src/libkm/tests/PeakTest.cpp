@@ -23,7 +23,6 @@
 
 #include "berror.h"
 #include "bmemory.h"
-#include "bstring.h"
 #include "TimeUtils.h"
 #include "Exceptions.h"
 #include "FastaFactory.h"

@@ -1,5 +1,5 @@
 /* 
- * File:   memory.c
+ * File:   memory.cpp
  * Author: roberto
  *
  * Created on April 14, 2014, 11:54 AM

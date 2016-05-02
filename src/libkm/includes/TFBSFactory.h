@@ -92,11 +92,11 @@ namespace tfbs {
         void createPWMIndexFromTibInfoFile(std::string tibInfoFileName);
         void extractTFBSFromFile(long int from, long int to, std::shared_ptr<sequence::Seq> chr);
 
-        std::vector<std::shared_ptr<Tib>>& getPwmIndex() {
+        std::vector<std::shared_ptr<Tib>>&getPwmIndex() {
             return pwmIndex;
         }
 
-        std::vector<std::shared_ptr<TFBS>>& getTfbs() {
+        std::vector<std::shared_ptr<TFBS>>&getTfbs() {
             return tfbs;
         }
 
@@ -116,10 +116,10 @@ namespace tfbs {
         std::vector<std::shared_ptr<Tib>> pwmIndex;
         long int longestPWM;
         std::vector<std::shared_ptr<TFBS>> tfbs;
-        std::unordered_map<std::string, std::pair<std::shared_ptr<std::ifstream>, std::shared_ptr<std::ifstream>>> tfbsFileIndex;
+        std::unordered_map<std::string, std::pair<std::string, std::string>> tfbsFileIndex;
         std::string currentChr;
-        std::shared_ptr<std::ifstream> chrIdxFile;
-        std::shared_ptr<std::ifstream>chrTibFile;
+        std::ifstream chrIdxFile;
+        std::ifstream chrTibFile;
     };
 }
 

@@ -1,12 +1,5 @@
-/* 
- * File:   error.c
- * Author: roberto
- *
- * Created on April 14, 2014, 11:52 AM
- */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
 
 /**
  * Check if the void pointer is NULL and print out a message. If the exit_status
@@ -21,11 +14,12 @@
  */
 void *checkPointerError(void *data, const char *msg, const char *file, int line, int exit_status) {
     if (!data) {
-        fprintf(stderr, "%s. File: %s Line: %d\t", msg, file, line);
+        std::cerr << msg << ". File: " << file << " Line: %d\t" << line;
         if (exit_status != 0) {
-            fprintf(stderr, "\n");
+            std::cerr << std::endl;
             exit(exit_status);
         }
     }
     return data;
 }
+

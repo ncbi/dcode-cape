@@ -165,7 +165,7 @@ namespace fimo {
                 std::unordered_map<std::string, std::pair < std::string, double>>::iterator it1 = it->second.find(tissueName);
                 if (it1 != it->second.end()) return it1->second;
             }
-            return std::pair<std::string, double>("", 0.0000);
+            return std::make_pair("", 0.0000);
         }
 
         double getCutoffValue(std::string motifName) {

@@ -25,54 +25,48 @@ namespace parsers {
         virtual ~FileParserFactory();
 
         void setFileToParse(std::string fileToParseName) {
-            this->fileToParse.open(fileToParseName);
-            if (!this->fileToParse.is_open()) {
-                throw exceptions::FileNotFoundException("Can't open file: " + fileToParseName);
+            clean();
+            fileToParse.open(fileToParseName, std::ios::in | std::ios::binary);
+            if (!fileToParse) {
+                std::cerr << "Error opening file: " << fileToParseName << std::endl;
+                exit(-1);
             }
-            this->closeFile = true;
+            closeFile = true;
+            fileToParse.seekg(0, fileToParse.end);
+            if (static_cast<unsigned long int> (fileToParse.tellg()) < bufferSize) {
+                bufferSize = static_cast<unsigned long int> (fileToParse.tellg());
+            }
+            buffer.resize(bufferSize + 1);
+            fileToParse.seekg(0, fileToParse.beg);
         }
 
-        size_t getNWords() {
-            return nWords;
-        }
-
-        char** getWords() {
+        std::vector<std::string>& getWords() {
             return words;
         }
 
-        char *getLine() {
+        std::string& getLine() {
             return line;
         }
 
-        size_t getLineLength() {
-            return lineLength;
+        bool lineStartWith(std::string s) {
+            if (line.compare(0, s.size(), s) == 0) return true;
+            return false;
         }
 
-        void setBufferSize(size_t bufferSize) {
-            this->bufferSize = bufferSize;
-        }
-
-        bool iterate(const char dontStartWith);
-        bool iterate(const char dontStartWith, const char *delimiter);
-        void wordsToVector(std::vector<std::string>& v);
-        void clean();
+        bool iterate(std::string dontStartWith);
+        bool iterate(std::string dontStartWith, std::string delimiter);
 
     private:
-        std::ifstream fileToParse;
-        char **words;
-        size_t wordsSize;
-        size_t nWords;
-        char *buffer;
-        char *bufferEndPtr;
-        char *str;
-        char *line;
-        char *backup;
-        size_t bufferSize;
-        size_t backupSize;
-        size_t backupTotalSize;
-        size_t read;
-        size_t lineLength;
         bool closeFile;
+        bool backup;
+        std::ifstream fileToParse;
+        std::string buffer;
+        std::string line;
+        std::vector<std::string> words;
+        unsigned long int bufferSize;
+        unsigned long int currPosition;
+
+        void clean();
     };
 
 }

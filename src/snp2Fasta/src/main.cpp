@@ -5,14 +5,8 @@
  * Created on March 10, 2016, 11:46 AM
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <getopt.h>
-#include <stdbool.h>
-#include <time.h>
-
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <cstdlib>
 #include <string>
@@ -23,7 +17,6 @@
 
 #include "berror.h"
 #include "bmemory.h"
-#include "bstring.h"
 #include "svm.h"
 #include "Global.h"
 #include "TimeUtils.h"
@@ -47,18 +40,16 @@ using namespace fimo;
 Global *Global::s_instance = 0;
 TimeUtils *TimeUtils::s_instance = 0;
 
-char *program_name;
-
-void print_usage(int exit_code) {
+void print_usage(char *program_name, int exit_code) {
     cerr << "\n********************************************************************************\n";
     cerr << "\nUsage: " << program_name;
     cerr << "\n\n" << program_name << " options:\n\n";
-    cerr << "-v,   --verbose                     Print info\n";
-    cerr << "-h,   --help                        Display this usage information.\n";
-    cerr << "-i,   --in                          Input file with SNP coordinates.\n";
-    cerr << "-c,   --chrs                        Chromosomes binary fasta file. Created with formatFasta.\n";
-    cerr << "-o,   --output                      Fasta file with the sequences\n";
-    cerr << "-l,   --length                      Sequence length to be added before and after the SNP position\n\n";
+    cerr << "-v    Print info\n";
+    cerr << "-h    Display this usage information.\n";
+    cerr << "-i    Input file with SNP coordinates.\n";
+    cerr << "-c    Chromosomes binary fasta file. Created with formatFasta.\n";
+    cerr << "-o    Fasta file with the sequences\n";
+    cerr << "-l    Sequence length to be added before and after the SNP position\n\n";
 
     cerr << "********************************************************************************\n";
     cerr << "\n            Shan Li (e-mail: lis11@ncbi.nlm.nih.gov)\n";
@@ -73,80 +64,104 @@ void print_usage(int exit_code) {
 int main(int argc, char** argv) {
     clock_t begin = clock();
     clock_t start = clock();
-    int next_option;
-    const char* const short_options = "vhi:c:o:l:";
-    FILE *chrsBinFile = NULL;
+    string chrsBinFileName;
     string inName;
     string outName;
     unsigned long int length = 0;
     FastaFactory chrFactory;
     SNPFactory snpFactory;
 
-    program_name = argv[0];
-
-    const struct option long_options[] = {
-        { "help", 0, NULL, 'h'},
-        { "verbose", 0, NULL, 'v'},
-        { "in", 1, NULL, 'i'},
-        { "output", 1, NULL, 'o'},
-        { "chrs", 1, NULL, 'c'},
-        { "length", 1, NULL, 'l'},
-        { NULL, 0, NULL, 0} /* Required at end of array.  */
-    };
-
-    do {
-        next_option = getopt_long(argc, argv, short_options, long_options, NULL);
-
-        switch (next_option) {
-            case 'h':
-                print_usage(0);
-
-            case 'v':
+    for (int i = 1; i < argc; i++) {
+        string option(argv[i]);
+        if (option.compare(0, 1, "-") == 0 && option.compare(1, 1, "-") != 0 && option.size() == 2) {
+            if (option.compare(1, 1, "h") == 0) {
+                print_usage(argv[0], 0);
+            } else if (option.compare(1, 1, "v") == 0) {
                 Global::instance()->setVerbose(1);
-                break;
-
-            case 'i':
-                inName = optarg;
-                break;
-
-            case 'c':
-                chrsBinFile = fopen(optarg, "r");
-                break;
-
-            case 'o':
-                outName = optarg;
-                break;
-
-            case 'l':
-                length = static_cast<unsigned long int> (atoi(optarg));
-                break;
+            } else if (option.compare(1, 1, "d") == 0) {
+                Global::instance()->setVerbose(3);
+            } else if (option.compare(1, 1, "i") == 0) {
+                i++;
+                if (i < argc) {
+                    inName = argv[i];
+                    if (inName.compare(0, 1, "-") == 0) {
+                        cerr << "Option i require an argument" << endl;
+                        print_usage(argv[0], -1);
+                    }
+                } else {
+                    cerr << "Option i require an argument" << endl;
+                    print_usage(argv[0], -1);
+                }
+            } else if (option.compare(1, 1, "c") == 0) {
+                i++;
+                if (i < argc) {
+                    chrsBinFileName = argv[i];
+                    if (chrsBinFileName.compare(0, 1, "-") == 0) {
+                        cerr << "Option c require an argument" << endl;
+                        print_usage(argv[0], -1);
+                    }
+                } else {
+                    cerr << "Option c require an argument" << endl;
+                    print_usage(argv[0], -1);
+                }
+            } else if (option.compare(1, 1, "o") == 0) {
+                i++;
+                if (i < argc) {
+                    outName = argv[i];
+                    if (outName.compare(0, 1, "-") == 0) {
+                        cerr << "Option o require an argument" << endl;
+                        print_usage(argv[0], -1);
+                    }
+                } else {
+                    cerr << "Option o require an argument" << endl;
+                    print_usage(argv[0], -1);
+                }
+            } else if (option.compare(1, 1, "l") == 0) {
+                i++;
+                if (i < argc) {
+                    string argument(argv[i]);
+                    if (argument.compare(0, 1, "-") == 0) {
+                        cerr << "Option l require a numeric argument" << endl;
+                        print_usage(argv[0], -1);
+                    }
+                    length = static_cast<unsigned long int> (atoi(argv[i]));
+                } else {
+                    cerr << "Option l require an argument" << endl;
+                    print_usage(argv[0], -1);
+                }
+            } else {
+                cerr << "Unsupported option: " << option << endl;
+                print_usage(argv[0], -1);
+            }
+        } else {
+            cerr << "Unsupported option: " << option << endl;
+            print_usage(argv[0], -1);
         }
-    } while (next_option != -1);
+    }
 
     if (inName.empty()) {
         cerr << "\nInput SNP coordinate file is required. See -i option" << endl;
-        print_usage(-1);
+        print_usage(argv[0], -1);
     }
 
     if (outName.empty()) {
         cerr << "\nOutput file is required. See -i option" << endl;
-        print_usage(-1);
+        print_usage(argv[0], -1);
     }
 
-    if (!chrsBinFile) {
+    if (chrsBinFileName.empty()) {
         cerr << "\nCan't open chromosomes masked binary fasta file. See -c option" << endl;
-        print_usage(-1);
+        print_usage(argv[0], -1);
     }
 
-    if (length == 0) {
+    if (length <= 0) {
         cerr << "\nSequence length to be added before and after the SNP position is required. See -l option" << endl;
-        print_usage(-1);
+        print_usage(argv[0], -1);
     }
 
-    TimeUtils::instance()->setStartTime();
     begin = clock();
     cout << "Reading chromosome sequences from binary file" << endl;
-    chrFactory.parseFastaFile(chrsBinFile, -1, true, true);
+    chrFactory.parseFastaFile(chrsBinFileName, true);
     cout << chrFactory.getSequenceContainter().size() << " chromosomes loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     cout << "Reading input SNP coordinates from files" << endl;
@@ -155,7 +170,6 @@ int main(int argc, char** argv) {
     cout << "Writing fasta file" << endl;
     snpFactory.writeEnhansersFastaFile(outName, false);
 
-    if (chrsBinFile) fclose(chrsBinFile);
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->getTimeMinFrom(start) << " minutes" << endl;
     delete TimeUtils::instance();

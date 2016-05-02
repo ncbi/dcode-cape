@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   BedFactory.cpp
  * Author: veraalva
@@ -11,9 +5,6 @@
  * Created on February 11, 2016, 3:52 PM
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include <dirent.h>
 
 #include <iostream>
@@ -30,9 +21,6 @@
 #include <random>
 #include <chrono>
 
-#include "berror.h"
-#include "bmemory.h"
-#include "bstring.h"
 #include "TimeUtils.h"
 #include "Global.h"
 #include "FileParserFactory.h"
@@ -60,7 +48,7 @@ Peak::~Peak() {
 }
 
 void Peak::calculateContent() {
-    for(auto it = seq.begin(); it != seq.end(); ++it){
+    for (auto it = seq.begin(); it != seq.end(); ++it) {
         if (*it == 'G' || *it == 'C') this->GCCount++;
         else if (*it == 'N') this->NCount++;
     }
@@ -102,27 +90,39 @@ BedFactory::~BedFactory() {
 }
 
 void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string bedFileName, double maxNPercent, KmersFactory &kmersFactory) {
-
+    bool process = true;
     FileParserFactory fParser;
-    std::shared_ptr<Seq> f = NULL;
+    std::shared_ptr<Seq> f;
+
+    try {
+        f = chrFactory.getFirstSequence();
+    } catch (exceptions::NotFoundException ex) {
+        cerr << "Not chromosome sequences loaded" << endl;
+        exit(-1);
+    }
 
     try {
         fParser.setFileToParse(bedFileName);
         kmersFactory.clearKmerPeakData();
-        while (fParser.iterate('#', "\t")) {
-            if (fParser.getNWords() != 3) {
+        while (fParser.iterate("#", "\t")) {
+            if (fParser.getWords().size() != 3) {
                 cerr << "Bed file with a wrong format " << endl;
                 exit(-1);
             }
-            if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
-                f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
+            if (f->getId().compare(fParser.getWords()[0]) != 0) {
+                try {
+                    f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
+                    process = true;
+                } catch (exceptions::NotFoundException ex) {
+                    process = false;
+                }
             }
-            if (f) {
-                if (static_cast<unsigned long int> (atoi(fParser.getWords()[2])) <= f->getLength()) {
+            if (process) {
+                if (static_cast<unsigned long int> (atoi((fParser.getWords()[2]).c_str())) <= f->getLength()) {
                     shared_ptr<Peak> p = make_shared<Peak>();
                     p->setChr(fParser.getWords()[0]);
-                    p->setStart(atoi(fParser.getWords()[1]));
-                    p->setEnd(atoi(fParser.getWords()[2]) - 1);
+                    p->setStart(atoi((fParser.getWords()[1]).c_str()));
+                    p->setEnd(atoi((fParser.getWords()[2]).c_str()) - 1);
                     try {
                         p->setSeq(f->getSubStr(p->getStart(), p->getLength()));
                         p->calculateContent();
@@ -153,23 +153,16 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
                             kmersFactory.scanSequences(p->getSeq(), false);
                             this->peaks.push_back(p);
                         }
-                    } catch (exceptions::OutOfRangeException ex) {
-                        throw ex;
+                    } catch (std::out_of_range ex) {
+                        cerr << "Out of range coordinates for sequence. Ignoring peak" << endl;
                     }
-
                 }
             }
         }
     } catch (exceptions::FileNotFoundException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+        cerr << "Error opening file: " << bedFileName << endl;
         exit(-1);
-    } catch (exceptions::ErrorReadingFromFileException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
-        exit(-1);
-    } catch (exceptions::NotFoundException ex) {
-        cerr << ex.what() << endl;
+    } catch (ios::failure ex) {
         cerr << "Error retrieving sequences" << endl;
         exit(-1);
     }
@@ -208,6 +201,10 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
     int gc_binID, n_binID;
     double Ncontent, GCcontent;
     int peakNum;
+    std::mt19937 rng;
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+
+    rng.seed(seed);
 
     if (Global::instance()->isInfo()) {
         cout << "\tINFO ==> Generating controls from chromosomes" << endl;
@@ -215,8 +212,8 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
 
     kmersFactory.clearKmerControlData();
 
-    try {
-        for (auto chr_it = this->GCNcontentBin.begin(); chr_it != this->GCNcontentBin.end(); ++chr_it) {
+    for (auto chr_it = this->GCNcontentBin.begin(); chr_it != this->GCNcontentBin.end(); ++chr_it) {
+        try {
             std::shared_ptr<Seq> f = chrFactory.getSequenceFromID(chr_it->first);
             std::map<int, std::map < std::pair<int, int>, int>> wm = chr_it->second;
 
@@ -225,7 +222,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
             }
 
             for (auto window_it = wm.begin(); window_it != wm.end(); ++window_it) {
-                std::map<std::pair<int, int>, std::vector <shared_ptr<Peak> >> GCNcontentControls;
+                std::map<std::pair<int, int>, std::vector < shared_ptr<Peak> >> GCNcontentControls;
                 window_len = window_it->first;
                 std::map<std::pair<int, int>, int> contentBin = window_it->second;
 
@@ -259,7 +256,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                         p->setGCCount(this->GCCount);
                         p->setNCount(this->NCount);
                         if (GCNcontentControls.find(k) == GCNcontentControls.end()) {
-                            std::vector <shared_ptr<Peak>> v;
+                            std::vector <shared_ptr < Peak>> v;
                             v.push_back(p);
                             GCNcontentControls.insert(make_pair(k, v));
                         } else {
@@ -289,7 +286,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                             p->setGCCount(this->GCCount);
                             p->setNCount(this->NCount);
                             if (GCNcontentControls.find(k) == GCNcontentControls.end()) {
-                                std::vector <shared_ptr<Peak>> v;
+                                std::vector <shared_ptr < Peak>> v;
                                 v.push_back(p);
                                 GCNcontentControls.insert(make_pair(k, v));
                             } else {
@@ -334,7 +331,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
 
                 for (auto control_it = GCNcontentControls.begin(); control_it != GCNcontentControls.end(); ++control_it) {
                     pair<int, int> k = control_it->first;
-                    std::vector <shared_ptr<Peak>> peaksVector = control_it->second;
+                    std::vector <shared_ptr < Peak>> peaksVector = control_it->second;
                     peakNum = contentBin[k];
                     total_controlNum = hit_Num * peakNum;
 
@@ -343,11 +340,13 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                             if (Global::instance()->isInfo()) {
                                 cout << "\tINFO ==> \t\t\t" << total_controlNum << " sequences shuffled for bin " << k.first << "-" << k.second << endl;
                             }
-                            if (peaksVector[0]->getStart() + window_len <= f->getLength()) {
+                            try {
                                 seq = f->getSubStr(peaksVector[0]->getStart(), window_len);
                                 for (i = 0; i < total_controlNum; i++) {
                                     kmersFactory.scanSequences(cstring::shuffle(seq), true);
                                 }
+                            } catch (std::out_of_range ex) {
+                                cerr << "Out of range sequence coordinates. Ignoring peak" << endl;
                             }
                         } else {
                             /*
@@ -360,9 +359,13 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                             cout << "\tINFO ==> \t\t\t" << total_controlNum << " sequences selected for bin " << k.first << "-" << k.second << endl;
                         }
                         for (i = 0; i < total_controlNum; i++) {
-                            seq = f->getSubStr(peaksVector[i]->getStart(), window_len);
-                            if (peaksVector[i]->getStart() + window_len <= f->getLength()) {
-                                kmersFactory.scanSequences(seq, true);
+                            try {
+                                seq = f->getSubStr(peaksVector[i]->getStart(), window_len);
+                                if (peaksVector[i]->getStart() + window_len <= f->getLength()) {
+                                    kmersFactory.scanSequences(seq, true);
+                                }
+                            } catch (std::out_of_range ex) {
+                                cerr << "Out of range sequence coordinates. Ignoring peak" << endl;
                             }
                         }
                     } else {
@@ -370,16 +373,21 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                             cout << "\tINFO ==> \t\t\t" << total_controlNum << " sequences randomly selected for bin " << k.first << "-" << k.second << endl;
                         }
                         i = 0;
-                        vector<int> index;
+                        vector<uint32_t> index;
+                        std::uniform_int_distribution<uint32_t> uint_dist(0,peaksVector.size() - 1);
                         while (1) {
-                            int randomIndex = rand() % peaksVector.size();
+                            uint32_t randomIndex = uint_dist(rng);
                             if (find(index.begin(), index.end(), randomIndex) == index.end()) {
                                 index.push_back(randomIndex);
                                 if (peaksVector[randomIndex]->getStart() + window_len <= f->getLength()) {
-                                    kmersFactory.scanSequences(f->getSubStr(peaksVector[randomIndex]->getStart(), window_len), true);
-                                    i++;
-                                    if (i == total_controlNum) {
-                                        break;
+                                    try {
+                                        kmersFactory.scanSequences(f->getSubStr(peaksVector[randomIndex]->getStart(), window_len), true);
+                                        i++;
+                                        if (i == total_controlNum) {
+                                            break;
+                                        }
+                                    } catch (std::out_of_range ex) {
+                                        cerr << "Out of range sequence coordinates. Ignoring peak" << endl;
                                     }
                                 }
                             }
@@ -387,11 +395,9 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                     }
                 }
             }
+        } catch (exceptions::NotFoundException ex) {
+            cerr << "Not sequence for ID: " << chr_it->first << ". Ignoring entry" << endl;
         }
-    } catch (exceptions::NotFoundException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error retrieving sequences" << endl;
-        exit(-1);
     }
 
     if (Global::instance()->isInfo()) {
@@ -422,36 +428,45 @@ void BedFactory::generatingControlsFromShufflingPeaks(unsigned long int hit_Num,
 
 void BedFactory::readControlsFromFile(std::string controlFileName, FastaFactory &chrFactory, kmers::KmersFactory & kmersFactory) {
     FileParserFactory fParser;
-    std::shared_ptr<Seq> f = nullptr;
+    bool process = true;
+    std::shared_ptr<Seq> f;
+
+    try {
+        f = chrFactory.getFirstSequence();
+    } catch (exceptions::NotFoundException ex) {
+        cerr << "Not chromosome sequences loaded" << endl;
+        exit(-1);
+    }
 
     try {
         fParser.setFileToParse(controlFileName);
         kmersFactory.clearKmerControlData();
-        while (fParser.iterate('#', "\t")) {
-            if (fParser.getNWords() != 3) {
+        while (fParser.iterate("#", "\t")) {
+            if (fParser.getWords().size() != 3) {
                 cerr << "Bed file with a wrong format " << endl;
                 exit(-1);
             }
-            if (!f || f->getId().compare(fParser.getWords()[0]) != 0) {
-                f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
+            if (f->getId().compare(fParser.getWords()[0]) != 0) {
+                try {
+                    f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
+                    process = true;
+                } catch (exceptions::NotFoundException ex) {
+                    process = false;
+                }
             }
-            if (f) {
-                if (static_cast<unsigned long int> (atoi(fParser.getWords()[1]) + atoi(fParser.getWords()[2])) < f->getLength()) {
-                    kmersFactory.scanSequences(f->getSubStr(atoi(fParser.getWords()[1]), atoi(fParser.getWords()[2])), true);
+            if (process) {
+                try {
+                    kmersFactory.scanSequences(f->getSubStr(atoi((fParser.getWords()[1]).c_str()), atoi((fParser.getWords()[2]).c_str())), true);
+                } catch (std::out_of_range ex) {
+                    cerr << "Out of range sequence coordinates. Ignoring control sequence";
                 }
             }
         }
     } catch (exceptions::FileNotFoundException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+        cerr << "Error parsing file: " << controlFileName << endl;
         exit(-1);
-    } catch (exceptions::ErrorReadingFromFileException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
-        exit(-1);
-    } catch (exceptions::NotFoundException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error retrieving sequences" << endl;
+    } catch (ios::failure ex) {
+        cerr << "Error parsing file: " << controlFileName << endl;
         exit(-1);
     }
 }

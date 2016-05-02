@@ -54,10 +54,17 @@ double stirlerr(double n) {
         0.005554733551962801371038690 /* 15.0 */
     };
     double nn;
+    int index;
 
-    if (n <= 15.0) {
+    if (n <= 15.0000) {
         nn = n + n;
-        if (nn == (int) nn) return (sferr_halves[(int) nn]);
+        if (nn == floor(nn)) {
+            index = (int) floor(nn);
+            if (index >= 0 && index <= 31) {
+                nn = sferr_halves[index];
+                return nn;
+            }
+        }
         return (lgammafn(n + 1.) - (n + 0.5) * log(n) + n - M_LN_SQRT_2PI);
     }
 

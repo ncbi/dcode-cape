@@ -18,7 +18,6 @@
       <itemPath>includes/berror.h</itemPath>
       <itemPath>includes/bmath.h</itemPath>
       <itemPath>includes/bmemory.h</itemPath>
-      <itemPath>includes/bstring.h</itemPath>
       <itemPath>includes/cstring.h</itemPath>
       <itemPath>includes/svm.h</itemPath>
     </logicalFolder>
@@ -51,9 +50,8 @@
       <itemPath>src/SNPFactory.cpp</itemPath>
       <itemPath>src/SVMPredict.cpp</itemPath>
       <itemPath>src/TFBSFactory.cpp</itemPath>
-      <itemPath>src/berror.c</itemPath>
-      <itemPath>src/bmemory.c</itemPath>
-      <itemPath>src/bstring.c</itemPath>
+      <itemPath>src/berror.cpp</itemPath>
+      <itemPath>src/bmemory.cpp</itemPath>
       <itemPath>src/chebyshev.c</itemPath>
       <itemPath>src/cstring.cpp</itemPath>
       <itemPath>src/gamma.c</itemPath>
@@ -322,8 +320,6 @@
       </item>
       <item path="includes/bmemory.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="includes/bstring.h" ex="false" tool="3" flavor2="0">
-      </item>
       <item path="includes/cstring.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="includes/svm.h" ex="false" tool="3" flavor2="0">
@@ -378,11 +374,9 @@
       </item>
       <item path="src/TFBSFactory.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="src/berror.c" ex="false" tool="0" flavor2="0">
+      <item path="src/berror.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="src/bmemory.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="src/bstring.c" ex="false" tool="0" flavor2="0">
+      <item path="src/bmemory.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="src/chebyshev.c" ex="false" tool="0" flavor2="0">
       </item>

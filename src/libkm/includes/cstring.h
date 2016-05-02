@@ -26,6 +26,8 @@ public:
      * @return the number of occurrences 
      */
     static int countCharacter(std::string str, std::string characters);
+
+    static std::vector<std::string> &split(const std::string &s, std::string delim, std::vector<std::string> &elems);
 private:
 
 };

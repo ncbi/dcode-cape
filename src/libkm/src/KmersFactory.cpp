@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   Kmers.cpp
  * Author: veraalva
@@ -11,9 +5,6 @@
  * Created on February 17, 2016, 10:30 AM
  */
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
 #include <math.h>
 #include <inttypes.h>
 
@@ -27,9 +18,6 @@
 #include <vector>
 #include <fstream>
 
-#include "berror.h"
-#include "bmemory.h"
-#include "bstring.h"
 #include "bmath.h"
 #include "Global.h"
 #include "cstring.h"
@@ -263,8 +251,8 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
 
         try {
             fParser.setFileToParse(fileName);
-            while (fParser.iterate('#', "\t")) {
-                if (fParser.getNWords() != 4) {
+            while (fParser.iterate("#", "\t")) {
+                if (fParser.getWords().size() != 4) {
                     cerr << "Input kmer weight file with a wrong format " << endl;
                     exit(-1);
                 }
@@ -272,10 +260,10 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
                 kr = make_shared<Kmer>();
                 rc_kmer = cstring::reverseComplement(fParser.getWords()[0]);
 
-                k->setValue(strtod(fParser.getWords()[1], NULL));
+                k->setValue(atof((fParser.getWords()[1]).c_str()));
                 kr->setValue(k->getValue());
 
-                k->setSig(strtod(fParser.getWords()[2], NULL));
+                k->setSig(atof((fParser.getWords()[2]).c_str()));
                 kr->setSig(k->getSig());
                 if (std::isinf(k->getSig())) {
                     infSig.push_back(fParser.getWords()[0]);
@@ -283,7 +271,7 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
                     if (std::isnan(maxSig) || maxSig < std::fabs(k->getSig())) maxSig = std::fabs(k->getSig());
                 }
 
-                k->setPf(strtod(fParser.getWords()[3], NULL));
+                k->setPf(atof((fParser.getWords()[3]).c_str()));
                 kr->setPf(k->getPf());
 
                 this->kmers.insert(make_pair(fParser.getWords()[0], k));
@@ -293,12 +281,10 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
                 }
             }
         } catch (exceptions::FileNotFoundException ex) {
-            cerr << ex.what() << endl;
-            cerr << "Error parsing file" << endl;
+            cerr << "Error parsing file: " << fileName << endl;
             exit(-1);
-        } catch (exceptions::ErrorReadingFromFileException ex) {
-            cerr << ex.what() << endl;
-            cerr << "Error parsing file" << endl;
+        } catch (ios::failure ex) {
+            cerr << "Error parsing file: " << fileName << endl;
             exit(-1);
         }
     }
@@ -334,7 +320,7 @@ void KmersFactory::writeKmersToFile(std::string fileName, bool binary) {
         for (auto it = this->kmers.begin(); it != this->kmers.end(); ++it) {
             string kmer = it->first;
             shared_ptr<Kmer> k = it->second;
-            poutputFile.write(kmer.c_str(), sizeof (char) * Global::instance()->getOrder());
+            poutputFile.write(kmer.c_str(), Global::instance()->getOrder());
             value = k->getValue();
             poutputFile.write((char *) &value, sizeof (double));
             value = k->getSig();

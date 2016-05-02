@@ -23,21 +23,13 @@ namespace sequence {
     public:
         Seq();
 
-        Seq(const std::string& i, const std::string& d) : id(i), description(d) {
-            this->length = 0;
-            this->seq = NULL;
-        }
-
         virtual ~Seq();
 
         std::string getSubStr(unsigned long int pos, unsigned long int length) {
-            if (pos >= this->length || length > this->length) {
-                throw exceptions::OutOfRangeException("Your parameters are out of range");
-            }
-            return std::string(seq + pos, length);
+            return seq.substr(pos, length);
         }
 
-        std::string getId() const {
+        std::string &getId() {
             return id;
         }
 
@@ -45,19 +37,15 @@ namespace sequence {
             this->id = id;
         }
 
-        char *getSeq() {
+        std::string &getSeq() {
             return seq;
         }
 
-        void setSeq(char **seq) {
-            this->seq = *seq;
-        }
-
         void setSeq(std::string seq) {
-            this->seq = strndup(seq.c_str(), seq.size());
+            this->seq = seq;
         }
 
-        std::string getDescription() const {
+        std::string &getDescription() {
             return description;
         }
 
@@ -66,18 +54,13 @@ namespace sequence {
         }
 
         unsigned long int getLength() {
-            return length;
-        }
-
-        void setLength(unsigned long int len) {
-            length = len;
+            return seq.size();
         }
 
     private:
         std::string id;
         std::string description;
-        char *seq;
-        unsigned long int length;
+        std::string seq;
     };
 
     class FastaFactory {
@@ -88,6 +71,14 @@ namespace sequence {
 
         std::unordered_map<std::string, std::shared_ptr<Seq>>&getSequenceContainter() {
             return sequenceContainer;
+        }
+
+        std::shared_ptr<Seq> getFirstSequence() {
+            std::unordered_map<std::string, std::shared_ptr < Seq>>::iterator it = sequenceContainer.begin();
+            if (it == sequenceContainer.end()) {
+                throw exceptions::NotFoundException("Not sequences on the container");
+            }
+            return it->second;
         }
 
         std::shared_ptr<Seq> getSequenceFromID(std::string id) {

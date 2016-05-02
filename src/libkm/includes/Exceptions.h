@@ -10,26 +10,6 @@
 
 namespace exceptions {
 
-    class OutOfRangeException : public std::exception {
-    public:
-
-        explicit OutOfRangeException(const char* message) : msg(message) {
-        }
-
-        explicit OutOfRangeException(const std::string& message) : msg(message) {
-        }
-
-        virtual ~OutOfRangeException() {
-        }
-
-        virtual const char* what() const throw () {
-            return msg.c_str();
-        }
-
-    private:
-        std::string msg;
-    };
-
     class FileNotFoundException : public std::exception {
     public:
 
@@ -40,26 +20,6 @@ namespace exceptions {
         }
 
         virtual ~FileNotFoundException() {
-        }
-
-        virtual const char* what() const throw () {
-            return msg.c_str();
-        }
-
-    private:
-        std::string msg;
-    };
-
-    class ErrorReadingFromFileException : public std::exception {
-    public:
-
-        explicit ErrorReadingFromFileException(const char* message) : msg(message) {
-        }
-
-        explicit ErrorReadingFromFileException(const std::string& message) : msg(message) {
-        }
-
-        virtual ~ErrorReadingFromFileException() {
         }
 
         virtual const char* what() const throw () {

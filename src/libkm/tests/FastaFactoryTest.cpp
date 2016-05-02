@@ -25,7 +25,6 @@
 
 #include "berror.h"
 #include "bmemory.h"
-#include "bstring.h"
 #include "Global.h"
 #include "TimeUtils.h"
 #include "Exceptions.h"
@@ -50,7 +49,7 @@ void testParseFastaFile(string fileName, bool binary) {
     }
     fasta = fastaFactory.getSequenceContainter().begin()->second;
     if (fasta->getId().compare("chr1") != 0) {
-        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence Id should be chr1" << endl;
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence Id should be chr1 != " << fasta->getId() << endl;
     }
     if (fasta->getLength() != 1249950) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence should have 1249950 bp and it is " << fasta->getLength() << endl;
@@ -60,7 +59,7 @@ void testParseFastaFile(string fileName, bool binary) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The segment of length 1050 starting at 15000 is not equal to the test" << endl;
     }
 
-    remove(fileName.c_str());
+    //remove(fileName.c_str());
 }
 
 void testParseFastaMultipleFile(string fileName) {
@@ -84,7 +83,7 @@ void testParseFastaMultipleFile(string fileName) {
     for (auto it = fFactory.getSequenceContainter().begin(); it != fFactory.getSequenceContainter().end(); ++it) {
         fasta = it->second;
         if (seqSize.find(fasta->getId())->second != fasta->getLength()) {
-            cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Wrong sequence size "
+            cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Wrong sequence size (test 1) "
                     << seqSize.find(fasta->getId())->second << " != " << fasta->getLength() << endl;
         }
     }
@@ -95,7 +94,7 @@ void testParseFastaMultipleFile(string fileName) {
             cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Cant find chr4 in the factory container " << endl;
         } else {
             if (seqSize.find(f->getId())->second != f->getLength()) {
-                cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Wrong sequence size "
+                cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Wrong sequence size (test 2) "
                         << seqSize.find(f->getId())->second << " != " << f->getLength() << endl;
             }
         }
@@ -105,12 +104,12 @@ void testParseFastaMultipleFile(string fileName) {
             cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Cant find chr4 in the factory container " << endl;
         } else {
             if (seqSize.find(f->getId())->second != f->getLength() || f->getLength() != 1700) {
-                cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Wrong sequence size "
+                cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Wrong sequence size (test 3)"
                         << seqSize.find(f->getId())->second << " != " << f->getLength() << endl;
             }
         }
     } catch (exceptions::NotFoundException ex) {
-        cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=" << ex.what() << endl;
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Not found sequence chr4" << endl;
     }
 }
 
@@ -134,7 +133,7 @@ void testParseFastaDir(string fileName) {
             cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The segment of length 1050 starting at 15000 is not equal to the test" << endl;
         }
     } catch (exceptions::NotFoundException ex) {
-        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=" << ex.what() << endl;
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=Not found sequence chr1" << endl;
     }
 
 
@@ -143,6 +142,16 @@ void testParseFastaDir(string fileName) {
 void testWriteSequencesToFile(std::string inFileName, std::string outFileName, bool binary) {
     FastaFactory fFactory;
     fFactory.parseFastaFile(inFileName, false);
+    if (fFactory.getSequenceContainter().size() != 1) {
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=It should read 1 sequence" << endl;
+    }
+    shared_ptr<Seq> fasta = fFactory.getSequenceContainter().begin()->second;
+    if (fasta->getId().compare("chr1") != 0) {
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence Id should be chr1 != " << fasta->getId() << endl;
+    }
+    if (fasta->getLength() != 1249950) {
+        cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The sequence should have 1249950 bp and it is " << fasta->getLength() << endl;
+    }
     fFactory.writeSequencesToFile(outFileName, binary);
 }
 
@@ -155,6 +164,8 @@ int main() {
     string dirName("resources/");
     cout << "%SUITE_STARTING% FastaFactoryTest" << endl;
     cout << "%SUITE_STARTED%" << endl;
+
+    Global::instance()->setVerbose(0);
 
     begin = clock();
     cout << "%TEST_STARTED% testWriteSequencesToFile (FastaFactoryTest)" << endl;

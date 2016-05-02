@@ -18,6 +18,7 @@
 #include <math.h>
 
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <cstring>
 #include <string>
@@ -27,7 +28,6 @@
 
 #include "berror.h"
 #include "bmemory.h"
-#include "bstring.h"
 
 #include "Exceptions.h"
 #include "Global.h"
@@ -349,7 +349,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             }
         }
     } catch (exceptions::NotFoundException ex) {
-        cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message=" << ex.what() << endl;
+        cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message=Not found sequence chr1" << endl;
     } 
 }
 

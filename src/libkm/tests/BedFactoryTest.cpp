@@ -5,12 +5,6 @@
  * Created on February 11, 2016, 4:14 PM
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <getopt.h>
-#include <stdbool.h>
-
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -22,10 +16,6 @@
 #include <set>
 #include <ctime>
 
-#include "berror.h"
-#include "bmemory.h"
-#include "bstring.h"
-
 #include "Global.h"
 #include "TimeUtils.h"
 #include "Exceptions.h"
@@ -33,6 +23,7 @@
 #include "FastaFactory.h"
 #include "KmersFactory.h"
 #include "BedFactory.h"
+#include "cstring.h"
 
 using namespace std;
 using namespace parsers;
@@ -57,53 +48,44 @@ void testCreatePeaksFromBedFile(string bFName, string dirName, string testName) 
     map<unsigned long int, map<string, unsigned long int>> testMap;
     KmersFactory kmersFactory;
     kmersFactory.createGenomeWideKmers();
+    vector<string> w;
 
     string test("TGAGAGGAAAGCTTTCCCACATTATACAGCTTCTGAAAGGGTTGCTTGACCCACAGATGTGAAGCTGAGGCTGAAGGAGACTGATGTGGTTTCTCCTCAGTTTCTCTGTGCAGCACCAGGTGGCAGCAGAGGTCAGCAAGGCAAACCCGAGCCCGGGGATGCGGAGTGGGGGCAGCTACGTCCTCTCTTG");
-    
+
     try {
         fParser.setFileToParse(testName);
-        while (fParser.iterate('#', "\t")) {
+        while (fParser.iterate("#", "\t")) {
             map<string, unsigned long int> inMap;
-            char *n = strchr(fParser.getWords()[2], '-');
-            *n = '\0';
-            string start(fParser.getWords()[2]);
-            i = atoi(fParser.getWords()[2]);
-            inMap.insert(pair<string, unsigned long int>("start", i));
-            inMap.insert(pair<string, unsigned long int>("end", atoi(fParser.getWords()[2] + start.size() + 1)));
-            inMap.insert(pair<string, unsigned long int>("width", atoi(fParser.getWords()[3])));
-            inMap.insert(pair<string, unsigned long int>("gccount", atoi(fParser.getWords()[4])));
-            inMap.insert(pair<string, unsigned long int>("ncount", atoi(fParser.getWords()[5])));
-            inMap.insert(pair<string, unsigned long int>("nrcount", atoi(fParser.getWords()[6])));
+            cstring::split(fParser.getWords()[2], "-", w);
+            i = atoi(w[0].c_str());
+            inMap.insert(make_pair("start", i));
+            inMap.insert(make_pair("end", atoi(w[1].c_str())));
+            inMap.insert(make_pair("width", atoi((fParser.getWords()[3]).c_str())));
+            inMap.insert(make_pair("gccount", atoi((fParser.getWords()[4]).c_str())));
+            inMap.insert(make_pair("ncount", atoi((fParser.getWords()[5]).c_str())));
+            inMap.insert(make_pair("nrcount", atoi((fParser.getWords()[6]).c_str())));
 
             testMap.insert(pair<unsigned long int, map<string, unsigned long int>>(i, inMap));
         }
     } catch (exceptions::FileNotFoundException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+        cerr << "Error parsing file: " << testName << endl;
         exit(-1);
-    } catch (exceptions::ErrorReadingFromFileException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+    } catch (ios::failure ex) {
+        cerr << "Error parsing file: " << testName << endl;
         exit(-1);
     }
-
+    
     chrFactory.parseFastaInDirectory(dirName, prefix, sufix, false);
-
-    try {
-        bedFactory.createPeaksFromBedFile(chrFactory, bFName, 0.7, kmersFactory);
-    } catch (exceptions::OutOfRangeException ex) {
-        cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Out of range " << i << endl;
-        return;
-    }
-
+    bedFactory.createPeaksFromBedFile(chrFactory, bFName, 0.7, kmersFactory);
     if (bedFactory.getPeaks().size() != 88) {
         cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Peaks to print should be equal to 88 and it is " << i << endl;
     }
 
-
     for (auto it = bedFactory.getPeaks().begin(); it != bedFactory.getPeaks().end(); ++it) {
         shared_ptr<Peak> p = *it;
+        
         map<string, unsigned long int> inMap = testMap.find(p->getStart())->second;
+        
         if (inMap.find("width")->second != p->getLength()) {
             cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong width: "
                     << p->getLength() << "!=" << inMap.find("width")->second << endl;
@@ -130,12 +112,7 @@ void testCreatePeaksFromBedFile(string bFName, string dirName, string testName) 
         }
     }
 
-    try {
-        bedFactory.generatingControlsFromChromosomes(chrFactory, 3, kmersFactory);
-    } catch (exceptions::OutOfRangeException ex) {
-        cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Out of range " << i << endl;
-        return;
-    }
+    bedFactory.generatingControlsFromChromosomes(chrFactory, 3, kmersFactory);
     kmersFactory.buildKmers();
     if (kmersFactory.getKmers().size() != 11848) {
         cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong number of kmers 11848 != " << kmersFactory.getKmers().size() << endl;
@@ -152,18 +129,14 @@ void testReadingControlsFromFile(string dirName, string controlName) {
 
     chrFactory.parseFastaInDirectory(dirName, prefix, sufix, false);
 
-    try {
-        bedFactory.readControlsFromFile(controlName, chrFactory, kmersFactory);
-    } catch (exceptions::OutOfRangeException ex) {
-        cout << "%TEST_FAILED% time=0 testname=testReadingControlsFromFile (BedFactoryTest) message=Out of range " << endl;
-        return;
-    }
+    bedFactory.readControlsFromFile(controlName, chrFactory, kmersFactory);
+
     if (kmersFactory.getTotalNRNTControl() != 1065) {
         cout << "%TEST_FAILED% time=0 testname=testReadingControlsFromFile (BedFactoryTest) message=Wrong calculation of Total non N 1065 != " << kmersFactory.getTotalNRNTControl() << endl;
     }
 }
 
-int main(int argc, char** argv) {
+int main() {
     clock_t start = clock();
     clock_t begin;
     string bFName("resources/test.bed");

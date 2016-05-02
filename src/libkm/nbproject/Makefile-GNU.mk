@@ -45,7 +45,6 @@ OBJECTFILES= \
 	${OBJECTDIR}/src/TFBSFactory.o \
 	${OBJECTDIR}/src/berror.o \
 	${OBJECTDIR}/src/bmemory.o \
-	${OBJECTDIR}/src/bstring.o \
 	${OBJECTDIR}/src/chebyshev.o \
 	${OBJECTDIR}/src/cstring.o \
 	${OBJECTDIR}/src/gamma.o \
@@ -146,20 +145,15 @@ ${OBJECTDIR}/src/TFBSFactory.o: src/TFBSFactory.cpp
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/TFBSFactory.o src/TFBSFactory.cpp
 
-${OBJECTDIR}/src/berror.o: src/berror.c 
+${OBJECTDIR}/src/berror.o: src/berror.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror.o src/berror.c
+	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror.o src/berror.cpp
 
-${OBJECTDIR}/src/bmemory.o: src/bmemory.c 
+${OBJECTDIR}/src/bmemory.o: src/bmemory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory.o src/bmemory.c
-
-${OBJECTDIR}/src/bstring.o: src/bstring.c 
-	${MKDIR} -p ${OBJECTDIR}/src
-	${RM} "$@.d"
-	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bstring.o src/bstring.c
+	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory.o src/bmemory.cpp
 
 ${OBJECTDIR}/src/chebyshev.o: src/chebyshev.c 
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -393,7 +387,7 @@ ${OBJECTDIR}/src/TFBSFactory_nomain.o: ${OBJECTDIR}/src/TFBSFactory.o src/TFBSFa
 	    ${CP} ${OBJECTDIR}/src/TFBSFactory.o ${OBJECTDIR}/src/TFBSFactory_nomain.o;\
 	fi
 
-${OBJECTDIR}/src/berror_nomain.o: ${OBJECTDIR}/src/berror.o src/berror.c 
+${OBJECTDIR}/src/berror_nomain.o: ${OBJECTDIR}/src/berror.o src/berror.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	@NMOUTPUT=`${NM} ${OBJECTDIR}/src/berror.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
@@ -401,12 +395,12 @@ ${OBJECTDIR}/src/berror_nomain.o: ${OBJECTDIR}/src/berror.o src/berror.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror_nomain.o src/berror.c;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror_nomain.o src/berror.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/berror.o ${OBJECTDIR}/src/berror_nomain.o;\
 	fi
 
-${OBJECTDIR}/src/bmemory_nomain.o: ${OBJECTDIR}/src/bmemory.o src/bmemory.c 
+${OBJECTDIR}/src/bmemory_nomain.o: ${OBJECTDIR}/src/bmemory.o src/bmemory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	@NMOUTPUT=`${NM} ${OBJECTDIR}/src/bmemory.o`; \
 	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
@@ -414,22 +408,9 @@ ${OBJECTDIR}/src/bmemory_nomain.o: ${OBJECTDIR}/src/bmemory.o src/bmemory.c
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory_nomain.o src/bmemory.c;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory_nomain.o src/bmemory.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/bmemory.o ${OBJECTDIR}/src/bmemory_nomain.o;\
-	fi
-
-${OBJECTDIR}/src/bstring_nomain.o: ${OBJECTDIR}/src/bstring.o src/bstring.c 
-	${MKDIR} -p ${OBJECTDIR}/src
-	@NMOUTPUT=`${NM} ${OBJECTDIR}/src/bstring.o`; \
-	if (echo "$$NMOUTPUT" | ${GREP} '|main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T main$$') || \
-	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
-	then  \
-	    ${RM} "$@.d";\
-	    $(COMPILE.c) -O2 -Iincludes -std=c11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bstring_nomain.o src/bstring.c;\
-	else  \
-	    ${CP} ${OBJECTDIR}/src/bstring.o ${OBJECTDIR}/src/bstring_nomain.o;\
 	fi
 
 ${OBJECTDIR}/src/chebyshev_nomain.o: ${OBJECTDIR}/src/chebyshev.o src/chebyshev.c 

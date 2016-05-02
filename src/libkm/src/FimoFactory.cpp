@@ -5,11 +5,6 @@
  * Created on March 4, 2016, 3:48 PM
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-
 #include <iostream>
 #include <memory>
 #include <fstream>
@@ -21,14 +16,11 @@
 #include <vector>
 #include <algorithm>
 
-#include "berror.h"
-#include "bmemory.h"
-#include "bstring.h"
-
 #include "Global.h"
 #include "TimeUtils.h"
 #include "FileParserFactory.h"
 #include "FimoFactory.h"
+#include "cstring.h"
 
 using namespace std;
 using namespace parsers;
@@ -45,9 +37,7 @@ FimoFactory::~FimoFactory() {
 }
 
 void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::string tissue_file) {
-    char **words = NULL;
-    size_t nWords = 0;
-    size_t wordsSize = 0;
+    vector<string> words;
     FileParserFactory fParser;
     unordered_map<string, set < string>> tFNameReverseMap;
     unordered_map<string, set < string>>::iterator tFNameReverseMapIt;
@@ -55,54 +45,49 @@ void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::st
 
     try {
         fParser.setFileToParse(pwm_EnsembleID);
-        while (fParser.iterate('#', "\t")) {
-            if (fParser.getNWords() < 2) {
+        while (fParser.iterate("#", "\t")) {
+            if (fParser.getWords().size() < 2) {
                 cerr << "Input pwm_tFName file with a wrong format " << endl;
                 exit(-1);
             }
-            nWords = strsep_ptr(&words, &wordsSize, fParser.getWords()[fParser.getNWords() - 1], ";");
-            for (size_t i = 0; i < nWords; i++) {
-                tFNameReverseMapIt = tFNameReverseMap.find(words[i]);
+            cstring::split(fParser.getWords()[fParser.getWords().size() - 1], ";", words);
+            for (auto wIt = words.begin(); wIt != words.end(); ++wIt) {
+                tFNameReverseMapIt = tFNameReverseMap.find(*wIt);
                 if (tFNameReverseMapIt == tFNameReverseMap.end()) {
                     set<string> s;
                     s.insert(fParser.getWords()[0]);
-                    tFNameReverseMap.insert(pair<string, set < string >> (words[i], s));
+                    tFNameReverseMap.insert(make_pair(*wIt, s));
                 } else {
                     tFNameReverseMapIt->second.insert(fParser.getWords()[0]);
                 }
             }
         }
     } catch (exceptions::FileNotFoundException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+        cerr << "Error parsing file: " << pwm_EnsembleID << endl;
         exit(-1);
-    } catch (exceptions::ErrorReadingFromFileException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+    } catch (ios::failure) {
+        cerr << "Error parsing file: " << pwm_EnsembleID << endl;
         exit(-1);
     }
-
-    fParser.clean();    
-
+    
     try {
         fParser.setFileToParse(tissue_file);
-        fParser.iterate('#', "\t");
-        fParser.wordsToVector(header);
-        while (fParser.iterate('#', "\t")) {
-            if (fParser.getNWords() != header.size()) {
+        fParser.iterate("#", "\t");
+        header.resize(fParser.getWords().size());
+        std::copy(fParser.getWords().begin(), fParser.getWords().end(), header.begin());
+        while (fParser.iterate("#", "\t")) {
+            if (fParser.getWords().size() != header.size()) {
                 cerr << "Tissue file with a wrong format " << endl;
                 exit(-1);
             }
-
             tFNameReverseMapIt = tFNameReverseMap.find(fParser.getWords()[0]);
             if (tFNameReverseMapIt != tFNameReverseMap.end()) {
                 for (auto it1 = tFNameReverseMapIt->second.begin(); it1 != tFNameReverseMapIt->second.end(); ++it1) {
-
                     auto tissueMapIt = tissueIndex.find(*it1);
 
-                    for (size_t i = 1; i < fParser.getNWords(); i++) {
-                        if (tissueMapIt == tissueIndex.end()) {
-                            pair<string, double> tissueEnsemblePair(fParser.getWords()[0], strtod(fParser.getWords()[i], NULL));
+                    for (size_t i = 1; i < fParser.getWords().size(); i++) {
+                        if (tissueMapIt == tissueIndex.end()) {                            
+                            pair<string, double> tissueEnsemblePair(fParser.getWords()[0], atof((fParser.getWords()[i]).c_str()));
                             unordered_map<string, pair<string, double>> tissues;
                             tissues.insert(pair<string, pair<string, double>>(header[i], tissueEnsemblePair));
                             tissueIndex.insert(pair<string, unordered_map<string, pair<string, double>>>(*it1, tissues));
@@ -110,11 +95,11 @@ void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::st
                         } else {
                             auto tissueIt = tissueMapIt->second.find(header[i]);
                             if (tissueIt == tissueMapIt->second.end()) {
-                                pair<string, double> tissueEnsemblePair(fParser.getWords()[0], strtod(fParser.getWords()[i], NULL));
-                                tissueMapIt->second.insert(pair<string, pair<string, double>>(header[i], tissueEnsemblePair));
+                                pair<string, double> tissueEnsemblePair(fParser.getWords()[0], atof((fParser.getWords()[i]).c_str()));
+                                tissueMapIt->second.insert(make_pair(header[i], tissueEnsemblePair));
                             } else {
-                                if (tissueIt->second.second < strtod(fParser.getWords()[i], NULL)) {
-                                    tissueIt->second = pair<string, double>(fParser.getWords()[0], strtod(fParser.getWords()[i], NULL));
+                                if (tissueIt->second.second < atof((fParser.getWords()[i]).c_str())) {
+                                    tissueIt->second = make_pair(fParser.getWords()[0], atof((fParser.getWords()[i]).c_str()));
                                 }
                             }
                         }
@@ -123,36 +108,30 @@ void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::st
             }
         }
     } catch (exceptions::FileNotFoundException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+        cerr << "Error parsing file: " << tissue_file << endl;
         exit(-1);
-    } catch (exceptions::ErrorReadingFromFileException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+    } catch (ios::failure ex) {
+        cerr << "Error parsing file: " << tissue_file << endl;
         exit(-1);
     }
-
-    if (words) free(words);
 }
 
 void FimoFactory::createCutoffIndexFromFile(std::string cutoffFileName, size_t column) {
     FileParserFactory fParser;
     try {
         fParser.setFileToParse(cutoffFileName);
-        while (fParser.iterate('#', " ")) {
-            if (fParser.getNWords() <= column) {
+        while (fParser.iterate("#", " ")) {
+            if (fParser.getWords().size() <= column) {
                 cerr << "Input cutoff file with less columns of required " << endl;
                 exit(-1);
             }
-            cutoffIndex.insert(pair<string, double>(fParser.getWords()[0], strtod(fParser.getWords()[column], NULL)));
+            cutoffIndex.insert(make_pair(fParser.getWords()[0], atof((fParser.getWords()[column]).c_str())));
         }
     } catch (exceptions::FileNotFoundException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+        cerr << "Error parsing file: " << cutoffFileName << endl;
         exit(-1);
-    } catch (exceptions::ErrorReadingFromFileException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+    } catch (ios::failure ex) {
+        cerr << "Error parsing file: " << cutoffFileName << endl;
         exit(-1);
     }
 }
@@ -164,37 +143,35 @@ void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueC
     unordered_map<string, set < string>> ensemblMap;
     unordered_map<string, set < string>>::iterator ensemblMapIt;
     pair < unordered_map<string, set < string>>::iterator, bool> res;
-    char **words = NULL;
-    size_t nWords = 0;
-    size_t wordsSize = 0;
+    vector<string> words;
 
     try {
         fParser.setFileToParse(fimoOuputName);
-        while (fParser.iterate('#', "\t")) {
-            if (fParser.getNWords() != 8) {
+        while (fParser.iterate("#", "\t")) {
+            if (fParser.getWords().size() != 8) {
                 cerr << "FIMO output file with a wrong format " << endl;
                 exit(-1);
             }
 
-            res = ensemblMap.insert(pair<string, set < string >> (fParser.getWords()[1], set < string>()));
+            res = ensemblMap.insert(make_pair(fParser.getWords()[1], set < string>()));
             ensemblMapIt = res.first;
 
-            nWords = strsep_ptr(&words, &wordsSize, fParser.getWords()[0], ";");
+            cstring::split(fParser.getWords()[0], ";", words);
 
-            for (size_t i = 0; i < nWords; i++) {
-                pair<string, double> motifExpression = getTissueValue(words[i], tissueCode);
+            for (auto wIt = words.begin(); wIt != words.end(); ++wIt) {
+                pair<string, double> motifExpression = getTissueValue(*wIt, tissueCode);
                 if (fabs(motifExpression.second) >= 1.0) {
-                    double pValue = strtod(fParser.getWords()[6], NULL);
-                    if (pValue < getCutoffValue(words[i])) {
+                    double pValue = atof((fParser.getWords()[6]).c_str());
+                    if (pValue < getCutoffValue(*wIt)) {
 
                         fimoIt = fimoMap.find(fParser.getWords()[1]);
                         shared_ptr<Fimo> f = make_shared<Fimo>();
-                        f->setMotif(words[i]);
+                        f->setMotif(*wIt);
                         f->setId(fParser.getWords()[1]);
-                        f->setStart(static_cast<unsigned long int> (atoi(fParser.getWords()[2]) - 1));
-                        f->setEnd(static_cast<unsigned long int> (atoi(fParser.getWords()[3]) - 1));
-                        f->setStrand(fParser.getWords()[4][0]);
-                        f->setScore(strtod(fParser.getWords()[5], NULL));
+                        f->setStart(static_cast<unsigned long int> (atoi((fParser.getWords()[2]).c_str()) - 1));
+                        f->setEnd(static_cast<unsigned long int> (atoi((fParser.getWords()[3]).c_str()) - 1));
+                        f->setStrand(fParser.getWords()[4].at(0));
+                        f->setScore(atof((fParser.getWords()[5]).c_str()));
                         f->setValue(pValue);
                         f->setSeq(fParser.getWords()[7]);
                         f->setExpression(motifExpression.second);
@@ -210,11 +187,11 @@ void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueC
                                 v.push_back(motifExpression.second);
                                 ensemblMapIt->second.insert(motifExpression.first);
                             }
-                            snpIDContainer.insert(pair<string, vector<double>>(fParser.getWords()[1], v));
+                            snpIDContainer.insert(make_pair(fParser.getWords()[1], v));
 
                             set<shared_ptr<Fimo>, PointerCompare> s;
                             s.insert(f);
-                            fimoMap.insert(make_pair (fParser.getWords()[1], s));
+                            fimoMap.insert(make_pair(fParser.getWords()[1], s));
                         } else {
                             pair < set < shared_ptr<Fimo>, PointerCompare>::iterator, bool> iter;
 
@@ -240,14 +217,10 @@ void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueC
             }
         }
     } catch (exceptions::FileNotFoundException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+        cerr << "Error parsing file:" << fimoOuputName << endl;
         exit(-1);
-    } catch (exceptions::ErrorReadingFromFileException ex) {
-        cerr << ex.what() << endl;
-        cerr << "Error parsing file" << endl;
+    } catch (ios::failure ex) {
+        cerr << "Error parsing file:" << fimoOuputName << endl;
         exit(-1);
     }
-
-    if (words) free(words);
 }

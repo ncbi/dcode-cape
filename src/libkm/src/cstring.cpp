@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <sstream>
+#include <vector>
 
 #include "cstring.h"
 
@@ -81,4 +83,17 @@ int cstring::countCharacter(std::string str, std::string characters) {
         }
     }
     return count;
+}
+
+std::vector<std::string> &cstring::split(const std::string &s, std::string delim, std::vector<std::string> &elems) {
+    std::size_t prev = 0, pos;
+    elems.clear();
+    while ((pos = s.find_first_of(delim, prev)) != std::string::npos) {
+        if (pos > prev)
+            elems.push_back(s.substr(prev, pos - prev));
+        prev = pos + 1;
+    }
+    if (prev < s.length())
+        elems.push_back(s.substr(prev, std::string::npos));
+    return elems;
 }
