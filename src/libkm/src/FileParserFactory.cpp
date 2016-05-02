@@ -23,6 +23,7 @@ FileParserFactory::FileParserFactory() {
     this->bufferSize = 10000000;
     this->currPosition = 0;
     this->backup = false;
+    this->line = "";
 }
 
 FileParserFactory::~FileParserFactory() {
