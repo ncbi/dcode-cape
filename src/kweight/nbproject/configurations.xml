@@ -49,7 +49,7 @@
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
-          <standard>8</standard>
+          <standard>11</standard>
           <incDir>
             <pElem>includes</pElem>
             <pElem>../libkm/includes</pElem>

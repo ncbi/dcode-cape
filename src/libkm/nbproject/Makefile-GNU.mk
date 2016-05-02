@@ -108,52 +108,52 @@ LDLIBSOPTIONS=
 ${OBJECTDIR}/src/BedFactory.o: src/BedFactory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/BedFactory.o src/BedFactory.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/BedFactory.o src/BedFactory.cpp
 
 ${OBJECTDIR}/src/FastaFactory.o: src/FastaFactory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FastaFactory.o src/FastaFactory.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FastaFactory.o src/FastaFactory.cpp
 
 ${OBJECTDIR}/src/FileParserFactory.o: src/FileParserFactory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FileParserFactory.o src/FileParserFactory.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FileParserFactory.o src/FileParserFactory.cpp
 
 ${OBJECTDIR}/src/FimoFactory.o: src/FimoFactory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FimoFactory.o src/FimoFactory.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FimoFactory.o src/FimoFactory.cpp
 
 ${OBJECTDIR}/src/KmersFactory.o: src/KmersFactory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/KmersFactory.o src/KmersFactory.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/KmersFactory.o src/KmersFactory.cpp
 
 ${OBJECTDIR}/src/SNPFactory.o: src/SNPFactory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SNPFactory.o src/SNPFactory.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SNPFactory.o src/SNPFactory.cpp
 
 ${OBJECTDIR}/src/SVMPredict.o: src/SVMPredict.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SVMPredict.o src/SVMPredict.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SVMPredict.o src/SVMPredict.cpp
 
 ${OBJECTDIR}/src/TFBSFactory.o: src/TFBSFactory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/TFBSFactory.o src/TFBSFactory.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/TFBSFactory.o src/TFBSFactory.cpp
 
 ${OBJECTDIR}/src/berror.o: src/berror.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror.o src/berror.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror.o src/berror.cpp
 
 ${OBJECTDIR}/src/bmemory.o: src/bmemory.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory.o src/bmemory.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory.o src/bmemory.cpp
 
 ${OBJECTDIR}/src/chebyshev.o: src/chebyshev.c 
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -163,7 +163,7 @@ ${OBJECTDIR}/src/chebyshev.o: src/chebyshev.c
 ${OBJECTDIR}/src/cstring.o: src/cstring.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/cstring.o src/cstring.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/cstring.o src/cstring.cpp
 
 ${OBJECTDIR}/src/gamma.o: src/gamma.c 
 	${MKDIR} -p ${OBJECTDIR}/src
@@ -193,7 +193,7 @@ ${OBJECTDIR}/src/stirlerr.o: src/stirlerr.c
 ${OBJECTDIR}/src/svm.o: src/svm.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/svm.o src/svm.cpp
+	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/svm.o src/svm.cpp
 
 # Subprojects
 .build-subprojects:
@@ -238,49 +238,49 @@ ${TESTDIR}/TestFiles/tFBSFactoryTest: ${TESTDIR}/tests/TFBSFactoryTest.o ${OBJEC
 ${TESTDIR}/tests/BedFactoryTest.o: tests/BedFactoryTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -Iincludes -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/BedFactoryTest.o tests/BedFactoryTest.cpp
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/BedFactoryTest.o tests/BedFactoryTest.cpp
 
 
 ${TESTDIR}/tests/FastaFactoryTest.o: tests/FastaFactoryTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FastaFactoryTest.o tests/FastaFactoryTest.cpp
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++14 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FastaFactoryTest.o tests/FastaFactoryTest.cpp
 
 
 ${TESTDIR}/tests/FileParserFactoryTest.o: tests/FileParserFactoryTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FileParserFactoryTest.o tests/FileParserFactoryTest.cpp
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++14 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FileParserFactoryTest.o tests/FileParserFactoryTest.cpp
 
 
 ${TESTDIR}/tests/FimoFactoryTest.o: tests/FimoFactoryTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FimoFactoryTest.o tests/FimoFactoryTest.cpp
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++14 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/FimoFactoryTest.o tests/FimoFactoryTest.cpp
 
 
 ${TESTDIR}/tests/KmerFactoryTest.o: tests/KmerFactoryTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/KmerFactoryTest.o tests/KmerFactoryTest.cpp
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++14 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/KmerFactoryTest.o tests/KmerFactoryTest.cpp
 
 
 ${TESTDIR}/tests/PeakTest.o: tests/PeakTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PeakTest.o tests/PeakTest.cpp
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++14 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PeakTest.o tests/PeakTest.cpp
 
 
 ${TESTDIR}/tests/PhyperTest.o: tests/PhyperTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PhyperTest.o tests/PhyperTest.cpp
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++14 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/PhyperTest.o tests/PhyperTest.cpp
 
 
 ${TESTDIR}/tests/TFBSFactoryTest.o: tests/TFBSFactoryTest.cpp 
 	${MKDIR} -p ${TESTDIR}/tests
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++11 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/TFBSFactoryTest.o tests/TFBSFactoryTest.cpp
+	$(COMPILE.cc) -O2 -Iincludes -Iincludes -I. -std=c++14 -MMD -MP -MF "$@.d" -o ${TESTDIR}/tests/TFBSFactoryTest.o tests/TFBSFactoryTest.cpp
 
 
 ${OBJECTDIR}/src/BedFactory_nomain.o: ${OBJECTDIR}/src/BedFactory.o src/BedFactory.cpp 
@@ -291,7 +291,7 @@ ${OBJECTDIR}/src/BedFactory_nomain.o: ${OBJECTDIR}/src/BedFactory.o src/BedFacto
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/BedFactory_nomain.o src/BedFactory.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/BedFactory_nomain.o src/BedFactory.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/BedFactory.o ${OBJECTDIR}/src/BedFactory_nomain.o;\
 	fi
@@ -304,7 +304,7 @@ ${OBJECTDIR}/src/FastaFactory_nomain.o: ${OBJECTDIR}/src/FastaFactory.o src/Fast
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FastaFactory_nomain.o src/FastaFactory.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FastaFactory_nomain.o src/FastaFactory.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/FastaFactory.o ${OBJECTDIR}/src/FastaFactory_nomain.o;\
 	fi
@@ -317,7 +317,7 @@ ${OBJECTDIR}/src/FileParserFactory_nomain.o: ${OBJECTDIR}/src/FileParserFactory.
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FileParserFactory_nomain.o src/FileParserFactory.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FileParserFactory_nomain.o src/FileParserFactory.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/FileParserFactory.o ${OBJECTDIR}/src/FileParserFactory_nomain.o;\
 	fi
@@ -330,7 +330,7 @@ ${OBJECTDIR}/src/FimoFactory_nomain.o: ${OBJECTDIR}/src/FimoFactory.o src/FimoFa
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FimoFactory_nomain.o src/FimoFactory.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FimoFactory_nomain.o src/FimoFactory.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/FimoFactory.o ${OBJECTDIR}/src/FimoFactory_nomain.o;\
 	fi
@@ -343,7 +343,7 @@ ${OBJECTDIR}/src/KmersFactory_nomain.o: ${OBJECTDIR}/src/KmersFactory.o src/Kmer
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/KmersFactory_nomain.o src/KmersFactory.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/KmersFactory_nomain.o src/KmersFactory.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/KmersFactory.o ${OBJECTDIR}/src/KmersFactory_nomain.o;\
 	fi
@@ -356,7 +356,7 @@ ${OBJECTDIR}/src/SNPFactory_nomain.o: ${OBJECTDIR}/src/SNPFactory.o src/SNPFacto
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SNPFactory_nomain.o src/SNPFactory.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SNPFactory_nomain.o src/SNPFactory.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/SNPFactory.o ${OBJECTDIR}/src/SNPFactory_nomain.o;\
 	fi
@@ -369,7 +369,7 @@ ${OBJECTDIR}/src/SVMPredict_nomain.o: ${OBJECTDIR}/src/SVMPredict.o src/SVMPredi
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SVMPredict_nomain.o src/SVMPredict.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SVMPredict_nomain.o src/SVMPredict.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/SVMPredict.o ${OBJECTDIR}/src/SVMPredict_nomain.o;\
 	fi
@@ -382,7 +382,7 @@ ${OBJECTDIR}/src/TFBSFactory_nomain.o: ${OBJECTDIR}/src/TFBSFactory.o src/TFBSFa
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/TFBSFactory_nomain.o src/TFBSFactory.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/TFBSFactory_nomain.o src/TFBSFactory.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/TFBSFactory.o ${OBJECTDIR}/src/TFBSFactory_nomain.o;\
 	fi
@@ -395,7 +395,7 @@ ${OBJECTDIR}/src/berror_nomain.o: ${OBJECTDIR}/src/berror.o src/berror.cpp
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror_nomain.o src/berror.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror_nomain.o src/berror.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/berror.o ${OBJECTDIR}/src/berror_nomain.o;\
 	fi
@@ -408,7 +408,7 @@ ${OBJECTDIR}/src/bmemory_nomain.o: ${OBJECTDIR}/src/bmemory.o src/bmemory.cpp
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory_nomain.o src/bmemory.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory_nomain.o src/bmemory.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/bmemory.o ${OBJECTDIR}/src/bmemory_nomain.o;\
 	fi
@@ -434,7 +434,7 @@ ${OBJECTDIR}/src/cstring_nomain.o: ${OBJECTDIR}/src/cstring.o src/cstring.cpp
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/cstring_nomain.o src/cstring.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/cstring_nomain.o src/cstring.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/cstring.o ${OBJECTDIR}/src/cstring_nomain.o;\
 	fi
@@ -512,7 +512,7 @@ ${OBJECTDIR}/src/svm_nomain.o: ${OBJECTDIR}/src/svm.o src/svm.cpp
 	   (echo "$$NMOUTPUT" | ${GREP} 'T _main$$'); \
 	then  \
 	    ${RM} "$@.d";\
-	    $(COMPILE.cc) -O2 -Iincludes -std=c++11 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/svm_nomain.o src/svm.cpp;\
+	    $(COMPILE.cc) -O2 -Iincludes -std=c++14 -Dmain=__nomain -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/svm_nomain.o src/svm.cpp;\
 	else  \
 	    ${CP} ${OBJECTDIR}/src/svm.o ${OBJECTDIR}/src/svm_nomain.o;\
 	fi
