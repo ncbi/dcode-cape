@@ -112,6 +112,10 @@ namespace tfbs {
             return !this->tfbsFileIndex.empty();
         }
 
+        unsigned long int getTfbsFileIndexSize() {
+            return tfbsFileIndex.size();
+        }
+
     private:
         std::vector<std::shared_ptr<Tib>> pwmIndex;
         long int longestPWM;
