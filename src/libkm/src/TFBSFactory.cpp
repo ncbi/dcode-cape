@@ -126,10 +126,10 @@ void TFBSFactory::createPWMIndexFromTibInfoFile(string tibInfoFileName) {
             }
             pwmIndex.push_back(tib);
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file: " << tibInfoFileName << endl;
         exit(-1);
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cerr << "Error parsing file: " << tibInfoFileName << endl;
         exit(-1);
     }
@@ -201,7 +201,7 @@ void TFBSFactory::extractTFBSFromFile(long int from, long int to, shared_ptr<Seq
     vector<unsigned long int> offset((rTo - rFrom + 1));
     try {
         chrIdxFile.seekg((rFrom - 1)*4);
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cerr << "Error seeking position in index file" << endl;
         exit(-1);
     }
@@ -216,7 +216,7 @@ void TFBSFactory::extractTFBSFromFile(long int from, long int to, shared_ptr<Seq
             if (!seek_performed) {
                 try {
                     chrTibFile.seekg(2 * offset[ i - rFrom ]);
-                } catch (ios::failure ex) {
+                } catch (ios::failure) {
                     cerr << "Error seeking position in index file" << endl;
                     exit(-1);
                 }

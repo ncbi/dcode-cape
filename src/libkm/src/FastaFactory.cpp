@@ -95,10 +95,10 @@ long unsigned int FastaFactory::parseFastaFile(std::string fName, bool binary) {
                     fasta->getSeq().append(line);
                 }
             }
-        } catch (exceptions::FileNotFoundException ex) {
+        } catch (exceptions::FileNotFoundException) {
             cerr << "Error parsing file: " << fName << endl;
             exit(-1);
-        } catch (ios::failure ex) {
+        } catch (ios::failure) {
             cerr << "Error parsing file: " << fName << endl;
             exit(-1);
         }

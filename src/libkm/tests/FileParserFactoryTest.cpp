@@ -84,10 +84,10 @@ void testIterate() {
 
             i++;
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file: resources/57epigenomes.RPKM.pc " << endl;
         return;
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cout << "%TEST_FAILED% time=0 testname=testIterate (FileParserFactoryTest) message=Error parsing file: resources/57epigenomes.RPKM.pc " << endl;
         return;
     }

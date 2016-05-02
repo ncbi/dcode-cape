@@ -349,7 +349,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
-    } catch (exceptions::NotFoundException ex) {
+    } catch (exceptions::NotFoundException) {
         cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message=Not found sequence chr1" << endl;
     } 
 }

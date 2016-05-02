@@ -107,7 +107,7 @@ void SNPFactory::parseSNPFile(std::string snpFileName, unsigned long int neighbo
 
     try {
         f = chrFactory.getFirstSequence();
-    } catch (exceptions::NotFoundException ex) {
+    } catch (exceptions::NotFoundException) {
         cerr << "Not chromosome sequences loaded" << endl;
         exit(-1);
     }
@@ -123,7 +123,7 @@ void SNPFactory::parseSNPFile(std::string snpFileName, unsigned long int neighbo
                 try {
                     f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
                     process = true;
-                } catch (exceptions::NotFoundException ex) {
+                } catch (exceptions::NotFoundException) {
                     process = false;
                 }
             }
@@ -177,17 +177,17 @@ void SNPFactory::parseSNPFile(std::string snpFileName, unsigned long int neighbo
                     } else {
                         snps.push_back(snp);
                     }
-                } catch (std::out_of_range ex) {
+                } catch (std::out_of_range) {
                     cerr << "Out of range coordinates for sequence." << endl;
                     exit(-1);
                 }
 
             }
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file: " << snpFileName << endl;
         exit(-1);
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cerr << "Error parsing file: " << snpFileName << endl;
         exit(-1);
     }
@@ -244,7 +244,7 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
 
     try {
         f = chrFactory.getFirstSequence();
-    } catch (exceptions::NotFoundException ex) {
+    } catch (exceptions::NotFoundException) {
         cerr << "Not chromosome sequences loaded" << endl;
         exit(-1);
     }
@@ -261,7 +261,7 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
                 try {
                     f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
                     process = true;
-                } catch (exceptions::NotFoundException ex) {
+                } catch (exceptions::NotFoundException) {
                     process = false;
                 }
             }
@@ -342,7 +342,7 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
                                     }
                                     snp->getDescriptors()[3] = overlapValue;
                                     snp->getDescriptors()[4] = neighborSum;
-                                } catch (exceptions::NotFoundException ex) {
+                                } catch (exceptions::NotFoundException) {
                                     cerr << "Not indexes available for " << f->getId() << ". Ignoring" << endl;
                                 }
 
@@ -352,16 +352,16 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
                         }
                         snps.push_back(snp);
                     }
-                } catch (std::out_of_range ex) {
+                } catch (std::out_of_range) {
                     cerr << "Out of range coordinates for sequence." << endl;
                     exit(-1);
                 }
             }
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file:" << snpFileName << endl;
         exit(-1);
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cerr << "Error parsing file:" << snpFileName << endl;
         exit(-1);
     }

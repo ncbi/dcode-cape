@@ -203,10 +203,7 @@ int main(int argc, char** argv) {
                 }
             }
         }
-    } catch (exceptions::FileNotFoundException ex) {
-        cerr << "Error parsing file: " << inFileName << endl;
-        exit(-1);
-    } catch (ios::failure ex) {
+    } catch (std::exception) {
         cerr << "Error parsing file: " << inFileName << endl;
         exit(-1);
     }

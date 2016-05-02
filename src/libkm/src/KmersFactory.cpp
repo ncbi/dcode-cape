@@ -280,10 +280,10 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
                     this->kmers.insert(make_pair(rc_kmer, kr));
                 }
             }
-        } catch (exceptions::FileNotFoundException ex) {
+        } catch (exceptions::FileNotFoundException) {
             cerr << "Error parsing file: " << fileName << endl;
             exit(-1);
-        } catch (ios::failure ex) {
+        } catch (ios::failure) {
             cerr << "Error parsing file: " << fileName << endl;
             exit(-1);
         }

@@ -96,7 +96,7 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
 
     try {
         f = chrFactory.getFirstSequence();
-    } catch (exceptions::NotFoundException ex) {
+    } catch (exceptions::NotFoundException) {
         cerr << "Not chromosome sequences loaded" << endl;
         exit(-1);
     }
@@ -113,7 +113,7 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
                 try {
                     f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
                     process = true;
-                } catch (exceptions::NotFoundException ex) {
+                } catch (exceptions::NotFoundException) {
                     process = false;
                 }
             }
@@ -153,16 +153,16 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
                             kmersFactory.scanSequences(p->getSeq(), false);
                             this->peaks.push_back(p);
                         }
-                    } catch (std::out_of_range ex) {
+                    } catch (std::out_of_range) {
                         cerr << "Out of range coordinates for sequence. Ignoring peak" << endl;
                     }
                 }
             }
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cerr << "Error opening file: " << bedFileName << endl;
         exit(-1);
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cerr << "Error retrieving sequences" << endl;
         exit(-1);
     }
@@ -345,7 +345,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                                 for (i = 0; i < total_controlNum; i++) {
                                     kmersFactory.scanSequences(cstring::shuffle(seq), true);
                                 }
-                            } catch (std::out_of_range ex) {
+                            } catch (std::out_of_range) {
                                 cerr << "Out of range sequence coordinates. Ignoring peak" << endl;
                             }
                         } else {
@@ -364,7 +364,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                                 if (peaksVector[i]->getStart() + window_len <= f->getLength()) {
                                     kmersFactory.scanSequences(seq, true);
                                 }
-                            } catch (std::out_of_range ex) {
+                            } catch (std::out_of_range) {
                                 cerr << "Out of range sequence coordinates. Ignoring peak" << endl;
                             }
                         }
@@ -386,7 +386,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                                         if (i == total_controlNum) {
                                             break;
                                         }
-                                    } catch (std::out_of_range ex) {
+                                    } catch (std::out_of_range) {
                                         cerr << "Out of range sequence coordinates. Ignoring peak" << endl;
                                     }
                                 }
@@ -395,7 +395,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                     }
                 }
             }
-        } catch (exceptions::NotFoundException ex) {
+        } catch (exceptions::NotFoundException) {
             cerr << "Not sequence for ID: " << chr_it->first << ". Ignoring entry" << endl;
         }
     }
@@ -433,7 +433,7 @@ void BedFactory::readControlsFromFile(std::string controlFileName, FastaFactory 
 
     try {
         f = chrFactory.getFirstSequence();
-    } catch (exceptions::NotFoundException ex) {
+    } catch (exceptions::NotFoundException) {
         cerr << "Not chromosome sequences loaded" << endl;
         exit(-1);
     }
@@ -450,22 +450,22 @@ void BedFactory::readControlsFromFile(std::string controlFileName, FastaFactory 
                 try {
                     f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
                     process = true;
-                } catch (exceptions::NotFoundException ex) {
+                } catch (exceptions::NotFoundException) {
                     process = false;
                 }
             }
             if (process) {
                 try {
                     kmersFactory.scanSequences(f->getSubStr(atoi((fParser.getWords()[1]).c_str()), atoi((fParser.getWords()[2]).c_str())), true);
-                } catch (std::out_of_range ex) {
+                } catch (std::out_of_range) {
                     cerr << "Out of range sequence coordinates. Ignoring control sequence";
                 }
             }
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file: " << controlFileName << endl;
         exit(-1);
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cerr << "Error parsing file: " << controlFileName << endl;
         exit(-1);
     }

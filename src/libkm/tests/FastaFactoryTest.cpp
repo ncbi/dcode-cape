@@ -108,7 +108,7 @@ void testParseFastaMultipleFile(string fileName) {
                         << seqSize.find(f->getId())->second << " != " << f->getLength() << endl;
             }
         }
-    } catch (exceptions::NotFoundException ex) {
+    } catch (exceptions::NotFoundException) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaMultipleFile (FastaFactoryTest) message=Not found sequence chr4" << endl;
     }
 }
@@ -132,7 +132,7 @@ void testParseFastaDir(string fileName) {
         if (seq->getSubStr(15000, 1000).compare(test_seg) != 0) {
             cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=The segment of length 1050 starting at 15000 is not equal to the test" << endl;
         }
-    } catch (exceptions::NotFoundException ex) {
+    } catch (exceptions::NotFoundException) {
         cout << "%TEST_FAILED% time=0 testname=testParseFastaFile (FastaFactoryTest) message=Not found sequence chr1" << endl;
     }
 

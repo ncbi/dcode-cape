@@ -62,7 +62,7 @@ void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::st
                 }
             }
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file: " << pwm_EnsembleID << endl;
         exit(-1);
     } catch (ios::failure) {
@@ -107,10 +107,10 @@ void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::st
                 }
             }
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file: " << tissue_file << endl;
         exit(-1);
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cerr << "Error parsing file: " << tissue_file << endl;
         exit(-1);
     }
@@ -127,10 +127,10 @@ void FimoFactory::createCutoffIndexFromFile(std::string cutoffFileName, size_t c
             }
             cutoffIndex.insert(make_pair(fParser.getWords()[0], atof((fParser.getWords()[column]).c_str())));
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file: " << cutoffFileName << endl;
         exit(-1);
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cerr << "Error parsing file: " << cutoffFileName << endl;
         exit(-1);
     }
@@ -216,10 +216,10 @@ void FimoFactory::parseFimoOutput(std::string fimoOuputName, std::string tissueC
                 }
             }
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file:" << fimoOuputName << endl;
         exit(-1);
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cerr << "Error parsing file:" << fimoOuputName << endl;
         exit(-1);
     }

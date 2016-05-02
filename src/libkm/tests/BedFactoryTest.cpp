@@ -67,10 +67,10 @@ void testCreatePeaksFromBedFile(string bFName, string dirName, string testName) 
 
             testMap.insert(pair<unsigned long int, map<string, unsigned long int>>(i, inMap));
         }
-    } catch (exceptions::FileNotFoundException ex) {
+    } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file: " << testName << endl;
         exit(-1);
-    } catch (ios::failure ex) {
+    } catch (ios::failure) {
         cerr << "Error parsing file: " << testName << endl;
         exit(-1);
     }
