@@ -269,9 +269,12 @@ int main(int argc, char** argv) {
             print_usage(argv[0], -1);
         }
 
+        begin = clock();
+        cout << "Loading FIMO indexes address" << endl;
         snpFactory.setExpressionCode(expressionCode);
         tFBSFactory.createTFBSFileIndexMap(tFBSIdxDirName, "chr", ".idx", ".tib");
         tFBSFactory.createPWMIndexFromTibInfoFile(tibInfoFileName);
+        cout << tFBSFactory.getTfbs().size() << " TFBS loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
     }
 
     Global::instance()->setBin1(0.005);
