@@ -16,9 +16,7 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="KillerMutations">
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/BedFactory.h</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/BedFactory.cpp</file>
-            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/FastaFactory.cpp</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/includes/FileParserFactory.h</file>
         </group>
     </open-files>
 </project-private>
