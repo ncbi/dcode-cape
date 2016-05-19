@@ -79,7 +79,7 @@ void SNP::calculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
 
         if (i >= startPos && i <= endPos) {
             descriptors[1] += kmersFactory.getKmerSig(sub);
-            sub = sub.replace(j, 1, &alt);
+            sub[j] = alt;
             overlapMutated += kmersFactory.getKmerSig(sub);
             j--;
         } else {
