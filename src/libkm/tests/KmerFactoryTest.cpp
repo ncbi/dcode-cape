@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <set>
 #include <algorithm>
@@ -50,8 +51,8 @@ TimeUtils *TimeUtils::s_instance = 0;
 void testKmers() {
     KmersFactory kmersFactory;
     kmersFactory.createGenomeWideKmers();
-    if (kmersFactory.getKmersGenome().size() != 524800) {
-        cout << "%TEST_FAILED% time=0 testname=testKmers (KmerFactoryTest) message=It should generate 524800 kmers not " << kmersFactory.getKmersGenome().size() << endl;
+    if (kmersFactory.getKmersGenome().size() != 1048576) {
+        cout << "%TEST_FAILED% time=0 testname=testKmers (KmerFactoryTest) message=It should generate 1048576 kmers not " << kmersFactory.getKmersGenome().size() << endl;
     }
 }
 

@@ -11,8 +11,8 @@
 #include <iostream>
 #include <string>
 #include <memory>
-#include <map>
-#include <set>
+#include <unordered_map>
+#include <unordered_set>
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -50,9 +50,7 @@ KmersFactory::~KmersFactory() {
 }
 
 void KmersFactory::createGenomeWideKmers() {
-    string key, key1, rcKey1;
-    set<string> newWords;
-    set<string> ::iterator it, it1;
+    unordered_set<string> newWords;
 
     this->kmersGenome.clear();
     this->kmersGenome.insert("A");
@@ -60,35 +58,27 @@ void KmersFactory::createGenomeWideKmers() {
     this->kmersGenome.insert("G");
     this->kmersGenome.insert("T");
 
-    for (unsigned long int i = 1; i < Global::instance()->getOrder(); i += 1) {
+    for (unsigned long int i = 1; i < Global::instance()->getOrder(); i++) {
         newWords.clear();
-        for (it = this->kmersGenome.begin(); it != this->kmersGenome.end(); ++it) {
-            key = (*it);
+        for (auto it = this->kmersGenome.begin(); it != this->kmersGenome.end(); ++it) {
+            string key = (*it);
             newWords.insert(key + "A");
             newWords.insert(key + "C");
             newWords.insert(key + "G");
             newWords.insert(key + "T");
         }
         this->kmersGenome.clear();
-        this->kmersGenome.insert(newWords.begin(), newWords.end());
-    }
-    this->kmersGenome.clear();
-    this->kmersGenome.insert(newWords.begin(), newWords.end());
-    newWords.clear();
-
-    for (it1 = this->kmersGenome.begin(); it1 != this->kmersGenome.end(); ++it1) {//this->kmers now are redundant
-        key1 = (*it1);
-        rcKey1 = cstring::reverseComplement(key1);
-        if (newWords.find(key1) != newWords.end()) {
-            continue;
+        if (i == Global::instance()->getOrder() - 1) {
+            for (auto it = newWords.begin(); it != newWords.end(); ++it) {
+                string key = (*it);
+                string rcKey = cstring::reverseComplement(key);
+                this->kmersGenome.insert(key);
+                this->kmersGenome.insert(rcKey);
+            }
+        } else {
+            this->kmersGenome.insert(newWords.begin(), newWords.end());
         }
-        if (newWords.find(rcKey1) != newWords.end()) {
-            continue;
-        }
-        newWords.insert(key1);
     }
-    this->kmersGenome.clear();
-    this->kmersGenome.insert(newWords.begin(), newWords.end());
     if (Global::instance()->isInfo()) {
         cout << "\tINFO ==> totalNumber of " << Global::instance()->getOrder() << "-mers: " << this->kmersGenome.size() << endl;
     }
@@ -116,7 +106,7 @@ void Kmer::calculatePValue(double totalNRnt_peak, double totalNRnt_control) {
 
 void KmersFactory::buildKmers() {
 
-    std::map<std::string, unsigned long int>::iterator controlFreq_it;
+    std::unordered_map<std::string, unsigned long int>::iterator controlFreq_it;
     for (auto peakFreq_it = this->kmer2peakFreq.begin(); peakFreq_it != this->kmer2peakFreq.end(); ++peakFreq_it) {
         string kmer = peakFreq_it->first;
         unsigned long int kmerPeakFreq = peakFreq_it->second;
@@ -187,7 +177,7 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
     string rc_kmer;
     double maxSig = NAN;
     vector<string> infSig;
-    map<string, shared_ptr < Kmer>>::iterator it;
+    unordered_map<string, shared_ptr < Kmer>>::iterator it;
 
     if (binary) {
         ifstream poutputFile(fileName, std::ifstream::binary);
@@ -353,7 +343,7 @@ void KmersFactory::writeKmersToFile(std::string fileName, bool binary) {
 }
 
 double KmersFactory::getKmerSig(std::string kmer) {
-    std::map<std::string, shared_ptr < Kmer>>::iterator it;
+    std::unordered_map<std::string, shared_ptr < Kmer>>::iterator it;
     it = this->kmers.find(kmer);
     if (it == this->kmers.end()) {
         return 0.0;

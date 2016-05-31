@@ -66,9 +66,9 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
 
     cPair = fimoFactory.getTissueValue("NFYA_f1", "E000");
     c = cPair.second;
-    v = 17.511;
-    if (std::fabs(c - v) >= 10E-15) {
-        cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message=Wrong result " << v << " != " << c << endl;
+    v = 4.210311;
+    if (std::fabs(c - v) >= 10E-6) {
+        cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message=Wrong result " << v << " != " << c << " " << std::fabs(c - v) << endl;
     }
 
     tFBSFactory.createTFBSFileIndexMap(tFBSIdxDirName, "chr", ".idx", ".tib");
@@ -81,7 +81,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "ATF5_si";
         start = 2;
         end = 13;
-        v = 23.466;
+        v = 4.612706;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -93,7 +93,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -102,7 +102,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "CDC5L_si";
         start = 2;
         end = 16;
-        v = 16.729;
+        v = 4.148039;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -114,7 +114,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -123,7 +123,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "CEBPG_si";
         start = 2;
         end = 14;
-        v = 19.485;
+        v = 4.356496;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -135,7 +135,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -144,7 +144,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "ESR1_do";
         start = 2;
         end = 19;
-        v = 1.535;
+        v = 1.341986;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -156,7 +156,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -165,7 +165,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "FOXC1_DBD_1";
         start = 2;
         end = 14;
-        v = 11.194;
+        v = 3.6081;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -177,7 +177,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -186,7 +186,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "FOXD3.p2";
         start = 2;
         end = 13;
-        v = 1.304;
+        v = 1.204141;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -198,7 +198,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -207,7 +207,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "FOXD3_f1";
         start = 2;
         end = 10;
-        v = 1.304;
+        v = 1.204141;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -219,7 +219,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -228,7 +228,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "FOXJ3_dimer";
         start = 2;
         end = 13;
-        v = 18.426;
+        v = 4.279917;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -240,7 +240,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -249,7 +249,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "FOXJ3_si";
         start = 2;
         end = 14;
-        v = 18.426;
+        v = 4.279917;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -261,7 +261,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -282,7 +282,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -303,7 +303,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -312,7 +312,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "cell08_Six3_1732";
         start = 32;
         end = 41;
-        v = 0.699;
+        v = 0.7646859;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -324,7 +324,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
@@ -333,7 +333,7 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
         name = "EPAS1_si";
         start = 46;
         end = 58;
-        v = 30.333;
+        v = 4.969611;
         t = NULL;
         for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
             if (tFBSFactory.getPwmIndex()[(*it)->getIndex() - 1]->getName().compare(name) == 0 && (*it)->getStart() == start && (*it)->getEnd() == end) {
@@ -345,13 +345,13 @@ void testExtractTFBSFromFile(string pwm_tFName, string tissue_file, string tFBSI
             cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " does not exist at position " << start << "-" << end << endl;
         } else {
             cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), "E000");
-            if (cPair.second != v) {
+            if (std::fabs(cPair.second - v) >= 10E-6) {
                 cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message= TFBS " << name << " with wrong tissue value " << v << " != " << cPair.second << endl;
             }
         }
     } catch (exceptions::NotFoundException) {
         cout << "%TEST_FAILED% time=0 testname=testExtractTFBSFromFile (TFBSFactoryTest) message=Not found sequence chr1" << endl;
-    } 
+    }
 }
 
 int main() {

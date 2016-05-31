@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <set>
 #include <ctime>
@@ -114,8 +115,8 @@ void testCreatePeaksFromBedFile(string bFName, string dirName, string testName) 
 
     bedFactory.generatingControlsFromChromosomes(chrFactory, 3, kmersFactory);
     kmersFactory.buildKmers();
-    if (kmersFactory.getKmers().size() != 11848) {
-        cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong number of kmers 11848 != " << kmersFactory.getKmers().size() << endl;
+    if (kmersFactory.getKmers().size() != 12122) {
+        cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong number of kmers 12122 != " << kmersFactory.getKmers().size() << endl;
     }
 }
 

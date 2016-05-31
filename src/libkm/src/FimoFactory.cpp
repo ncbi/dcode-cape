@@ -15,6 +15,7 @@
 #include <set>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 #include "Global.h"
 #include "TimeUtils.h"
@@ -69,7 +70,7 @@ void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::st
         cerr << "Error parsing file: " << pwm_EnsembleID << endl;
         exit(-1);
     }
-    
+
     try {
         fParser.setFileToParse(tissue_file);
         fParser.iterate("#", "\t");
@@ -86,20 +87,23 @@ void FimoFactory::createTissueIndexFromFiles(std::string pwm_EnsembleID, std::st
                     auto tissueMapIt = tissueIndex.find(*it1);
 
                     for (size_t i = 1; i < fParser.getWords().size(); i++) {
-                        if (tissueMapIt == tissueIndex.end()) {                            
-                            pair<string, double> tissueEnsemblePair(fParser.getWords()[0], atof((fParser.getWords()[i]).c_str()));
-                            unordered_map<string, pair<string, double>> tissues;
-                            tissues.insert(pair<string, pair<string, double>>(header[i], tissueEnsemblePair));
-                            tissueIndex.insert(pair<string, unordered_map<string, pair<string, double>>>(*it1, tissues));
-                            tissueMapIt = tissueIndex.find(*it1);
-                        } else {
-                            auto tissueIt = tissueMapIt->second.find(header[i]);
-                            if (tissueIt == tissueMapIt->second.end()) {
-                                pair<string, double> tissueEnsemblePair(fParser.getWords()[0], atof((fParser.getWords()[i]).c_str()));
-                                tissueMapIt->second.insert(make_pair(header[i], tissueEnsemblePair));
+                        double value = std::log2(atof((fParser.getWords()[i]).c_str()) + 1);
+                        if (!std::isinf(value) && !std::isnan(value)) {
+                            if (tissueMapIt == tissueIndex.end()) {
+                                pair<string, double> tissueEnsemblePair(fParser.getWords()[0], value);
+                                unordered_map<string, pair<string, double>> tissues;
+                                tissues.insert(pair<string, pair<string, double>>(header[i], tissueEnsemblePair));
+                                tissueIndex.insert(pair<string, unordered_map<string, pair<string, double>>>(*it1, tissues));
+                                tissueMapIt = tissueIndex.find(*it1);
                             } else {
-                                if (tissueIt->second.second < atof((fParser.getWords()[i]).c_str())) {
-                                    tissueIt->second = make_pair(fParser.getWords()[0], atof((fParser.getWords()[i]).c_str()));
+                                auto tissueIt = tissueMapIt->second.find(header[i]);
+                                if (tissueIt == tissueMapIt->second.end()) {
+                                    pair<string, double> tissueEnsemblePair(fParser.getWords()[0], value);
+                                    tissueMapIt->second.insert(make_pair(header[i], tissueEnsemblePair));
+                                } else {
+                                    if (tissueIt->second.second < value) {
+                                        tissueIt->second = make_pair(fParser.getWords()[0], value);
+                                    }
                                 }
                             }
                         }

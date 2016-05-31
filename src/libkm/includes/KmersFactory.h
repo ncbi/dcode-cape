@@ -94,23 +94,23 @@ namespace kmers {
         KmersFactory();
         virtual ~KmersFactory();
 
-        std::set<std::string>& getKmersGenome() {
+        std::unordered_set<std::string>& getKmersGenome() {
             return kmersGenome;
         }
 
-        void setKmersGenome(std::set<std::string> kmersGenome) {
+        void setKmersGenome(std::unordered_set<std::string> kmersGenome) {
             this->kmersGenome = kmersGenome;
         }
 
-        std::map<std::string, std::shared_ptr<Kmer>>& getKmers() {
+        std::unordered_map<std::string, std::shared_ptr<Kmer>>& getKmers() {
             return kmers;
         }
 
-        std::map<std::string, unsigned long int>& getKmer2controlFreq() {
+        std::unordered_map<std::string, unsigned long int>& getKmer2controlFreq() {
             return kmer2controlFreq;
         }
 
-        std::map<std::string, unsigned long int>& getKmer2peakFreq() {
+        std::unordered_map<std::string, unsigned long int>& getKmer2peakFreq() {
             return kmer2peakFreq;
         }
 
@@ -141,10 +141,10 @@ namespace kmers {
         double getKmerSig(std::string kmer);
 
     private:
-        std::set<std::string> kmersGenome;
-        std::map<std::string, std::shared_ptr<Kmer>> kmers;
-        std::map<std::string, unsigned long int> kmer2controlFreq;
-        std::map<std::string, unsigned long int> kmer2peakFreq;
+        std::unordered_set<std::string> kmersGenome;
+        std::unordered_map<std::string, std::shared_ptr<Kmer>> kmers;
+        std::unordered_map<std::string, unsigned long int> kmer2controlFreq;
+        std::unordered_map<std::string, unsigned long int> kmer2peakFreq;
         unsigned long int totalNRnt_control;
         unsigned long int totalNRnt_peak;
 

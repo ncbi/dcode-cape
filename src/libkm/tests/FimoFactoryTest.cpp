@@ -48,42 +48,42 @@ void testCreateIndexFromFiles(string pwm_tFName, string tissue_file, string cuto
 
     cPair = fimoFactory.getTissueValue("NFYA_f1", "E000");
     c = cPair.second;
-    v = 17.511;
-    if (std::fabs(c - v) >= 10E-15) {
+    v = 4.210311;
+    if (std::fabs(c - v) >= 10E-6) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
     cPair = fimoFactory.getTissueValue("ATF3_f1", "E000");
     c = cPair.second;
-    v = 7.478;
-    if (std::fabs(c - v) >= 10E-15) {
+    v = 3.083724;
+    if (std::fabs(c - v) >= 10E-6) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
     cPair = fimoFactory.getTissueValue("RXRA_f1", "E006");
     c = cPair.second;
-    v = 12.171;
-    if (std::fabs(c - v) >= 10E-15) {
+    v = 3.719293;
+    if (std::fabs(c - v) >= 10E-6) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
     cPair = fimoFactory.getTissueValue("M4681_1.02", "E006");
     c = cPair.second;
-    v = 0.174;
-    if (std::fabs(c - v) >= 10E-15) {
+    v = 0.2314324;
+    if (std::fabs(c - v) >= 10E-6) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
     cPair = fimoFactory.getTissueValue("UP00066_1", "E000");
     c = cPair.second;
-    v = 10.457;
-    if (std::fabs(c - v) >= 10E-15) {
+    v = 3.518157;
+    if (std::fabs(c - v) >= 10E-6) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
     cPair = fimoFactory.getTissueValue("UP00055_1", "E000");
     c = cPair.second;
-    v = 68.989;
+    v = 6.129056;
     /*
      * ENSG00000115677 68.989
      * ENSG00000172232 29.033
@@ -94,7 +94,7 @@ void testCreateIndexFromFiles(string pwm_tFName, string tissue_file, string cuto
     if (cPair.first.compare("ENSG00000115677") != 0) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result ENSG00000115677 " << " != " << cPair.first << endl;
     }
-    if (std::fabs(c - v) >= 10E-15) {
+    if (std::fabs(c - v) >= 10E-6) {
         cout << "%TEST_FAILED% time=0 testname=testCreateIndexFromFiles (FimoFactoryTest) message=Wrong result " << v << " != " << c << endl;
     }
 
