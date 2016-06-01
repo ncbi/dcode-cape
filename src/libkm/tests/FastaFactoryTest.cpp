@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include <map>
 #include <ctime>
+#include <set>
 
 #include "berror.h"
 #include "bmemory.h"

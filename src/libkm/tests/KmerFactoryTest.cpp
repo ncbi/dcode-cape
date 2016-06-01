@@ -51,8 +51,8 @@ TimeUtils *TimeUtils::s_instance = 0;
 void testKmers() {
     KmersFactory kmersFactory;
     kmersFactory.createGenomeWideKmers();
-    if (kmersFactory.getKmersGenome().size() != 1048576) {
-        cout << "%TEST_FAILED% time=0 testname=testKmers (KmerFactoryTest) message=It should generate 1048576 kmers not " << kmersFactory.getKmersGenome().size() << endl;
+    if (kmersFactory.getKmersGenome().size() != 524800) {
+        cout << "%TEST_FAILED% time=0 testname=testKmers (KmerFactoryTest) message=It should generate 524800 kmers not " << kmersFactory.getKmersGenome().size() << endl;
     }
 }
 
@@ -528,8 +528,16 @@ int main(int argc, char** argv) {
     cout << "%SUITE_STARTING% KmerFactoryTest" << endl;
     cout << "%SUITE_STARTED%" << endl;
 
+    set<int> orders;
+
+    orders.insert(4);
+    orders.insert(6);
+    orders.insert(8);
+//    orders.insert(10);
+
     Global::instance()->setVerbose(0);
     Global::instance()->setOrder(10);
+    Global::instance()->setOrders(orders);
     Global::instance()->setBin1(0.005);
     Global::instance()->setBin2(0.01);
 
@@ -552,7 +560,7 @@ int main(int argc, char** argv) {
     cout << "%TEST_STARTED% testReadKmersFromFile (KmerFactoryTest)" << endl;
     testReadKmersFromFile("/tmp/kmers.bin", true);
     cout << "%TEST_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(begin) << " second testReadKmersFromFile (KmerFactoryTest)" << endl;
-    
+
     cout << "%SUITE_FINISHED% time=" << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;
 
     delete Global::instance();

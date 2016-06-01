@@ -13,6 +13,8 @@
 #include <iostream>
 #include <memory>
 #include <stdbool.h>
+#include <set>
+
 #include "berror.h"
 #include "bmemory.h"
 #include "Global.h"

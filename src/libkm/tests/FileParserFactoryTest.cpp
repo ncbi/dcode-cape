@@ -16,6 +16,7 @@
 #include <map>
 #include <ctime>
 #include <vector>
+#include <set>
 
 #include "berror.h"
 #include "bmemory.h"

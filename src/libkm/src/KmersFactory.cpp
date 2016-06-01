@@ -17,6 +17,7 @@
 #include <cmath>
 #include <vector>
 #include <fstream>
+#include <set>
 
 #include "bmath.h"
 #include "Global.h"
@@ -50,35 +51,42 @@ KmersFactory::~KmersFactory() {
 }
 
 void KmersFactory::createGenomeWideKmers() {
-    unordered_set<string> newWords;
+    unsigned long int i, count = 1;
+    set<string> newWords;
+    set<string> kmersTemp;
 
     this->kmersGenome.clear();
-    this->kmersGenome.insert("A");
-    this->kmersGenome.insert("C");
-    this->kmersGenome.insert("G");
-    this->kmersGenome.insert("T");
+    kmersTemp.clear();
+    kmersTemp.insert("A");
+    kmersTemp.insert("C");
+    kmersTemp.insert("G");
+    kmersTemp.insert("T");
 
-    for (unsigned long int i = 1; i < Global::instance()->getOrder(); i++) {
+    //    for (auto oIt = Global::instance()->getOrders().begin(); oIt != Global::instance()->getOrders().end(); ++oIt) {
+    //        int order = *oIt;
+    int order = Global::instance()->getOrder();
+    for (i = count; i < order; i++) {
         newWords.clear();
-        for (auto it = this->kmersGenome.begin(); it != this->kmersGenome.end(); ++it) {
+        for (auto it = kmersTemp.begin(); it != kmersTemp.end(); ++it) {
             string key = (*it);
             newWords.insert(key + "A");
             newWords.insert(key + "C");
             newWords.insert(key + "G");
             newWords.insert(key + "T");
         }
-        this->kmersGenome.clear();
-        if (i == Global::instance()->getOrder() - 1) {
-            for (auto it = newWords.begin(); it != newWords.end(); ++it) {
-                string key = (*it);
-                string rcKey = cstring::reverseComplement(key);
-                this->kmersGenome.insert(key);
-                this->kmersGenome.insert(rcKey);
-            }
-        } else {
-            this->kmersGenome.insert(newWords.begin(), newWords.end());
+        kmersTemp.clear();
+        kmersTemp.insert(newWords.begin(), newWords.end());
+    }
+    for (auto it = newWords.begin(); it != newWords.end(); ++it) {
+        string key = (*it);
+        string rcKey = cstring::reverseComplement(key);
+        if (this->kmersGenome.find(key) == this->kmersGenome.end() &&
+                this->kmersGenome.find(rcKey) == this->kmersGenome.end()) {
+            this->kmersGenome.insert(key);
         }
     }
+    count = i;
+    //    }
     if (Global::instance()->isInfo()) {
         cout << "\tINFO ==> totalNumber of " << Global::instance()->getOrder() << "-mers: " << this->kmersGenome.size() << endl;
     }

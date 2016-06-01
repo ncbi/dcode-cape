@@ -26,6 +26,7 @@
 #include <vector>
 #include <unordered_map>
 #include <ctime>
+#include <set>
 
 #include "berror.h"
 #include "bmemory.h"

@@ -11,6 +11,7 @@
 class Global {
     int verbose;
     unsigned long int order;
+    std::set<int> orders;
     double bin1;
     double bin2;
     static Global *s_instance;
@@ -49,6 +50,14 @@ public:
 
     void setOrder(unsigned long int order) {
         this->order = order;
+    }
+    
+    std::set<int>& getOrders() {
+        return orders;
+    }
+
+    void setOrders(std::set<int> orders) {
+        this->orders = orders;
     }
 
     double getBin1() const {

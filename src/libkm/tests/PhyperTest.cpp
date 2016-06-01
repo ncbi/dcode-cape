@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <ctime>
+#include <set>
 
 #include "TimeUtils.h"
 #include "Global.h"
