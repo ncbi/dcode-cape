@@ -56,38 +56,43 @@ SNP::~SNP() {
 }
 
 void SNP::calculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned long int featNumber) {
-    unsigned long int i, j, startPos, endPos;
-    double overlapMutated = 0.0;
+    unsigned long int i, j, k, startPos, endPos;
 
     for (i = 0; i < featNumber; i++) {
         descriptors.push_back(0.0000);
     }
 
-    if (static_cast<int> (pos - Global::instance()->getOrder() - 1) <= 0) {
-        startPos = 0;
-    } else {
-        startPos = pos - Global::instance()->getOrder() + 1;
-    }
-    if (pos + Global::instance()->getOrder() >= length) {
-        endPos = length - Global::instance()->getOrder();
-    } else {
-        endPos = pos;
-    }
-
-    j = Global::instance()->getOrder() - 1;
-    for (i = 0; i <= length - Global::instance()->getOrder(); i++) {
-        string sub(seq.c_str() + i, Global::instance()->getOrder());
-
-        if (i >= startPos && i <= endPos) {
-            descriptors[1] += kmersFactory.getKmerSig(sub);
-            sub[j] = alt;
-            overlapMutated += kmersFactory.getKmerSig(sub);
-            j--;
+    k = 0;
+    for (auto oIt = Global::instance()->getOrders().begin(); oIt != Global::instance()->getOrders().end(); ++oIt) {
+        unsigned long int order = *oIt;
+        double overlapMutated = 0.0;
+        if (static_cast<int> (pos - order - 1) <= 0) {
+            startPos = 0;
         } else {
-            descriptors[2] += kmersFactory.getKmerSig(sub);
+            startPos = pos - order + 1;
         }
+        if (pos + order >= length) {
+            endPos = length - order;
+        } else {
+            endPos = pos;
+        }
+
+        j = order - 1;
+        for (i = 0; i <= length - order; i++) {
+            string sub(seq.c_str() + i, order);
+
+            if (i >= startPos && i <= endPos) {
+                descriptors[k + 1] += kmersFactory.getKmerSig(sub);
+                sub[j] = alt;
+                overlapMutated += kmersFactory.getKmerSig(sub);
+                j--;
+            } else {
+                descriptors[k + 2] += kmersFactory.getKmerSig(sub);
+            }
+        }
+        descriptors[k] = std::fabs(descriptors[k + 1] - overlapMutated);
+        k += 3;
     }
-    descriptors[0] = std::fabs(descriptors[1] - overlapMutated);
 }
 
 SNPFactory::SNPFactory() {
@@ -226,11 +231,11 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
 
     std::pair<std::string, double> cPair;
 
-    unsigned long int featNumber = 3;
+    unsigned long int featNumber = 3 * Global::instance()->getOrders().size();
     double target_label = 0.0;
 
     if (!fimoFactory.getSnpIDContainer().empty() || tFBSFactory.isReady()) {
-        featNumber = 5;
+        featNumber += 2;
     }
 
     struct svm_node *x = (struct svm_node *) allocate(sizeof (struct svm_node) * (featNumber + 1), __FILE__, __LINE__);
@@ -313,16 +318,16 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
                         /*
                          * Calculating overall sum for mean and sd
                          */
-                        for (i = 0; i < 3; i++) {
+                        for (i = 0; i < 3 * Global::instance()->getOrders().size(); i++) {
                             mean[i] += snp->getDescriptors()[i];
                         }
 
-                        if (featNumber == 5) {
+                        if (featNumber == 3 * Global::instance()->getOrders().size() + 2) {
                             if (!fimoFactory.getSnpIDContainer().empty()) {
                                 auto fimoMapIt = fimoFactory.getSnpIDContainer().find(snp->getId());
                                 if (fimoMapIt != fimoFactory.getSnpIDContainer().end()) {
-                                    snp->getDescriptors()[3] = fimoMapIt->second[0];
-                                    snp->getDescriptors()[4] = fimoMapIt->second[1];
+                                    snp->getDescriptors()[3 * Global::instance()->getOrders().size()] = fimoMapIt->second[0];
+                                    snp->getDescriptors()[3 * Global::instance()->getOrders().size() + 1] = fimoMapIt->second[1];
                                 }
                             } else {
                                 overlapValue = neighborSum = 0;
@@ -341,15 +346,15 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
                                             }
                                         }
                                     }
-                                    snp->getDescriptors()[3] = overlapValue;
-                                    snp->getDescriptors()[4] = neighborSum;
+                                    snp->getDescriptors()[3 * Global::instance()->getOrders().size()] = overlapValue;
+                                    snp->getDescriptors()[3 * Global::instance()->getOrders().size() + 1] = neighborSum;
                                 } catch (exceptions::NotFoundException) {
                                     cerr << "Not indexes available for " << f->getId() << ". Ignoring" << endl;
                                 }
 
                             }
-                            mean[3] += snp->getDescriptors()[3];
-                            mean[4] += snp->getDescriptors()[4];
+                            mean[3] += snp->getDescriptors()[3 * Global::instance()->getOrders().size()];
+                            mean[4] += snp->getDescriptors()[3 * Global::instance()->getOrders().size() + 1];
                         }
                         snps.push_back(snp);
                     }

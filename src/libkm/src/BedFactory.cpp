@@ -239,7 +239,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                 for (unsigned long int j = 0; j < window_len; j++) {
                     this->plus_ocur(f->getSeq()[j]);
                 }
-                if (this->NCount < window_len - Global::instance()->getOrder() - 1) {
+                if (this->NCount < window_len - 7) {
                     n_binID = 0;
                     Ncontent = static_cast<double> (this->NCount) / static_cast<double> (window_len);
                     GCcontent = static_cast<double> (this->GCCount) / static_cast<double> (window_len - this->NCount);
@@ -269,7 +269,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                 for (unsigned long int j = 1; j < f->getLength() - window_len + 1; j++) {
                     this->minus_ocur(f->getSeq()[j - 1]);
                     this->plus_ocur(f->getSeq()[j + window_len - 1]);
-                    if (this->NCount < window_len - Global::instance()->getOrder() - 1) {
+                    if (this->NCount < window_len - 7) {
                         n_binID = 0;
                         Ncontent = static_cast<double> (this->NCount) / static_cast<double> (window_len);
                         GCcontent = static_cast<double> (this->GCCount) / static_cast<double> (window_len - this->NCount);

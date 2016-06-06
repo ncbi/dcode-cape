@@ -10,7 +10,7 @@
 
 class Global {
     int verbose;
-    unsigned long int order;
+//    unsigned long int order;
     std::set<int> orders;
     double bin1;
     double bin2;
@@ -44,13 +44,13 @@ public:
         verbose = v;
     }
 
-    unsigned long int getOrder() const {
-        return order;
-    }
-
-    void setOrder(unsigned long int order) {
-        this->order = order;
-    }
+//    unsigned long int getOrder() const {
+//        return order;
+//    }
+//
+//    void setOrder(unsigned long int order) {
+//        this->order = order;
+//    }
     
     std::set<int>& getOrders() {
         return orders;

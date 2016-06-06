@@ -26,6 +26,7 @@
 #include "Global.h"
 #include "TimeUtils.h"
 #include "Exceptions.h"
+#include "cstring.h"
 #include "FileParserFactory.h"
 #include "FastaFactory.h"
 #include "KmersFactory.h"
@@ -59,9 +60,9 @@ void print_usage(char *program_name, int exit_code) {
     cerr << "\nInput conf file format (tab delimited), copy the next 9 lines to your config file:\n\n";
     cerr << "in\tinput_file_name.txt\t\t\t# Input file with SNP coordinates\n";
     cerr << "out\toutput_file_name.out\t\t\t# Output file with SNP coordinates and probabilities\n";
-    cerr << "order\t10\t\t\t\t\t# Order (default: 10)\n";
+    cerr << "order\t4,6,8,10,12\t\t\t\t\t# Order (default: 4,6,8,10,12)\n";
     cerr << "chrs\t/path-to/hg19.fa.bin\t\t\t# Chromosomes files in binary mode. Format: hg19.fa.bin. Binary files created by formatFasta\n";
-    cerr << "weight\t/path-to/10mers_sigValue_sorted\t\t# Kmers weight file. Generated with kweight\n";
+    cerr << "weight\t/path-to/kmers_sigValue_sorted\t\t# Kmers weight file. Generated with kweight for the same order\n";
     cerr << "neighbors\t100\t\t\t\t# Pb to be added before and after the SNP position. Default 100\n";
     cerr << "model\t/path-to/svm.model\t\t\t# SVM Model\n";
     cerr << "probability\t1\t\t\t\t# 1 if the model use probability estimates\n";
@@ -104,6 +105,7 @@ int main(int argc, char** argv) {
     string tFBSIdxDirName;
     ofstream outputFile;
     string outputFileName;
+    vector<string> orders;
     unsigned long int neighbors = 100;
     FastaFactory chrFactory;
     SNPFactory snpFactory;
@@ -112,8 +114,6 @@ int main(int argc, char** argv) {
     SVMPredict svmPredict;
     TFBSFactory tFBSFactory;
     FileParserFactory fParser;
-
-    Global::instance()->setOrder(10);
 
     for (int i = 1; i < argc; i++) {
         string option(argv[i]);
@@ -162,7 +162,10 @@ int main(int argc, char** argv) {
                     outputFileName = fParser.getWords()[1];
                 }
                 if (fParser.getWords()[0].compare("order") == 0) {
-                    Global::instance()->setOrder(static_cast<unsigned long int> (atoi((fParser.getWords()[1]).c_str())));
+                    cstring::split(fParser.getWords()[1], ",", orders);
+                    for (auto it = orders.begin(); it != orders.end(); ++it) {
+                        Global::instance()->getOrders().insert(atoi((*it).c_str()));
+                    }
                 }
                 if (fParser.getWords()[0].compare("chrs") == 0) {
                     chrsBinFileName = fParser.getWords()[1];
@@ -229,6 +232,14 @@ int main(int argc, char** argv) {
         print_usage(argv[0], -1);
     }
 
+    if (Global::instance()->getOrders().empty()) {
+        Global::instance()->getOrders().insert(4);
+        Global::instance()->getOrders().insert(6);
+        Global::instance()->getOrders().insert(8);
+        Global::instance()->getOrders().insert(10);
+        Global::instance()->getOrders().insert(12);
+    }
+
     outputFile.open(outputFileName);
     if (!outputFile) {
         cerr << "I can't open output file " << outputFileName << "to write results" << endl;
@@ -272,7 +283,7 @@ int main(int argc, char** argv) {
         snpFactory.setExpressionCode(expressionCode);
         tFBSFactory.createTFBSFileIndexMap(tFBSIdxDirName, "chr", ".idx", ".tib");
         cout << tFBSFactory.getTfbsFileIndexSize() << " indexes loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
-        
+
         begin = clock();
         cout << "Loading TIB data" << endl;
         tFBSFactory.createPWMIndexFromTibInfoFile(tibInfoFileName);
@@ -307,7 +318,7 @@ int main(int argc, char** argv) {
 
     begin = clock();
     cout << "Reading kmers weight" << endl;
-    kmersFactory.readKmersFromFile(weightFileName, false);
+    kmersFactory.readKmersFromFile(weightFileName);
     cout << kmersFactory.getKmers().size() << " kmers loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     begin = clock();

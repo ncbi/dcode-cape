@@ -62,33 +62,32 @@ void KmersFactory::createGenomeWideKmers() {
     kmersTemp.insert("G");
     kmersTemp.insert("T");
 
-    //    for (auto oIt = Global::instance()->getOrders().begin(); oIt != Global::instance()->getOrders().end(); ++oIt) {
-    //        int order = *oIt;
-    int order = Global::instance()->getOrder();
-    for (i = count; i < order; i++) {
-        newWords.clear();
-        for (auto it = kmersTemp.begin(); it != kmersTemp.end(); ++it) {
+    for (auto oIt = Global::instance()->getOrders().begin(); oIt != Global::instance()->getOrders().end(); ++oIt) {
+        unsigned long int order = *oIt;
+        for (i = count; i < order; i++) {
+            newWords.clear();
+            for (auto it = kmersTemp.begin(); it != kmersTemp.end(); ++it) {
+                string key = (*it);
+                newWords.insert(key + "A");
+                newWords.insert(key + "C");
+                newWords.insert(key + "G");
+                newWords.insert(key + "T");
+            }
+            kmersTemp.clear();
+            kmersTemp.insert(newWords.begin(), newWords.end());
+        }
+        for (auto it = newWords.begin(); it != newWords.end(); ++it) {
             string key = (*it);
-            newWords.insert(key + "A");
-            newWords.insert(key + "C");
-            newWords.insert(key + "G");
-            newWords.insert(key + "T");
+            string rcKey = cstring::reverseComplement(key);
+            if (this->kmersGenome.find(key) == this->kmersGenome.end() &&
+                    this->kmersGenome.find(rcKey) == this->kmersGenome.end()) {
+                this->kmersGenome.insert(key);
+            }
         }
-        kmersTemp.clear();
-        kmersTemp.insert(newWords.begin(), newWords.end());
+        count = i;
     }
-    for (auto it = newWords.begin(); it != newWords.end(); ++it) {
-        string key = (*it);
-        string rcKey = cstring::reverseComplement(key);
-        if (this->kmersGenome.find(key) == this->kmersGenome.end() &&
-                this->kmersGenome.find(rcKey) == this->kmersGenome.end()) {
-            this->kmersGenome.insert(key);
-        }
-    }
-    count = i;
-    //    }
     if (Global::instance()->isInfo()) {
-        cout << "\tINFO ==> totalNumber of " << Global::instance()->getOrder() << "-mers: " << this->kmersGenome.size() << endl;
+        cout << "\tINFO ==> totalNumber of k-mers: " << this->kmersGenome.size() << endl;
     }
 }
 
@@ -145,27 +144,30 @@ void KmersFactory::clearKmerPeakData() {
 void KmersFactory::scanSequences(string inputSeq, bool control) {
     unsigned long int i;
     string kmer, rc_kmer, dealedKmer;
-    for (i = 0; i < inputSeq.length() - Global::instance()->getOrder() + 1; i++) {
-        kmer = inputSeq.substr(i, Global::instance()->getOrder());
-        rc_kmer = cstring::reverseComplement(kmer);
-        dealedKmer.clear();
-        if (this->kmersGenome.find(kmer) != this->kmersGenome.end()) {
-            dealedKmer = kmer;
-        } else if (this->kmersGenome.find(rc_kmer) != this->kmersGenome.end()) {
-            dealedKmer = rc_kmer;
-        }
-        if (!dealedKmer.empty()) {
-            if (control) {
-                if (this->kmer2controlFreq.find(dealedKmer) != this->kmer2controlFreq.end()) {
-                    this->kmer2controlFreq[dealedKmer]++;
+    for (auto oIt = Global::instance()->getOrders().begin(); oIt != Global::instance()->getOrders().end(); ++oIt) {
+        int order = *oIt;
+        for (i = 0; i < inputSeq.length() - order + 1; i++) {
+            kmer = inputSeq.substr(i, order);
+            rc_kmer = cstring::reverseComplement(kmer);
+            dealedKmer.clear();
+            if (this->kmersGenome.find(kmer) != this->kmersGenome.end()) {
+                dealedKmer = kmer;
+            } else if (this->kmersGenome.find(rc_kmer) != this->kmersGenome.end()) {
+                dealedKmer = rc_kmer;
+            }
+            if (!dealedKmer.empty()) {
+                if (control) {
+                    if (this->kmer2controlFreq.find(dealedKmer) != this->kmer2controlFreq.end()) {
+                        this->kmer2controlFreq[dealedKmer]++;
+                    } else {
+                        this->kmer2controlFreq[dealedKmer] = 1;
+                    }
                 } else {
-                    this->kmer2controlFreq[dealedKmer] = 1;
-                }
-            } else {
-                if (this->kmer2peakFreq.find(dealedKmer) != this->kmer2peakFreq.end()) {
-                    this->kmer2peakFreq[dealedKmer]++;
-                } else {
-                    this->kmer2peakFreq[dealedKmer] = 1;
+                    if (this->kmer2peakFreq.find(dealedKmer) != this->kmer2peakFreq.end()) {
+                        this->kmer2peakFreq[dealedKmer]++;
+                    } else {
+                        this->kmer2peakFreq[dealedKmer] = 1;
+                    }
                 }
             }
         }
@@ -178,113 +180,52 @@ void KmersFactory::scanSequences(string inputSeq, bool control) {
     }
 }
 
-void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
-    uint64_t i, index;
-    double value;
+void KmersFactory::readKmersFromFile(std::string fileName) {
     shared_ptr<Kmer> k, kr;
     string rc_kmer;
     double maxSig = NAN;
     vector<string> infSig;
     unordered_map<string, shared_ptr < Kmer>>::iterator it;
 
-    if (binary) {
-        ifstream poutputFile(fileName, std::ifstream::binary);
-        if (!poutputFile.is_open()) {
-            cerr << "Can't open output file " << fileName << endl;
-            exit(-1);
-        }
+    FileParserFactory fParser;
 
-        poutputFile.read((char *) &i, sizeof (uint64_t));
-        Global::instance()->setOrder(i);
-        string seq(i, '\0');
-        poutputFile.read((char *) &index, sizeof (uint64_t));
-        while (index) {
+    try {
+        fParser.setFileToParse(fileName);
+        while (fParser.iterate("#", "\t")) {
+            if (fParser.getWords().size() != 4) {
+                cerr << "Input kmer weight file with a wrong format " << endl;
+                exit(-1);
+            }
             k = make_shared<Kmer>();
             kr = make_shared<Kmer>();
+            rc_kmer = cstring::reverseComplement(fParser.getWords()[0]);
 
-            poutputFile.read(&seq[0], sizeof (char) * Global::instance()->getOrder());
-            rc_kmer = cstring::reverseComplement(seq);
-            poutputFile.read((char *) &value, sizeof (double));
-            k->setValue(value);
-            kr->setValue(value);
+            k->setValue(atof((fParser.getWords()[1]).c_str()));
+            kr->setValue(k->getValue());
 
-            poutputFile.read((char *) &value, sizeof (double));
-            k->setSig(value);
-            kr->setSig(value);
+            k->setSig(atof((fParser.getWords()[2]).c_str()));
+            kr->setSig(k->getSig());
             if (std::isinf(k->getSig())) {
-                infSig.push_back(seq);
+                infSig.push_back(fParser.getWords()[0]);
             } else {
                 if (std::isnan(maxSig) || maxSig < std::fabs(k->getSig())) maxSig = std::fabs(k->getSig());
             }
 
-            poutputFile.read((char *) &value, sizeof (double));
-            k->setPf(value);
-            kr->setPf(value);
+            k->setPf(atof((fParser.getWords()[3]).c_str()));
+            kr->setPf(k->getPf());
 
-            poutputFile.read((char *) &i, sizeof (uint64_t));
-            k->setControlFreq(i);
-            kr->setControlFreq(i);
+            this->kmers.insert(make_pair(fParser.getWords()[0], k));
 
-            poutputFile.read((char *) &i, sizeof (uint64_t));
-            k->setNegativeControl(i);
-            kr->setNegativeControl(i);
-
-            poutputFile.read((char *) &i, sizeof (uint64_t));
-            k->setNegativePeak(i);
-            kr->setNegativePeak(i);
-
-            poutputFile.read((char *) &i, sizeof (uint64_t));
-            k->setPeakFreq(i);
-            kr->setPeakFreq(i);
-
-            this->kmers.insert(make_pair(seq, k));
-            if (rc_kmer.compare(seq) != 0) {
+            if (rc_kmer.compare(fParser.getWords()[0]) != 0) {
                 this->kmers.insert(make_pair(rc_kmer, kr));
             }
-            index--;
         }
-        poutputFile.close();
-    } else {
-        FileParserFactory fParser;
-
-        try {
-            fParser.setFileToParse(fileName);
-            while (fParser.iterate("#", "\t")) {
-                if (fParser.getWords().size() != 4) {
-                    cerr << "Input kmer weight file with a wrong format " << endl;
-                    exit(-1);
-                }
-                k = make_shared<Kmer>();
-                kr = make_shared<Kmer>();
-                rc_kmer = cstring::reverseComplement(fParser.getWords()[0]);
-
-                k->setValue(atof((fParser.getWords()[1]).c_str()));
-                kr->setValue(k->getValue());
-
-                k->setSig(atof((fParser.getWords()[2]).c_str()));
-                kr->setSig(k->getSig());
-                if (std::isinf(k->getSig())) {
-                    infSig.push_back(fParser.getWords()[0]);
-                } else {
-                    if (std::isnan(maxSig) || maxSig < std::fabs(k->getSig())) maxSig = std::fabs(k->getSig());
-                }
-
-                k->setPf(atof((fParser.getWords()[3]).c_str()));
-                kr->setPf(k->getPf());
-
-                this->kmers.insert(make_pair(fParser.getWords()[0], k));
-
-                if (rc_kmer.compare(fParser.getWords()[0]) != 0) {
-                    this->kmers.insert(make_pair(rc_kmer, kr));
-                }
-            }
-        } catch (exceptions::FileNotFoundException) {
-            cerr << "Error parsing file: " << fileName << endl;
-            exit(-1);
-        } catch (ios::failure) {
-            cerr << "Error parsing file: " << fileName << endl;
-            exit(-1);
-        }
+    } catch (exceptions::FileNotFoundException) {
+        cerr << "Error parsing file: " << fileName << endl;
+        exit(-1);
+    } catch (ios::failure) {
+        cerr << "Error parsing file: " << fileName << endl;
+        exit(-1);
     }
 
     if (!infSig.empty()) {
@@ -301,53 +242,19 @@ void KmersFactory::readKmersFromFile(std::string fileName, bool binary) {
     }
 }
 
-void KmersFactory::writeKmersToFile(std::string fileName, bool binary) {
-    uint64_t i;
-    double value;
-
-    if (binary) {
-        std::ofstream poutputFile(fileName, std::ofstream::binary);
-        if (!poutputFile.is_open()) {
-            cerr << "Can't open output file " << fileName << endl;
-            exit(-1);
-        }
-        i = Global::instance()->getOrder();
-        poutputFile.write((char *) &i, sizeof (uint64_t));
-        i = this->kmers.size();
-        poutputFile.write((char *) &i, sizeof (uint64_t));
-        for (auto it = this->kmers.begin(); it != this->kmers.end(); ++it) {
-            string kmer = it->first;
-            shared_ptr<Kmer> k = it->second;
-            poutputFile.write(kmer.c_str(), Global::instance()->getOrder());
-            value = k->getValue();
-            poutputFile.write((char *) &value, sizeof (double));
-            value = k->getSig();
-            poutputFile.write((char *) &value, sizeof (double));
-            value = k->getPf();
-            poutputFile.write((char *) &value, sizeof (double));
-            i = k->getControlFreq();
-            poutputFile.write((char *) &i, sizeof (uint64_t));
-            i = k->getNegativeControl();
-            poutputFile.write((char *) &i, sizeof (uint64_t));
-            i = k->getNegativePeak();
-            poutputFile.write((char *) &i, sizeof (uint64_t));
-            i = k->getPeakFreq();
-            poutputFile.write((char *) &i, sizeof (uint64_t));
-        }
-    } else {
-        ofstream outputFile(fileName);
-        if (!outputFile.is_open()) {
-            cerr << "Can't open output file " << fileName << endl;
-            exit(-1);
-        }
-        outputFile.precision(12);
-        for (auto it = this->kmers.begin(); it != this->kmers.end(); ++it) {
-            string kmer = it->first;
-            shared_ptr<Kmer> k = it->second;
-            outputFile << kmer << "\t" << k->getValue() << "\t" << k->getSig() << "\t" << k->getPf() << endl;
-        }
-        outputFile.close();
+void KmersFactory::writeKmersToFile(std::string fileName) {
+    ofstream outputFile(fileName);
+    if (!outputFile.is_open()) {
+        cerr << "Can't open output file " << fileName << endl;
+        exit(-1);
     }
+    outputFile.precision(12);
+    for (auto it = this->kmers.begin(); it != this->kmers.end(); ++it) {
+        string kmer = it->first;
+        shared_ptr<Kmer> k = it->second;
+        outputFile << kmer << "\t" << k->getValue() << "\t" << k->getSig() << "\t" << k->getPf() << endl;
+    }
+    outputFile.close();
 }
 
 double KmersFactory::getKmerSig(std::string kmer) {

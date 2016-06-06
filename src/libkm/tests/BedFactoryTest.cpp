@@ -115,8 +115,8 @@ void testCreatePeaksFromBedFile(string bFName, string dirName, string testName) 
 
     bedFactory.generatingControlsFromChromosomes(chrFactory, 3, kmersFactory);
     kmersFactory.buildKmers();
-    if (kmersFactory.getKmers().size() != 12122) {
-        cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong number of kmers 12122 != " << kmersFactory.getKmers().size() << endl;
+    if (kmersFactory.getKmers().size() != 11848) {
+        cout << "%TEST_FAILED% time=0 testname=testCreatePeaksFromBedFile (BedFactoryTest) message=Wrong number of kmers 11848 != " << kmersFactory.getKmers().size() << endl;
     }
 }
 
@@ -148,8 +148,8 @@ int main() {
     cout << "%SUITE_STARTED%" << endl;
 
     Global::instance()->setVerbose(0);
-    Global::instance()->setOrder(10);
     Global::instance()->setBin1(0.005);
+    Global::instance()->getOrders().insert(10);
     Global::instance()->setBin2(0.01);
 
     begin = clock();

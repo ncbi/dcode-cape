@@ -132,9 +132,9 @@ namespace kmers {
 
         void buildKmers();
 
-        void writeKmersToFile(std::string fileName, bool binary);
+        void writeKmersToFile(std::string fileName);
 
-        void readKmersFromFile(std::string fileName, bool binary);
+        void readKmersFromFile(std::string fileName);
 
         double dropSigKmerSigForRefandAlt(char *seq, unsigned long int refPos, char ref, char alt);
 

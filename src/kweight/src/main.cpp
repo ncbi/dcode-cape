@@ -18,6 +18,7 @@
 #include "Global.h"
 #include "TimeUtils.h"
 #include "Exceptions.h"
+#include "cstring.h"
 #include "FastaFactory.h"
 #include "KmersFactory.h"
 #include "BedFactory.h"
@@ -49,7 +50,7 @@ void print_usage(char *program_name, int exit_code) {
     cerr << "-m    Chromosomes masked binary fasta file. Created with formatFasta.\n";
     cerr << "-p    Output file with the p-value for all kmers\n";
 
-    cerr << "-o    Order (default: 10).\n";
+    cerr << "-o    Order (default: \"4,6,8,10,12\"). No spaces allowed.\n";
     cerr << "-g    Generate control from chromosomes. Default: NO.\n";
     cerr << "-n    Number of controls per peak (default: 10, if -g set default: 3).\n";
     cerr << "-c    Bed file with the control coordinates. This option will use your own control for the calculations.\n";
@@ -69,11 +70,11 @@ int main(int argc, char** argv) {
     string bedFileName;
     string controlFileName;
     string poutputFileName;
+    string order = "4,6,8,10,12";
+    vector<string> orders;
     FastaFactory chrFactory;
     BedFactory bedFactory;
     bool genCtrl = false;
-
-    Global::instance()->setOrder(10);
 
     for (int i = 1; i < argc; i++) {
         string option(argv[i]);
@@ -128,7 +129,7 @@ int main(int argc, char** argv) {
                         cerr << "Option o require an argument" << endl;
                         print_usage(argv[0], -1);
                     }
-                    Global::instance()->setOrder(atoi(argv[i]));
+                    order = argv[i];
                 } else {
                     cerr << "Option o require an argument" << endl;
                     print_usage(argv[0], -1);
@@ -190,9 +191,24 @@ int main(int argc, char** argv) {
         cerr << "\nBed file is required. See -b option" << endl;
         print_usage(argv[0], -1);
     }
+    
+    if (order.empty()) {
+        cerr << "\nOrder is required. See -o option" << endl;
+        print_usage(argv[0], -1);
+    }
+    
+    if (order.find(' ', 0) != std::string::npos) {
+        cerr << "\nOrder can not have spaces. See -o option" << endl;
+        print_usage(argv[0], -1);
+    }
 
     Global::instance()->setBin1(0.005);
     Global::instance()->setBin2(0.01);
+    
+    cstring::split(order, ",", orders);
+    for(auto it = orders.begin(); it != orders.end(); ++it){
+        Global::instance()->getOrders().insert(atoi((*it).c_str()));
+    }
 
     begin = clock();
     cout << "Creating kmers genomewide" << endl;
@@ -231,7 +247,7 @@ int main(int argc, char** argv) {
     kmersFactory.buildKmers();
     cout << kmersFactory.getKmers().size() << " kmers generated in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
-    kmersFactory.writeKmersToFile(poutputFileName, false);
+    kmersFactory.writeKmersToFile(poutputFileName);
 
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->getTimeMinFrom(start) << " minutes" << endl;
