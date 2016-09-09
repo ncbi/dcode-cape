@@ -5,3 +5,9 @@
 /src/libkm/build/
 /src/fimoMotifFormat/build/
 /src/snp2Fasta/build/
+/src/cape/.dep.inc
+/src/formatFasta/.dep.inc
+/src/kweight/.dep.inc
+/src/libkm/.dep.inc
+/src/snp2Fasta/.dep.inc
+

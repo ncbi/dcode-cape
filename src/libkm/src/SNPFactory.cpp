@@ -216,7 +216,7 @@ void SNPFactory::writeEnhansersFastaFile(std::string fastaFile, bool binary) {
     fastaFactory.writeSequencesToFile(fastaFile, binary);
 }
 
-int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int neighbors, FastaFactory &chrFactory, KmersFactory& kmersFactory, SVMPredict& svmPredict, FimoFactory & fimoFactory, TFBSFactory & tFBSFactory) {
+int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int neighbors, FastaFactory &chrFactory, KmersFactory& kmersFactory, SVMPredict& svmPredict, FimoFactory & fimoFactory, TFBSFactory & tFBSFactory, std::string outputFileName) {
     bool process = true;
     FileParserFactory fParser;
     double overlapValue, neighborSum;
@@ -397,15 +397,15 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
     }
 
     if (Global::instance()->isDebug3()) {
-        featuresFile.open("CAPE_debug_3_features.txt");
+        featuresFile.open(outputFileName + "_CAPE_features.txt");
         if (!featuresFile.is_open()) {
-            cerr << "Can't open features debug file named: CAPE_debug_3_features.txt" << endl;
+            cerr << "Can't open features debug file named: " + outputFileName +  "_CAPE_features.txt" << endl;
             exit(-1);
         }
         featuresFile.precision(8);
-        zscoreFile.open("CAPE_debug_3_zscores.txt");
+        zscoreFile.open(outputFileName + "_CAPE_zscores.txt");
         if (!zscoreFile.is_open()) {
-            cerr << "Can't open zscores debug file named: CAPE_debug_3_zscores.txt" << endl;
+            cerr << "Can't open zscores debug file named: " + outputFileName +  "_CAPE_zscores.txt" << endl;
             exit(-1);
         }
         zscoreFile.precision(8);

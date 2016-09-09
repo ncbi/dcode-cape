@@ -323,7 +323,7 @@ int main(int argc, char** argv) {
 
     begin = clock();
     cout << "Processing input SNP coordinates from files" << endl;
-    count = snpFactory.processSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory, tFBSFactory);
+    count = snpFactory.processSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory, tFBSFactory, outputFileName);
     cout << count << " SNP processed in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
     outputFile.open(outputFileName);

@@ -139,7 +139,7 @@ namespace snp {
 
         void parseSNPFile(std::string snpFileName, unsigned long int neighbors, sequence::FastaFactory &chrFactory);
         void writeEnhansersFastaFile(std::string fastaFile, bool binary);
-        int processSNPFromFile(std::string snpFileName, unsigned long int neighbors, sequence::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict, fimo::FimoFactory & fimoFactory, tfbs::TFBSFactory & tFBSFactory);
+        int processSNPFromFile(std::string snpFileName, unsigned long int neighbors, sequence::FastaFactory &chrFactory, kmers::KmersFactory& kmersFactory, svm::SVMPredict& svmPredict, fimo::FimoFactory & fimoFactory, tfbs::TFBSFactory & tFBSFactory, std::string outputFileName);
     private:
         std::string expressionCode;
         std::vector<std::shared_ptr<SNP>> snps;
