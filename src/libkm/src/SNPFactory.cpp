@@ -63,35 +63,42 @@ void SNP::calculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
     }
 
     k = 0;
-    for (auto oIt = Global::instance()->getOrders().begin(); oIt != Global::instance()->getOrders().end(); ++oIt) {
-        unsigned long int order = *oIt;
-        double overlapMutated = 0.0;
-        if (static_cast<int> (pos - order - 1) <= 0) {
-            startPos = 0;
-        } else {
-            startPos = pos - order + 1;
-        }
-        if (pos + order >= length) {
-            endPos = length - order;
-        } else {
-            endPos = pos;
-        }
-
-        j = order - 1;
-        for (i = 0; i <= length - order; i++) {
-            string sub(seq.c_str() + i, order);
-
-            if (i >= startPos && i <= endPos) {
-                descriptors[k + 1] += kmersFactory.getKmerSig(sub);
-                sub[j] = alt;
-                overlapMutated += kmersFactory.getKmerSig(sub);
-                j--;
+    for (int kmerIndex = 0; kmerIndex < kmersFactory.getKmerNumber(); kmerIndex++) {
+        for (auto oIt = Global::instance()->getOrders().begin(); oIt != Global::instance()->getOrders().end(); ++oIt) {
+            unsigned long int order = *oIt;
+            double overlapMutated = 0.0;
+            double overlapping = 0.0;
+            double neighboring = 0.0;
+            if (static_cast<int> (pos - order - 1) <= 0) {
+                startPos = 0;
             } else {
-                descriptors[k + 2] += kmersFactory.getKmerSig(sub);
+                startPos = pos - order + 1;
             }
+            if (pos + order >= length) {
+                endPos = length - order;
+            } else {
+                endPos = pos;
+            }
+
+            j = order - 1;
+            for (i = 0; i <= length - order; i++) {
+                string sub(seq.c_str() + i, order);
+
+                if (i >= startPos && i <= endPos) {
+                    // Overlapping region
+                    overlapping += kmersFactory.getKmerSig(sub, kmerIndex);
+                    sub[j] = alt;
+                    overlapMutated += kmersFactory.getKmerSig(sub, kmerIndex);
+                    j--;
+                } else {
+                    // Neighboring region
+                    neighboring += kmersFactory.getKmerSig(sub, kmerIndex);
+                }
+            }
+            descriptors[k] = std::fabs(overlapping - overlapMutated);
+            descriptors[k + 1] = overlapping + neighboring;
+            k += 2;
         }
-        descriptors[k] = std::fabs(descriptors[k + 1] - overlapMutated);
-        k += 3;
     }
 }
 
@@ -231,7 +238,8 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
 
     std::pair<std::string, double> cPair;
 
-    unsigned long int featNumber = 3 * Global::instance()->getOrders().size();
+    unsigned long int baseFeatNumber = 2 * Global::instance()->getOrders().size() * kmersFactory.getKmerNumber();
+    unsigned long int featNumber = baseFeatNumber;
     double target_label = 0.0;
 
     if (!fimoFactory.getSnpIDContainer().empty() || tFBSFactory.isReady()) {
@@ -318,16 +326,16 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
                         /*
                          * Calculating overall sum for mean and sd
                          */
-                        for (i = 0; i < 3 * Global::instance()->getOrders().size(); i++) {
+                        for (i = 0; i < baseFeatNumber; i++) {
                             mean[i] += snp->getDescriptors()[i];
                         }
 
-                        if (featNumber == 3 * Global::instance()->getOrders().size() + 2) {
+                        if (featNumber == baseFeatNumber + 2) {
                             if (!fimoFactory.getSnpIDContainer().empty()) {
                                 auto fimoMapIt = fimoFactory.getSnpIDContainer().find(snp->getId());
                                 if (fimoMapIt != fimoFactory.getSnpIDContainer().end()) {
-                                    snp->getDescriptors()[3 * Global::instance()->getOrders().size()] = fimoMapIt->second[0];
-                                    snp->getDescriptors()[3 * Global::instance()->getOrders().size() + 1] = fimoMapIt->second[1];
+                                    snp->getDescriptors()[baseFeatNumber] = fimoMapIt->second[0];
+                                    snp->getDescriptors()[baseFeatNumber + 1] = fimoMapIt->second[1];
                                 }
                             } else {
                                 overlapValue = neighborSum = 0;
@@ -346,15 +354,15 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
                                             }
                                         }
                                     }
-                                    snp->getDescriptors()[3 * Global::instance()->getOrders().size()] = overlapValue;
-                                    snp->getDescriptors()[3 * Global::instance()->getOrders().size() + 1] = neighborSum;
+                                    snp->getDescriptors()[baseFeatNumber] = overlapValue;
+                                    snp->getDescriptors()[baseFeatNumber + 1] = neighborSum;
                                 } catch (exceptions::NotFoundException) {
                                     cerr << "Not indexes available for " << f->getId() << ". Ignoring" << endl;
                                 }
 
                             }
-                            mean[3] += snp->getDescriptors()[3 * Global::instance()->getOrders().size()];
-                            mean[4] += snp->getDescriptors()[3 * Global::instance()->getOrders().size() + 1];
+                            mean[baseFeatNumber] += snp->getDescriptors()[baseFeatNumber];
+                            mean[baseFeatNumber + 1] += snp->getDescriptors()[baseFeatNumber + 1];
                         }
                         snps.push_back(snp);
                     }
@@ -399,13 +407,13 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
     if (Global::instance()->isDebug3()) {
         featuresFile.open(outputFileName + "_CAPE_features.txt");
         if (!featuresFile.is_open()) {
-            cerr << "Can't open features debug file named: " + outputFileName +  "_CAPE_features.txt" << endl;
+            cerr << "Can't open features debug file named: " + outputFileName + "_CAPE_features.txt" << endl;
             exit(-1);
         }
         featuresFile.precision(8);
         zscoreFile.open(outputFileName + "_CAPE_zscores.txt");
         if (!zscoreFile.is_open()) {
-            cerr << "Can't open zscores debug file named: " + outputFileName +  "_CAPE_zscores.txt" << endl;
+            cerr << "Can't open zscores debug file named: " + outputFileName + "_CAPE_zscores.txt" << endl;
             exit(-1);
         }
         zscoreFile.precision(8);

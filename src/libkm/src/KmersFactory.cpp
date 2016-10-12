@@ -43,6 +43,7 @@ Kmer::~Kmer() {
 }
 
 KmersFactory::KmersFactory() {
+    this->kmerNumber = 0;
     this->totalNRnt_control = 0;
     this->totalNRnt_peak = 0;
 }
@@ -112,6 +113,7 @@ void Kmer::calculatePValue(double totalNRnt_peak, double totalNRnt_control) {
 }
 
 void KmersFactory::buildKmers() {
+    unordered_map<string, std::vector<std::shared_ptr < Kmer>>>::iterator it;
 
     std::unordered_map<std::string, unsigned long int>::iterator controlFreq_it;
     for (auto peakFreq_it = this->kmer2peakFreq.begin(); peakFreq_it != this->kmer2peakFreq.end(); ++peakFreq_it) {
@@ -127,7 +129,14 @@ void KmersFactory::buildKmers() {
         k->setNegativePeak(this->totalNRnt_peak - kmerPeakFreq);
         k->setNegativeControl(this->totalNRnt_control - kmerControlFreq);
         k->calculatePValue(this->totalNRnt_peak, this->totalNRnt_control);
-        this->getKmers().insert(make_pair(kmer, k));
+        it = this->kmers.find(kmer);
+        if (it != this->kmers.end()) {
+            it->second.push_back(k);
+        } else {
+            std::vector<std::shared_ptr < Kmer>> kmerVec;
+            kmerVec.push_back(k);
+            this->kmers.insert(make_pair(kmer, kmerVec));
+        }
     }
 }
 
@@ -183,42 +192,65 @@ void KmersFactory::scanSequences(string inputSeq, bool control) {
 void KmersFactory::readKmersFromFile(std::string fileName) {
     shared_ptr<Kmer> k, kr;
     string rc_kmer;
-    double maxSig = NAN;
-    vector<string> infSig;
-    unordered_map<string, shared_ptr < Kmer>>::iterator it;
+    vector<double> maxSig;
+    set<string> infSig;
+    unordered_map<string, std::vector<std::shared_ptr < Kmer>>>::iterator it;
 
     FileParserFactory fParser;
 
     try {
         fParser.setFileToParse(fileName);
         while (fParser.iterate("#", "\t")) {
+            if (this->kmerNumber == 0) {
+                this->kmerNumber = (fParser.getWords().size() - 1) / 3;
+            }
+            if (maxSig.size() == 0) {
+                maxSig.resize(this->kmerNumber, NAN);
+            }
+            rc_kmer = cstring::reverseComplement(fParser.getWords()[0]);
+            for (int i = 0; i < this->kmerNumber; i++) {
+                k = make_shared<Kmer>();
+                kr = make_shared<Kmer>();
+
+                k->setValue(atof((fParser.getWords()[3 * i + 1]).c_str()));
+                kr->setValue(k->getValue());
+
+                k->setSig(atof((fParser.getWords()[3 * i + 2]).c_str()));
+                kr->setSig(k->getSig());
+                if (std::isinf(k->getSig())) {
+                    infSig.insert(fParser.getWords()[0]);
+                } else {
+                    if (std::isnan(maxSig[i]) || maxSig[i] < std::fabs(k->getSig())) maxSig[i] = std::fabs(k->getSig());
+                }
+
+                k->setPf(atof((fParser.getWords()[3 * i + 3]).c_str()));
+                kr->setPf(k->getPf());
+
+                it = this->kmers.find(fParser.getWords()[0]);
+                if (it != this->kmers.end()) {
+                    it->second.push_back(k);
+                } else {
+                    std::vector<std::shared_ptr < Kmer>> kmerVec;
+                    kmerVec.push_back(k);
+                    this->kmers.insert(make_pair(fParser.getWords()[0], kmerVec));
+                }
+
+                if (rc_kmer.compare(fParser.getWords()[0]) != 0) {
+                    it = this->kmers.find(rc_kmer);
+                    if (it != this->kmers.end()) {
+                        it->second.push_back(k);
+                    } else {
+                        std::vector<std::shared_ptr < Kmer>> kmerVec;
+                        kmerVec.push_back(k);
+                        this->kmers.insert(make_pair(rc_kmer, kmerVec));
+                    }
+                }
+            }
             if (fParser.getWords().size() != 4) {
                 cerr << "Input kmer weight file with a wrong format " << endl;
                 exit(-1);
             }
-            k = make_shared<Kmer>();
-            kr = make_shared<Kmer>();
-            rc_kmer = cstring::reverseComplement(fParser.getWords()[0]);
 
-            k->setValue(atof((fParser.getWords()[1]).c_str()));
-            kr->setValue(k->getValue());
-
-            k->setSig(atof((fParser.getWords()[2]).c_str()));
-            kr->setSig(k->getSig());
-            if (std::isinf(k->getSig())) {
-                infSig.push_back(fParser.getWords()[0]);
-            } else {
-                if (std::isnan(maxSig) || maxSig < std::fabs(k->getSig())) maxSig = std::fabs(k->getSig());
-            }
-
-            k->setPf(atof((fParser.getWords()[3]).c_str()));
-            kr->setPf(k->getPf());
-
-            this->kmers.insert(make_pair(fParser.getWords()[0], k));
-
-            if (rc_kmer.compare(fParser.getWords()[0]) != 0) {
-                this->kmers.insert(make_pair(rc_kmer, kr));
-            }
         }
     } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file: " << fileName << endl;
@@ -230,14 +262,26 @@ void KmersFactory::readKmersFromFile(std::string fileName) {
 
     if (!infSig.empty()) {
         if (Global::instance()->isInfo()) {
-            cout << "\tINFO ==> There are " << infSig.size() << " infinities to fix using value: " << maxSig + 10 << endl;
+            cout << "\tINFO ==> There are " << infSig.size() << " infinities to fix" << endl;
         }
         for (auto it1 = infSig.begin(); it1 != infSig.end(); ++it1) {
             rc_kmer = cstring::reverseComplement(*it1);
             it = this->kmers.find(*it1);
-            it->second->setSig(maxSig + 10);
+            int i = 0;
+            for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+                if (std::isinf(it2->get()->getSig())) {
+                    it2->get()->setSig(maxSig[i] + 10);
+                }
+                i++;
+            }
             it = this->kmers.find(rc_kmer);
-            it->second->setSig(maxSig + 10);
+            i = 0;
+            for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+                if (std::isinf(it2->get()->getSig())) {
+                    it2->get()->setSig(maxSig[i] + 10);
+                }
+                i++;
+            }
         }
     }
 }
@@ -251,18 +295,45 @@ void KmersFactory::writeKmersToFile(std::string fileName) {
     outputFile.precision(12);
     for (auto it = this->kmers.begin(); it != this->kmers.end(); ++it) {
         string kmer = it->first;
-        shared_ptr<Kmer> k = it->second;
-        outputFile << kmer << "\t" << k->getValue() << "\t" << k->getSig() << "\t" << k->getPf() << endl;
+        outputFile << kmer;
+        for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+            shared_ptr<Kmer> k = *it2;
+            outputFile << "\t" << k->getValue() << "\t" << k->getSig() << "\t" << k->getPf();
+        }
+        outputFile << endl;
+
     }
     outputFile.close();
 }
 
-double KmersFactory::getKmerSig(std::string kmer) {
-    std::unordered_map<std::string, shared_ptr < Kmer>>::iterator it;
+double KmersFactory::getKmerSig(std::string kmer, int index) {
+    std::unordered_map<std::string, std::vector<std::shared_ptr < Kmer>>>::iterator it;
     it = this->kmers.find(kmer);
     if (it == this->kmers.end()) {
         return 0.0;
     }
-    return it->second->getSig();
+    if (it->second.size() >= index) {
+        cerr << "Index number is bigger that the vector size" << endl;
+        exit(-1);
+    }
+    return it->second[index]->getSig();
 }
 
+void KmersFactory::mergeKmers(KmersFactory& kmersFactory) {
+    std::unordered_map<std::string, std::vector<std::shared_ptr < Kmer>>>::iterator destIt;
+    for (auto srcIt = kmersFactory.getKmers().begin(); srcIt != kmersFactory.getKmers().end(); ++srcIt) {
+        destIt = kmers.find(srcIt->first);
+        if (destIt != kmers.end()) {
+            destIt->second.insert(std::end(destIt->second), std::begin(srcIt->second), std::end(srcIt->second));
+        } else {
+            std::vector<std::shared_ptr < Kmer>> kmerVec;
+            for (int i = 0; i < kmerNumber; i++) {
+                shared_ptr<Kmer> k = make_shared<Kmer>();
+                kmerVec.push_back(k);
+            }
+            kmerVec.insert(std::end(kmerVec), std::begin(srcIt->second), std::end(srcIt->second));
+            kmers.insert(make_pair(srcIt->first, kmerVec));
+        }
+    }
+    kmerNumber += kmersFactory.getKmerNumber();
+}

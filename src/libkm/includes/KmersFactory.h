@@ -102,7 +102,7 @@ namespace kmers {
             this->kmersGenome = kmersGenome;
         }
 
-        std::unordered_map<std::string, std::shared_ptr<Kmer>>& getKmers() {
+        std::unordered_map<std::string, std::vector<std::shared_ptr<Kmer>>>& getKmers() {
             return kmers;
         }
 
@@ -121,6 +121,14 @@ namespace kmers {
         unsigned long int getTotalNRNTPeak() const {
             return totalNRnt_peak;
         }
+        
+        int getKmerNumber() const {
+            return kmerNumber;
+        }
+
+        void setKmerNumber(int kmerNumber) {
+            this->kmerNumber = kmerNumber;
+        }
 
         void createGenomeWideKmers();
 
@@ -138,11 +146,14 @@ namespace kmers {
 
         double dropSigKmerSigForRefandAlt(char *seq, unsigned long int refPos, char ref, char alt);
 
-        double getKmerSig(std::string kmer);
+        double getKmerSig(std::string kmer, int index);
+        
+        void mergeKmers(KmersFactory &kmersFactory);
 
     private:
+        int kmerNumber;
         std::unordered_set<std::string> kmersGenome;
-        std::unordered_map<std::string, std::shared_ptr<Kmer>> kmers;
+        std::unordered_map<std::string, std::vector<std::shared_ptr<Kmer>>> kmers;
         std::unordered_map<std::string, unsigned long int> kmer2controlFreq;
         std::unordered_map<std::string, unsigned long int> kmer2peakFreq;
         unsigned long int totalNRnt_control;
