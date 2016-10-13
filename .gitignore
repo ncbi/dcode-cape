@@ -12,3 +12,5 @@
 /src/snp2Fasta/.dep.inc
 /src/kMerge/.dep.inc
 /src/kMerge/build/
+/src/snp2svmModel/build/
+/src/snp2svmModel/.dep.inc

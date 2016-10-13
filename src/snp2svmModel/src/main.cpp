@@ -1,11 +1,34 @@
-
-/* 
- * File:   main.cpp
- * Author: veraalva
+/*  $Id: main.cpp October 13, 2016 10:03 AM veraalva $
+ * ===========================================================================
  *
- * Created on February 25, 2016, 12:06 PM
+ *                            PUBLIC DOMAIN NOTICE
+ *               National Center for Biotechnology Information
+ *
+ *  This software/database is a "United States Government Work" under the
+ *  terms of the United States Copyright Act.  It was written as part of
+ *  the author's official duties as a United States Government employee and
+ *  thus cannot be copyrighted.  This software/database is freely available
+ *  to the public for use. The National Library of Medicine and the U.S.
+ *  Government have not placed any restriction on its use or reproduction.
+ *
+ *  Although all reasonable efforts have been taken to ensure the accuracy
+ *  and reliability of the software and data, the NLM and the U.S.
+ *  Government do not and cannot warrant the performance or results that
+ *  may be obtained by using this software or data. The NLM and the U.S.
+ *  Government disclaim all warranties, express or implied, including
+ *  warranties of performance, merchantability or fitness for any particular
+ *  purpose.
+ *
+ *  Please cite the author in any work or product based on this material.
+ *
+ * ===========================================================================
+ *
+ * Author:  Roberto Vera Alvarez
+ *
+ * File Description:
+ *   Alternative splicing detector
+ *
  */
-
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -58,14 +81,27 @@ void print_usage(char *program_name, int exit_code) {
     cerr << "-i    Input config file\n";
 
     cerr << "\nInput conf file format (tab delimited), copy the next 9 lines to your config file:\n\n";
-    cerr << "in\tinput_file_name.txt\t\t\t# Input file with SNP coordinates\n";
-    cerr << "out\toutput_file_name.out\t\t\t# Output file with SNP coordinates and probabilities\n";
+    cerr << "in\tinput_file_name.txt\t\t\t# Input file with SNP coordinates and the (1/-1) values for SNPs\n";
+    cerr << "svm_type\t0\t\t\tSet type of SVM (default 0)\n"
+            << "\t\t\t\t0 -- C-SVC		(multi-class classification)\n"
+            << "\t\t\t\t1 -- nu-SVC		(multi-class classification)\n"
+            << "\t\t\t\t2 -- one-class SVM\n"
+            << "\t\t\t\t3 -- epsilon-SVR	(regression)\n"
+            << "\t\t\t\t4 -- nu-SVR		(regression)\n";
+    cerr << "kernel_type\t0\t\t\tSet type of kernel function (default 2)\n"
+            << "\t\t\t\t0 -- linear: u'*v\n"
+            << "\t\t\t\t1 -- polynomial: (gamma*u'*v + coef0)^degree\n"
+            << "\t\t\t\t2 -- radial basis function: exp(-gamma*|u-v|^2)\n"
+            << "\t\t\t\t3 -- sigmoid: tanh(gamma*u'*v + coef0)\n"
+            << "\t\t\t\t4 -- precomputed kernel (kernel values in training_set_file)\n";
+    cerr << "w1\t4\t\t\tWeight for the positive set.\n";
+    cerr << "w-1\t1\t\t\tWeight for the negative set.\n";
+    cerr << "probability\t1\t\t\t\t# Whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 1)\n";
+    cerr << "model\t/path-to/svm.model\t\t\t# SVM Model obtained from the data\n";
     cerr << "order\t4,6,8,10,12\t\t\t\t\t# Order (default: 4,6,8,10,12)\n";
     cerr << "chrs\t/path-to/hg19.fa.bin\t\t\t# Chromosomes files in binary mode. Format: hg19.fa.bin. Binary files created by formatFasta\n";
-    cerr << "weight\t/path-to/kmers_sigValue_sorted\t\t# Kmers weight file. Generated with kweight or kmerge\n";
+    cerr << "weight\t/path-to/kmers_sigValue_sorted\t\t# Kmers weight file. Generated with kweight o kmerge \n";
     cerr << "neighbors\t100\t\t\t\t# Pb to be added before and after the SNP position. Default 100\n";
-    cerr << "model\t/path-to/svm.model\t\t\t# SVM Model\n";
-    cerr << "probability\t1\t\t\t\t# 1 if the model use probability estimates\n";
     cerr << "fimo\tfimo_output_file.txt\t\t\t# Use FIMO output. Set to: 0 for not using FIMO output\n";
     cerr << "pwm_EnsembleID\tpwm_EnsembleID_mapping\t\t# File mapping TF names with Ensembl IDs. Provided in resources folder\n";
     cerr << "expression\t57epigenomes.RPKM.pc\t\t# Expression file\n";
@@ -84,9 +120,6 @@ void print_usage(char *program_name, int exit_code) {
     exit(exit_code);
 }
 
-/*
- * 
- */
 int main(int argc, char** argv) {
 
     clock_t begin = clock();
@@ -94,7 +127,6 @@ int main(int argc, char** argv) {
     int count;
     string chrsBinFileName;
     string inFileName;
-    string svmModelName;
     string weightFileName;
     string fimoFileName;
     string pwmEnsembleIDFileName;
@@ -103,8 +135,7 @@ int main(int argc, char** argv) {
     string abbrevmtfmappedFileName;
     string tibInfoFileName;
     string tFBSIdxDirName;
-    ofstream outputFile;
-    string outputFileName;
+    string svmModelName;
     vector<string> orders;
     unsigned long int neighbors = 100;
     FastaFactory chrFactory;
@@ -158,9 +189,6 @@ int main(int argc, char** argv) {
                 if (fParser.getWords()[0].compare("in") == 0) {
                     inFileName = fParser.getWords()[1];
                 }
-                if (fParser.getWords()[0].compare("out") == 0) {
-                    outputFileName = fParser.getWords()[1];
-                }
                 if (fParser.getWords()[0].compare("order") == 0) {
                     cstring::split(fParser.getWords()[1], ",", orders);
                     for (auto it = orders.begin(); it != orders.end(); ++it) {
@@ -176,16 +204,28 @@ int main(int argc, char** argv) {
                 if (fParser.getWords()[0].compare("neighbors") == 0) {
                     neighbors = static_cast<unsigned long int> (atoi((fParser.getWords()[1]).c_str()));
                 }
+                if (fParser.getWords()[0].compare("fimo") == 0) {
+                    if (fParser.getWords()[1].compare("0") != 0) {
+                        fimoFileName = fParser.getWords()[1];
+                    }
+                }
                 if (fParser.getWords()[0].compare("model") == 0) {
                     svmModelName = fParser.getWords()[1];
                 }
                 if (fParser.getWords()[0].compare("probability") == 0) {
                     svmPredict.setPredictProbability(atoi((fParser.getWords()[1]).c_str()));
                 }
-                if (fParser.getWords()[0].compare("fimo") == 0) {
-                    if (fParser.getWords()[1].compare("0") != 0) {
-                        fimoFileName = fParser.getWords()[1];
-                    }
+                if (fParser.getWords()[0].compare("svm_type") == 0) {
+                    svmPredict.setSVMType(atoi((fParser.getWords()[1]).c_str()));
+                }
+                if (fParser.getWords()[0].compare("kernel_type") == 0) {
+                    svmPredict.setSVMKernelType(atoi((fParser.getWords()[1]).c_str()));
+                }
+                if (fParser.getWords()[0].compare("w1") == 0) {
+                    svmPredict.setSVMw1(atof((fParser.getWords()[1]).c_str()));
+                }
+                if (fParser.getWords()[0].compare("w-1") == 0) {
+                    svmPredict.setSVMwMinus1(atof((fParser.getWords()[1]).c_str()));
                 }
                 if (fParser.getWords()[0].compare("pwm_EnsembleID") == 0) {
                     pwmEnsembleIDFileName = fParser.getWords()[1];
@@ -227,8 +267,8 @@ int main(int argc, char** argv) {
         print_usage(argv[0], -1);
     }
 
-    if (outputFileName.empty()) {
-        cerr << "\nOutput file is required in config file." << endl;
+    if (svmModelName.empty()) {
+        cerr << "\nSVM Model Output file is required in config file." << endl;
         print_usage(argv[0], -1);
     }
 
@@ -239,13 +279,6 @@ int main(int argc, char** argv) {
         Global::instance()->getOrders().insert(10);
         Global::instance()->getOrders().insert(12);
     }
-
-    outputFile.open(outputFileName);
-    if (!outputFile) {
-        cerr << "I can't open output file " << outputFileName << "to write results" << endl;
-        exit(-1);
-    }
-    outputFile.close();
 
     if (!fimoFileName.empty()) {
         if (pwmEnsembleIDFileName.empty()) {
@@ -312,41 +345,19 @@ int main(int argc, char** argv) {
     }
 
     begin = clock();
-    cout << "Reading SVM model" << endl;
-    svmPredict.svmLoadModel(svmModelName);
-    cout << " SVM model processed in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
-
-    begin = clock();
     cout << "Reading kmers weight" << endl;
     kmersFactory.readKmersFromFile(weightFileName);
     cout << kmersFactory.getKmers().size() << " kmers loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
-    
+
     begin = clock();
     cout << "Processing input SNP coordinates from files" << endl;
-    count = snpFactory.processSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory, tFBSFactory, outputFileName);
+    count = snpFactory.createSVMModelFromSNPFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory, tFBSFactory, svmModelName);
     cout << count << " SNP processed in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
 
-    outputFile.open(outputFileName);
-    if (outputFile) {
-        outputFile << "#chrom\tpos\trsID\trefAle\taltAle\tscore\n";
-        for (auto it = snpFactory.getSnps().begin(); it != snpFactory.getSnps().end(); ++it) {
-            shared_ptr<SNP> s = *it;
-
-            outputFile << s->getChr() << "\t"
-                    << s->getChrPos() + 1 << "\t"
-                    << s->getId() << "\t" <<
-                    s->getRef() << "\t"
-                    << s->getAlt() << "\t"
-                    << s->getProbPos() << endl;
-        }
-
-        outputFile.close();
-    } else {
-        cerr << "I can't open output file " << outputFileName << "to write results" << endl;
-    }
     delete Global::instance();
     cout << "Total elapse time: " << TimeUtils::instance()->getTimeSecFrom(start) << " seconds" << endl;
     delete TimeUtils::instance();
     return 0;
 }
+
 

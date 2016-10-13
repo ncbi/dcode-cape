@@ -203,7 +203,6 @@ void KmersFactory::readKmersFromFile(std::string fileName) {
         while (fParser.iterate("#", "\t")) {
             if (this->kmerNumber == 0) {
                 this->kmerNumber = (fParser.getWords().size() - 1) / 3;
-                printf("kmerNumber %d\n", this->kmerNumber);
             }
             if (maxSig.size() == 0) {
                 maxSig.resize(this->kmerNumber, NAN);
@@ -337,4 +336,12 @@ void KmersFactory::mergeKmers(KmersFactory& kmersFactory) {
         }
     }
     kmerNumber += kmersFactory.getKmerNumber();
+    for (auto destIt = kmers.begin(); destIt != kmers.end(); ++destIt) {
+        if (destIt->second.size() != kmerNumber) {
+            for (unsigned int i = destIt->second.size(); i < kmerNumber; i++) {
+                shared_ptr<Kmer> k = make_shared<Kmer>();
+                destIt->second.push_back(k);
+            }
+        }
+    }
 }

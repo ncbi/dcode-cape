@@ -8,6 +8,9 @@
 #ifndef SVMPREDICT_H
 #define SVMPREDICT_H
 
+#include "svm.h"
+
+
 namespace svm {
 
     class SVMPredict {
@@ -23,12 +26,25 @@ namespace svm {
             this->model = model;
         }
 
+        svm_problem *getProb() {
+            return prob;
+        }
+
+        void setSVMProbY(double *y) {
+            this->prob->y = y;
+        }
+
+        void setSVMProbX(struct svm_node **x) {
+            this->prob->x = x;
+        }
+
         int getPredictProbability() const {
-            return predict_probability;
+            return this->param.probability;
         }
 
         void setPredictProbability(int predict_probability) {
-            this->predict_probability = predict_probability;
+            this->param.probability = predict_probability;
+
         }
 
         int getNrClass() const {
@@ -40,15 +56,32 @@ namespace svm {
         }
 
         int getSVMType() const {
-            return svm_type;
+            return this->param.svm_type;
+        }
+
+        void setSVMType(int svm_type) {
+            this->param.svm_type = svm_type;
+        }
+
+        void setSVMKernelType(int kernel_type) {
+            this->param.kernel_type = kernel_type;
+        }
+
+        void setSVMw1(double w1) {
+            this->param.weight[0] = w1;
+        }
+
+        void setSVMwMinus1(double wminus1) {
+            this->param.weight[1] = wminus1;
         }
 
         void svmLoadModel(std::string fileName);
         void svmPredictCalulation(struct svm_node *x, double target_label);
+        void svmTrainModel(int l, double *y, struct svm_node **x, const char *model_file_name);
     private:
-        struct svm_model* model;
-        int predict_probability;
-        int svm_type;
+        struct svm_model *model;
+        struct svm_parameter param;
+        struct svm_problem *prob;
         int nr_class;
         double *prob_estimates;
 

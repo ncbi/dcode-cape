@@ -5,6 +5,7 @@ KM_DIR = src/kMerge
 CD_DIR = src/cape
 FF_DIR = src/formatFasta
 SNP_DIR = src/snp2Fasta
+SNM_DIR = src/snp2svmModel
 
 .PHONY: all
 	
@@ -15,9 +16,11 @@ all: clean
 	$(MAKE) -C $(CD_DIR)
 	$(MAKE) -C $(FF_DIR)
 	$(MAKE) -C $(SNP_DIR)
+	$(MAKE) -C $(SNM_DIR)
 	echo "Done!!!"
 	
 clean:
+	$(MAKE) -C $(SNM_DIR) clean
 	$(MAKE) -C $(SNP_DIR) clean
 	$(MAKE) -C $(FF_DIR) clean
 	$(MAKE) -C $(CD_DIR) clean

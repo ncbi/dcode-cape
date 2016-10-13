@@ -153,6 +153,8 @@ int main(int argc, char** argv) {
         exit(-1);
     }
 
+    
+    kmersFactory.writeKmersToFile(outputFileName);
 
     return 0;
 }
