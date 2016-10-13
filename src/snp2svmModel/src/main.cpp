@@ -88,7 +88,7 @@ void print_usage(char *program_name, int exit_code) {
             << "\t\t\t\t2 -- one-class SVM\n"
             << "\t\t\t\t3 -- epsilon-SVR	(regression)\n"
             << "\t\t\t\t4 -- nu-SVR		(regression)\n";
-    cerr << "kernel_type\t0\t\t\tSet type of kernel function (default 2)\n"
+    cerr << "kernel_type\t0\t\t\tSet type of kernel function (default 0)\n"
             << "\t\t\t\t0 -- linear: u'*v\n"
             << "\t\t\t\t1 -- polynomial: (gamma*u'*v + coef0)^degree\n"
             << "\t\t\t\t2 -- radial basis function: exp(-gamma*|u-v|^2)\n"

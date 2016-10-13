@@ -40,7 +40,7 @@ SVMPredict::SVMPredict() {
     this->prob = (svm_problem *) allocate(sizeof (svm_problem), __FILE__, __LINE__);
 
     this->param.svm_type = C_SVC;
-    this->param.kernel_type = RBF;
+    this->param.kernel_type = LINEAR;
     this->param.degree = 3;
     this->param.gamma = 0; // 1/num_features
     this->param.coef0 = 0;
