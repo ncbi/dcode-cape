@@ -106,7 +106,7 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
         fParser.setFileToParse(bedFileName);
         kmersFactory.clearKmerPeakData();
         while (fParser.iterate("#", "\t")) {
-            if (fParser.getWords().size() != 3) {
+            if (fParser.getWords().size() < 3) {
                 cerr << "Bed file with a wrong format " << endl;
                 exit(-1);
             }

@@ -94,8 +94,7 @@ void print_usage(char *program_name, int exit_code) {
             << "\t\t\t\t2 -- radial basis function: exp(-gamma*|u-v|^2)\n"
             << "\t\t\t\t3 -- sigmoid: tanh(gamma*u'*v + coef0)\n"
             << "\t\t\t\t4 -- precomputed kernel (kernel values in training_set_file)\n";
-    cerr << "w1\t4\t\t\tWeight for the positive set.\n";
-    cerr << "w-1\t1\t\t\tWeight for the negative set.\n";
+    cerr << "w1\t4\t\t\tWeight for the positive set. w1 = fold, which is the ratio between the size of negative set and the size of the positive set. Therefore, w-1 should be always 1.\n";
     cerr << "probability\t1\t\t\t\t# Whether to train a SVC or SVR model for probability estimates, 0 or 1 (default 1)\n";
     cerr << "model\t/path-to/svm.model\t\t\t# SVM Model obtained from the data\n";
     cerr << "order\t4,6,8,10,12\t\t\t\t\t# Order (default: 4,6,8,10,12)\n";
@@ -223,9 +222,6 @@ int main(int argc, char** argv) {
                 }
                 if (fParser.getWords()[0].compare("w1") == 0) {
                     svmPredict.setSVMw1(atof((fParser.getWords()[1]).c_str()));
-                }
-                if (fParser.getWords()[0].compare("w-1") == 0) {
-                    svmPredict.setSVMwMinus1(atof((fParser.getWords()[1]).c_str()));
                 }
                 if (fParser.getWords()[0].compare("pwm_EnsembleID") == 0) {
                     pwmEnsembleIDFileName = fParser.getWords()[1];
