@@ -122,7 +122,7 @@ namespace kmers {
             return totalNRnt_peak;
         }
         
-        int getKmerNumber() const {
+        unsigned int getKmerNumber() const {
             return kmerNumber;
         }
 
@@ -146,12 +146,12 @@ namespace kmers {
 
         double dropSigKmerSigForRefandAlt(char *seq, unsigned long int refPos, char ref, char alt);
 
-        double getKmerSig(std::string kmer, int index);
+        double getKmerSig(std::string kmer, unsigned int index);
         
         void mergeKmers(KmersFactory &kmersFactory);
 
     private:
-        int kmerNumber;
+        unsigned int kmerNumber;
         std::unordered_set<std::string> kmersGenome;
         std::unordered_map<std::string, std::vector<std::shared_ptr<Kmer>>> kmers;
         std::unordered_map<std::string, unsigned long int> kmer2controlFreq;

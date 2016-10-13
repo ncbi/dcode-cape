@@ -63,7 +63,7 @@ void SNP::calculateKmerDescriptors(kmers::KmersFactory& kmersFactory, unsigned l
     }
 
     k = 0;
-    for (int kmerIndex = 0; kmerIndex < kmersFactory.getKmerNumber(); kmerIndex++) {
+    for (unsigned int kmerIndex = 0; kmerIndex < kmersFactory.getKmerNumber(); kmerIndex++) {
         for (auto oIt = Global::instance()->getOrders().begin(); oIt != Global::instance()->getOrders().end(); ++oIt) {
             unsigned long int order = *oIt;
             double overlapMutated = 0.0;

@@ -10,5 +10,5 @@
 /src/kweight/.dep.inc
 /src/libkm/.dep.inc
 /src/snp2Fasta/.dep.inc
-
+/src/kMerge/.dep.inc
 /src/kMerge/build/

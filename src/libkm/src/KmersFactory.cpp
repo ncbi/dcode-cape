@@ -203,6 +203,7 @@ void KmersFactory::readKmersFromFile(std::string fileName) {
         while (fParser.iterate("#", "\t")) {
             if (this->kmerNumber == 0) {
                 this->kmerNumber = (fParser.getWords().size() - 1) / 3;
+                printf("kmerNumber %d\n", this->kmerNumber);
             }
             if (maxSig.size() == 0) {
                 maxSig.resize(this->kmerNumber, NAN);
@@ -306,13 +307,13 @@ void KmersFactory::writeKmersToFile(std::string fileName) {
     outputFile.close();
 }
 
-double KmersFactory::getKmerSig(std::string kmer, int index) {
+double KmersFactory::getKmerSig(std::string kmer, unsigned int index) {
     std::unordered_map<std::string, std::vector<std::shared_ptr < Kmer>>>::iterator it;
     it = this->kmers.find(kmer);
     if (it == this->kmers.end()) {
         return 0.0;
     }
-    if (it->second.size() >= index) {
+    if (it->second.size() <= index) {
         cerr << "Index number is bigger that the vector size" << endl;
         exit(-1);
     }

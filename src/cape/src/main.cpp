@@ -320,7 +320,7 @@ int main(int argc, char** argv) {
     cout << "Reading kmers weight" << endl;
     kmersFactory.readKmersFromFile(weightFileName);
     cout << kmersFactory.getKmers().size() << " kmers loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
-
+    
     begin = clock();
     cout << "Processing input SNP coordinates from files" << endl;
     count = snpFactory.processSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory, tFBSFactory, outputFileName);
