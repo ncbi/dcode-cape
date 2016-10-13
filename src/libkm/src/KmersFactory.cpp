@@ -209,7 +209,7 @@ void KmersFactory::readKmersFromFile(std::string fileName) {
                 maxSig.resize(this->kmerNumber, NAN);
             }
             rc_kmer = cstring::reverseComplement(fParser.getWords()[0]);
-            for (int i = 0; i < this->kmerNumber; i++) {
+            for (unsigned int i = 0; i < this->kmerNumber; i++) {
                 k = make_shared<Kmer>();
                 kr = make_shared<Kmer>();
 
@@ -328,7 +328,7 @@ void KmersFactory::mergeKmers(KmersFactory& kmersFactory) {
             destIt->second.insert(std::end(destIt->second), std::begin(srcIt->second), std::end(srcIt->second));
         } else {
             std::vector<std::shared_ptr < Kmer>> kmerVec;
-            for (int i = 0; i < kmerNumber; i++) {
+            for (unsigned int i = 0; i < kmerNumber; i++) {
                 shared_ptr<Kmer> k = make_shared<Kmer>();
                 kmerVec.push_back(k);
             }
