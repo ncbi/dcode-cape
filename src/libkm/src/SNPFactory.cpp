@@ -477,7 +477,7 @@ int SNPFactory::createSVMModelFromSNPFile(std::string snpFileName, unsigned long
 
     vector<double> y;
     struct svm_node **x = NULL;
-    
+
     vector<double> mean(featNumber);
     vector<double> sd(featNumber);
     for (i = 0; i < featNumber; i++) {
@@ -656,7 +656,7 @@ int SNPFactory::createSVMModelFromSNPFile(std::string snpFileName, unsigned long
     x = (struct svm_node **) allocate(sizeof (struct svm_node *) * snps.size(), __FILE__, __LINE__);
     for (auto it = snps.begin(); it != snps.end(); ++it) {
         shared_ptr<SNP>s = *it;
-        
+
         x[j] = (struct svm_node *) allocate(sizeof (struct svm_node) * (featNumber + 1), __FILE__, __LINE__);
         x[j][featNumber].index = -1;
 
@@ -679,12 +679,16 @@ int SNPFactory::createSVMModelFromSNPFile(std::string snpFileName, unsigned long
         j++;
     }
 
-    svmPredict.svmTrainModel(j, &y[0], x, outputFileName.c_str());
-
+    if (x != NULL) {
+        svmPredict.svmTrainModel(j, &y[0], x, outputFileName.c_str());
+        for (i = 0; i < j; i++) {
+            free(x[i]);
+        }
+        free(x);
+    }
     if (Global::instance()->isDebug3()) {
         featuresFile.close();
         zscoreFile.close();
     }
-    free(x);
     return count;
 }
