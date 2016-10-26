@@ -248,6 +248,7 @@ void KmersFactory::readKmersFromFile(std::string fileName) {
             }
             if (fParser.getWords().size() != 4) {
                 cerr << "Input kmer weight file with a wrong format " << endl;
+                cerr << fParser.getLine() << endl;
                 exit(-1);
             }
 
