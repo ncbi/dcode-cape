@@ -496,7 +496,8 @@ int SNPFactory::createSVMModelFromSNPFile(std::string snpFileName, unsigned long
         fParser.setFileToParse(snpFileName);
         while (fParser.iterate("#", "\t")) {
             if (fParser.getWords().size() != 6) {
-                cerr << "Input SNP file with a wrong format" << endl;
+                cerr << "Input SNP file with a wrong format. It has " << fParser.getWords().size() << " words ans should be 6" << endl;
+                cerr << fParser.getLine() << endl;
                 exit(-1);
             }
 
