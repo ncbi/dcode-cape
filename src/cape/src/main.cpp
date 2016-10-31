@@ -328,7 +328,7 @@ int main(int argc, char** argv) {
 
     outputFile.open(outputFileName);
     if (outputFile) {
-        outputFile << "#chrom\tpos\trsID\trefAle\taltAle\tscore\tmotif(snp_pos)\n";
+        outputFile << "#chrom\tpos\trsID\trefAle\taltAle\tscore\tmotif-snp_pos\n";
         for (auto it = snpFactory.getSnps().begin(); it != snpFactory.getSnps().end(); ++it) {
             shared_ptr<SNP> s = *it;
             shared_ptr<Seq> seq = chrFactory.getSequenceFromID(s->getChr());
@@ -348,7 +348,7 @@ int main(int argc, char** argv) {
                     << s->getAlt() << "\t"
                     << s->getProbPos() << "\t"
                     << seq->getSubStr((unsigned int) from, length)
-                    << "(" << pos << ")"
+                    << "-" << pos
                     << endl;
         }
 
