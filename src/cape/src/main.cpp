@@ -320,7 +320,7 @@ int main(int argc, char** argv) {
     cout << "Reading kmers weight" << endl;
     kmersFactory.readKmersFromFile(weightFileName);
     cout << kmersFactory.getKmers().size() << " kmers loaded in " << TimeUtils::instance()->getTimeSecFrom(begin) << " seconds" << endl;
-    
+
     begin = clock();
     cout << "Processing input SNP coordinates from files" << endl;
     count = snpFactory.processSNPFromFile(inFileName, neighbors, chrFactory, kmersFactory, svmPredict, fimoFactory, tFBSFactory, outputFileName);
@@ -328,16 +328,28 @@ int main(int argc, char** argv) {
 
     outputFile.open(outputFileName);
     if (outputFile) {
-        outputFile << "#chrom\tpos\trsID\trefAle\taltAle\tscore\n";
+        outputFile << "#chrom\tpos\trsID\trefAle\taltAle\tscore\tmotif(snp_pos)\n";
         for (auto it = snpFactory.getSnps().begin(); it != snpFactory.getSnps().end(); ++it) {
             shared_ptr<SNP> s = *it;
+            shared_ptr<Seq> seq = chrFactory.getSequenceFromID(s->getChr());
+            unsigned int pos = 11;
+            int from = s->getChrPos() - 10;
+            unsigned int length = 21;
+            if (from < 0) {
+                from = 0;
+                pos = s->getChrPos();
+            }
+            if (from + length >= seq->getLength()) length = seq->getLength() - from;
 
             outputFile << s->getChr() << "\t"
                     << s->getChrPos() + 1 << "\t"
                     << s->getId() << "\t" <<
                     s->getRef() << "\t"
                     << s->getAlt() << "\t"
-                    << s->getProbPos() << endl;
+                    << s->getProbPos() << "\t"
+                    << seq->getSubStr((unsigned int) from, length)
+                    << "(" << pos << ")"
+                    << endl;
         }
 
         outputFile.close();
