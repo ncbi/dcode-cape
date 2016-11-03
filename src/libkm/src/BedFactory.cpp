@@ -122,8 +122,11 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
                 if (static_cast<unsigned long int> (atoi((fParser.getWords()[2]).c_str())) <= f->getLength()) {
                     shared_ptr<Peak> p = make_shared<Peak>();
                     p->setChr(fParser.getWords()[0]);
+                    
+                    // For coordinates base see:
+                    // http://genome.ucsc.edu/FAQ/FAQformat.html#format12
                     p->setStart(atoi((fParser.getWords()[1]).c_str()));
-                    p->setEnd(atoi((fParser.getWords()[2]).c_str()) - 1);
+                    p->setEnd(atoi((fParser.getWords()[2]).c_str()) - 1); 
                     try {
                         p->setSeq(f->getSubStr(p->getStart(), p->getLength()));
                         p->calculateContent();

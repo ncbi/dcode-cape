@@ -311,7 +311,7 @@ double KmersFactory::getKmerSig(std::string kmer, unsigned int index) {
         cerr << "Index number is bigger that the vector size" << endl;
         exit(-1);
     }
-    return it->second[index]->getSig();
+    return (std::isinf(it->second[index]->getSig()) || std::isnan(it->second[index]->getSig())) ? 0.0 : it->second[index]->getSig();
 }
 
 void KmersFactory::mergeKmers(KmersFactory& kmersFactory) {
