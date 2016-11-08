@@ -107,7 +107,8 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
         kmersFactory.clearKmerPeakData();
         while (fParser.iterate("#", "\t")) {
             if (fParser.getWords().size() < 3) {
-                cerr << "Bed file with a wrong format " << endl;
+                cerr << "Bed file with a wrong format. Words: " << fParser.getWords().size() << endl;
+                cerr << fParser.getLine() << endl;            
                 exit(-1);
             }
             if (f->getId().compare(fParser.getWords()[0]) != 0) {
@@ -446,8 +447,9 @@ void BedFactory::readControlsFromFile(std::string controlFileName, FastaFactory 
         fParser.setFileToParse(controlFileName);
         kmersFactory.clearKmerControlData();
         while (fParser.iterate("#", "\t")) {
-            if (fParser.getWords().size() != 3) {
-                cerr << "Bed file with a wrong format " << endl;
+            if (fParser.getWords().size() <= 3) {
+                cerr << "Bed file with a wrong format. Words: " << fParser.getWords().size() << endl;
+                cerr << fParser.getLine() << endl;                
                 exit(-1);
             }
             if (f->getId().compare(fParser.getWords()[0]) != 0) {
