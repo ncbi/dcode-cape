@@ -107,59 +107,59 @@ void BedFactory::createPeaksFromBedFile(FastaFactory& chrFactory, std::string be
         kmersFactory.clearKmerPeakData();
         while (fParser.iterate("#", "\t")) {
             if (fParser.getWords().size() < 3) {
-                cerr << "Bed file with a wrong format. Words: " << fParser.getWords().size() << endl;
-                cerr << fParser.getLine() << endl;            
-                exit(-1);
-            }
-            if (f->getId().compare(fParser.getWords()[0]) != 0) {
-                try {
-                    f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
-                    process = true;
-                } catch (exceptions::NotFoundException) {
-                    process = false;
-                }
-            }
-            if (process) {
-                if (static_cast<unsigned long int> (atoi((fParser.getWords()[2]).c_str())) <= f->getLength()) {
-                    shared_ptr<Peak> p = make_shared<Peak>();
-                    p->setChr(fParser.getWords()[0]);
-                    
-                    // For coordinates base see:
-                    // http://genome.ucsc.edu/FAQ/FAQformat.html#format12
-                    p->setStart(atoi((fParser.getWords()[1]).c_str()));
-                    p->setEnd(atoi((fParser.getWords()[2]).c_str()) - 1); 
+                cerr << "Bed file with a wrong format. Ignoring line. Words: " << fParser.getWords().size() << endl;
+                cerr << fParser.getLine() << endl;
+            } else {
+                if (f->getId().compare(fParser.getWords()[0]) != 0) {
                     try {
-                        p->setSeq(f->getSubStr(p->getStart(), p->getLength()));
-                        p->calculateContent();
-                        if (p->getNRCount() >= 50 && p->getNPercent() < maxNPercent) {
-                            pair<int, int> k = p->getGCNcontentBin();
+                        f = chrFactory.getSequenceFromID(fParser.getWords()[0]);
+                        process = true;
+                    } catch (exceptions::NotFoundException) {
+                        process = false;
+                    }
+                }
+                if (process) {
+                    if (static_cast<unsigned long int> (atoi((fParser.getWords()[2]).c_str())) <= f->getLength()) {
+                        shared_ptr<Peak> p = make_shared<Peak>();
+                        p->setChr(fParser.getWords()[0]);
 
-                            if (this->GCNcontentBin.find(f->getId()) == this->GCNcontentBin.end()) {
-                                std::map<int, std::map < std::pair<int, int>, int>> wm;
-                                std::map<std::pair<int, int>, int> m;
-                                m.insert(make_pair(k, 1));
-                                wm.insert(make_pair(p->getLength(), m));
-                                this->GCNcontentBin.insert(make_pair(f->getId(), wm));
-                            } else {
-                                std::map<int, std::map < std::pair<int, int>, int>> *wm = &this->GCNcontentBin.find(f->getId())->second;
-                                if (wm->find(p->getLength()) == wm->end()) {
+                        // For coordinates base see:
+                        // http://genome.ucsc.edu/FAQ/FAQformat.html#format12
+                        p->setStart(atoi((fParser.getWords()[1]).c_str()));
+                        p->setEnd(atoi((fParser.getWords()[2]).c_str()) - 1);
+                        try {
+                            p->setSeq(f->getSubStr(p->getStart(), p->getLength()));
+                            p->calculateContent();
+                            if (p->getNRCount() >= 50 && p->getNPercent() < maxNPercent) {
+                                pair<int, int> k = p->getGCNcontentBin();
+
+                                if (this->GCNcontentBin.find(f->getId()) == this->GCNcontentBin.end()) {
+                                    std::map<int, std::map < std::pair<int, int>, int>> wm;
                                     std::map<std::pair<int, int>, int> m;
                                     m.insert(make_pair(k, 1));
-                                    wm->insert(make_pair(p->getLength(), m));
+                                    wm.insert(make_pair(p->getLength(), m));
+                                    this->GCNcontentBin.insert(make_pair(f->getId(), wm));
                                 } else {
-                                    std::map<std::pair<int, int>, int> *m = &wm->find(p->getLength())->second;
-                                    if (m->find(k) == m->end()) {
-                                        m->insert(make_pair(k, 1));
+                                    std::map<int, std::map < std::pair<int, int>, int>> *wm = &this->GCNcontentBin.find(f->getId())->second;
+                                    if (wm->find(p->getLength()) == wm->end()) {
+                                        std::map<std::pair<int, int>, int> m;
+                                        m.insert(make_pair(k, 1));
+                                        wm->insert(make_pair(p->getLength(), m));
                                     } else {
-                                        (*m)[k]++;
+                                        std::map<std::pair<int, int>, int> *m = &wm->find(p->getLength())->second;
+                                        if (m->find(k) == m->end()) {
+                                            m->insert(make_pair(k, 1));
+                                        } else {
+                                            (*m)[k]++;
+                                        }
                                     }
                                 }
+                                kmersFactory.scanSequences(p->getSeq(), false);
+                                this->peaks.push_back(p);
                             }
-                            kmersFactory.scanSequences(p->getSeq(), false);
-                            this->peaks.push_back(p);
+                        } catch (std::out_of_range) {
+                            cerr << "Out of range coordinates for sequence. Ignoring peak" << endl;
                         }
-                    } catch (std::out_of_range) {
-                        cerr << "Out of range coordinates for sequence. Ignoring peak" << endl;
                     }
                 }
             }
@@ -379,7 +379,7 @@ void BedFactory::generatingControlsFromChromosomes(FastaFactory &chrFactory, uns
                         }
                         i = 0;
                         vector<uint32_t> index;
-                        std::uniform_int_distribution<uint32_t> uint_dist(0,peaksVector.size() - 1);
+                        std::uniform_int_distribution<uint32_t> uint_dist(0, peaksVector.size() - 1);
                         while (1) {
                             uint32_t randomIndex = uint_dist(rng);
                             if (find(index.begin(), index.end(), randomIndex) == index.end()) {
@@ -449,7 +449,7 @@ void BedFactory::readControlsFromFile(std::string controlFileName, FastaFactory 
         while (fParser.iterate("#", "\t")) {
             if (fParser.getWords().size() <= 3) {
                 cerr << "Bed file with a wrong format. Words: " << fParser.getWords().size() << endl;
-                cerr << fParser.getLine() << endl;                
+                cerr << fParser.getLine() << endl;
                 exit(-1);
             }
             if (f->getId().compare(fParser.getWords()[0]) != 0) {
