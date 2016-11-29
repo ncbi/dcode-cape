@@ -380,74 +380,77 @@ int SNPFactory::processSNPFromFile(std::string snpFileName, unsigned long int ne
         exit(-1);
     }
 
-    /*
-     * Calculating final mean
-     */
-    for (i = 0; i < featNumber; i++) {
-        mean[i] = mean[i] / static_cast<double> (snps.size());
-    }
+    if (!snps.empty()) {
 
-    /*
-     * Summing standard deviation 
-     */
-    for (auto it = snps.begin(); it != snps.end(); ++it) {
-        shared_ptr<SNP> s = *it;
+        /*
+         * Calculating final mean
+         */
         for (i = 0; i < featNumber; i++) {
-            sd[i] += (s->getDescriptors()[i] - mean[i])*(s->getDescriptors()[i] - mean[i]);
+            mean[i] = mean[i] / static_cast<double> (snps.size());
         }
-    }
 
-    /*
-     * Calculating final standard deviation
-     */
-    for (i = 0; i < featNumber; i++) {
-        sd[i] = sqrt(sd[i] / static_cast<double> (snps.size()));
-    }
-
-    if (Global::instance()->isDebug3()) {
-        featuresFile.open(outputFileName + "_CAPE_features.txt");
-        if (!featuresFile.is_open()) {
-            cerr << "Can't open features debug file named: " + outputFileName + "_CAPE_features.txt" << endl;
-            exit(-1);
-        }
-        featuresFile.precision(8);
-        zscoreFile.open(outputFileName + "_CAPE_zscores.txt");
-        if (!zscoreFile.is_open()) {
-            cerr << "Can't open zscores debug file named: " + outputFileName + "_CAPE_zscores.txt" << endl;
-            exit(-1);
-        }
-        zscoreFile.precision(8);
-    }
-
-    /*
-     * Calculating ZScore terms
-     */
-    for (auto it = snps.begin(); it != snps.end(); ++it) {
-        shared_ptr<SNP>s = *it;
-
-        if (Global::instance()->isDebug3()) {
-            featuresFile << s->getId() << "\t";
-            zscoreFile << s->getId() << "\t";
-        }
-        for (i = 0; i < featNumber; i++) {
-            x[i].index = i + 1;
-            x[i].value = (s->getDescriptors()[i] - mean[i]) / sd[i];
-            if (Global::instance()->isDebug3()) {
-                featuresFile << s->getDescriptors()[i] << "\t";
-                zscoreFile << x[i].value << "\t";
+        /*
+         * Summing standard deviation 
+         */
+        for (auto it = snps.begin(); it != snps.end(); ++it) {
+            shared_ptr<SNP> s = *it;
+            for (i = 0; i < featNumber; i++) {
+                sd[i] += (s->getDescriptors()[i] - mean[i])*(s->getDescriptors()[i] - mean[i]);
             }
         }
-        if (Global::instance()->isDebug3()) {
-            featuresFile << endl;
-            zscoreFile << endl;
-        }
-        svmPredict.svmPredictCalulation(x, target_label);
-        s->setProbPos(svmPredict.getProbEstimates()[0]);
-    }
 
-    if (Global::instance()->isDebug3()) {
-        featuresFile.close();
-        zscoreFile.close();
+        /*
+         * Calculating final standard deviation
+         */
+        for (i = 0; i < featNumber; i++) {
+            sd[i] = sqrt(sd[i] / static_cast<double> (snps.size()));
+        }
+
+        if (Global::instance()->isDebug3()) {
+            featuresFile.open(outputFileName + "_CAPE_features.txt");
+            if (!featuresFile.is_open()) {
+                cerr << "Can't open features debug file named: " + outputFileName + "_CAPE_features.txt" << endl;
+                exit(-1);
+            }
+            featuresFile.precision(8);
+            zscoreFile.open(outputFileName + "_CAPE_zscores.txt");
+            if (!zscoreFile.is_open()) {
+                cerr << "Can't open zscores debug file named: " + outputFileName + "_CAPE_zscores.txt" << endl;
+                exit(-1);
+            }
+            zscoreFile.precision(8);
+        }
+
+        /*
+         * Calculating ZScore terms
+         */
+        for (auto it = snps.begin(); it != snps.end(); ++it) {
+            shared_ptr<SNP>s = *it;
+
+            if (Global::instance()->isDebug3()) {
+                featuresFile << s->getId() << "\t";
+                zscoreFile << s->getId() << "\t";
+            }
+            for (i = 0; i < featNumber; i++) {
+                x[i].index = i + 1;
+                x[i].value = (s->getDescriptors()[i] - mean[i]) / sd[i];
+                if (Global::instance()->isDebug3()) {
+                    featuresFile << s->getDescriptors()[i] << "\t";
+                    zscoreFile << x[i].value << "\t";
+                }
+            }
+            if (Global::instance()->isDebug3()) {
+                featuresFile << endl;
+                zscoreFile << endl;
+            }
+            svmPredict.svmPredictCalulation(x, target_label);
+            s->setProbPos(svmPredict.getProbEstimates()[0]);
+        }
+
+        if (Global::instance()->isDebug3()) {
+            featuresFile.close();
+            zscoreFile.close();
+        }
     }
     free(x);
     return count;

@@ -27,11 +27,16 @@ namespace parsers {
             }
             closeFile = true;
             fileToParse.seekg(0, fileToParse.end);
-            if (static_cast<unsigned long int> (fileToParse.tellg()) < bufferSize) {
-                bufferSize = static_cast<unsigned long int> (fileToParse.tellg());
+            if (static_cast<unsigned long int> (fileToParse.tellg()) > 0) {
+                if (static_cast<unsigned long int> (fileToParse.tellg()) < bufferSize) {
+                    bufferSize = static_cast<unsigned long int> (fileToParse.tellg());
+                }
+                buffer.resize(bufferSize + 1);
+                fileToParse.seekg(0, fileToParse.beg);
+            } else {
+                this->fileToParse.close();
+                this->closeFile = false;
             }
-            buffer.resize(bufferSize + 1);
-            fileToParse.seekg(0, fileToParse.beg);
         }
 
         std::vector<std::string>& getWords() {
