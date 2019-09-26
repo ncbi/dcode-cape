@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="97">
+<configurationDescriptor version="100">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
@@ -67,7 +67,7 @@
           <linkerAddLib>
             <pElem>../libkm/build</pElem>
           </linkerAddLib>
-          <commandLine>-lm -lkm</commandLine>
+          <commandLine>-lz -lboost_iostreams -lm -lkm</commandLine>
         </linkerTool>
       </compileType>
       <packaging>
@@ -75,6 +75,12 @@
         <output>${CND_DISTDIR}/${CND_CONF}/package/kweight.tar.gz</output>
         <additionalOptions>-vz</additionalOptions>
         <packFileList>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
           <packFileListElem type="File"
                             to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
                             from="${OUTPUT_PATH}"

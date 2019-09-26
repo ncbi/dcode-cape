@@ -9,5 +9,8 @@
         <group name="KillerMutations">
             <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/kMerge/src/main.cpp</file>
         </group>
+        <group>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/dcode-cape/src/kMerge/src/main.cpp</file>
+        </group>
     </open-files>
 </project-private>

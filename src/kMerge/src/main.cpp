@@ -66,7 +66,7 @@ void print_usage(char *program_name, int exit_code) {
     cerr << "\n\n" << program_name << " options:\n\n";
     cerr << "-v    Print info\n";
     cerr << "-h    Display this usage information.\n";
-    cerr << "-i    Text file with a list of kweight file names.\n";
+    cerr << "-i    Text file with a list of kweight file names. Expected GZIP files.\n";
     cerr << "-o    Output file.\n";
 
     cerr << "********************************************************************************\n";

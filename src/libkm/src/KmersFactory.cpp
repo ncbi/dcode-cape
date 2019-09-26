@@ -19,6 +19,10 @@
 #include <fstream>
 #include <set>
 
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+
 #include "bmath.h"
 #include "Global.h"
 #include "cstring.h"
@@ -196,57 +200,69 @@ void KmersFactory::readKmersFromFile(std::string fileName) {
     set<string> infSig;
     unordered_map<string, std::vector<std::shared_ptr < Kmer>>>::iterator it;
 
-    FileParserFactory fParser;
-
     try {
-        fParser.setFileToParse(fileName);
-        while (fParser.iterate("#", "\t")) {
-            if (this->kmerNumber == 0) {
-                this->kmerNumber = (fParser.getWords().size() - 1) / 3;
-            }
-            if (maxSig.size() == 0) {
-                maxSig.resize(this->kmerNumber, NAN);
-            }
-            rc_kmer = cstring::reverseComplement(fParser.getWords()[0]);
-            for (unsigned int i = 0; i < this->kmerNumber; i++) {
-                k = make_shared<Kmer>();
-                kr = make_shared<Kmer>();
+        std::ifstream file(fileName, std::ios::in | std::ios::binary);
+        boost::iostreams::filtering_streambuf<boost::iostreams::input> inbuf;
+        inbuf.push(boost::iostreams::gzip_decompressor());
+        inbuf.push(file);
+        std::istream instream(&inbuf);
+        std::string line;
+        std::vector<std::string> words;
 
-                k->setValue(atof((fParser.getWords()[3 * i + 1]).c_str()));
-                kr->setValue(k->getValue());
-
-                k->setSig(atof((fParser.getWords()[3 * i + 2]).c_str()));
-                kr->setSig(k->getSig());
-                if (std::isinf(k->getSig())) {
-                    infSig.insert(fParser.getWords()[0]);
-                } else {
-                    if (std::isnan(maxSig[i]) || maxSig[i] < std::fabs(k->getSig())) maxSig[i] = std::fabs(k->getSig());
+        while (std::getline(instream, line)) {
+            if (line.compare(0, 1, "#") != 0) {
+                cstring::split(line, "\t", words);
+                if (this->kmerNumber == 0) {
+                    this->kmerNumber = (words.size() - 1) / 3;
                 }
-
-                k->setPf(atof((fParser.getWords()[3 * i + 3]).c_str()));
-                kr->setPf(k->getPf());
-
-                it = this->kmers.find(fParser.getWords()[0]);
-                if (it != this->kmers.end()) {
-                    it->second.push_back(k);
-                } else {
-                    std::vector<std::shared_ptr < Kmer>> kmerVec;
-                    kmerVec.push_back(k);
-                    this->kmers.insert(make_pair(fParser.getWords()[0], kmerVec));
+                if (maxSig.size() == 0) {
+                    maxSig.resize(this->kmerNumber, NAN);
                 }
+                rc_kmer = cstring::reverseComplement(words[0]);
+                for (unsigned int i = 0; i < this->kmerNumber; i++) {
+                    k = make_shared<Kmer>();
+                    kr = make_shared<Kmer>();
 
-                if (rc_kmer.compare(fParser.getWords()[0]) != 0) {
-                    it = this->kmers.find(rc_kmer);
+                    k->setValue(atof((words[3 * i + 1]).c_str()));
+                    kr->setValue(k->getValue());
+
+                    k->setSig(atof((words[3 * i + 2]).c_str()));
+                    kr->setSig(k->getSig());
+                    if (std::isinf(k->getSig())) {
+                        infSig.insert(words[0]);
+                    } else {
+                        if (std::isnan(maxSig[i]) || maxSig[i] < std::fabs(k->getSig())) maxSig[i] = std::fabs(k->getSig());
+                    }
+
+                    k->setPf(atof((words[3 * i + 3]).c_str()));
+                    kr->setPf(k->getPf());
+
+                    it = this->kmers.find(words[0]);
                     if (it != this->kmers.end()) {
                         it->second.push_back(k);
                     } else {
                         std::vector<std::shared_ptr < Kmer>> kmerVec;
                         kmerVec.push_back(k);
-                        this->kmers.insert(make_pair(rc_kmer, kmerVec));
+                        this->kmers.insert(make_pair(words[0], kmerVec));
+                    }
+
+                    if (rc_kmer.compare(words[0]) != 0) {
+                        it = this->kmers.find(rc_kmer);
+                        if (it != this->kmers.end()) {
+                            it->second.push_back(k);
+                        } else {
+                            std::vector<std::shared_ptr < Kmer>> kmerVec;
+                            kmerVec.push_back(k);
+                            this->kmers.insert(make_pair(rc_kmer, kmerVec));
+                        }
                     }
                 }
             }
         }
+
+        file.close();
+
+
     } catch (exceptions::FileNotFoundException) {
         cerr << "Error parsing file: " << fileName << endl;
         exit(-1);

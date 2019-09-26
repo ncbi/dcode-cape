@@ -9,5 +9,8 @@
         <group name="KillerMutations">
             <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/snp2svmModel/src/main.cpp</file>
         </group>
+        <group>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/dcode-cape/src/snp2svmModel/src/main.cpp</file>
+        </group>
     </open-files>
 </project-private>

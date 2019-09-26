@@ -62,7 +62,7 @@ void print_usage(char *program_name, int exit_code) {
     cerr << "out\toutput_file_name.out\t\t\t# Output file with SNP coordinates and probabilities\n";
     cerr << "order\t4,6,8,10,12\t\t\t\t\t# Order (default: 4,6,8,10,12)\n";
     cerr << "chrs\t/path-to/hg19.fa.bin\t\t\t# Chromosomes files in binary mode. Format: hg19.fa.bin. Binary files created by formatFasta\n";
-    cerr << "weight\t/path-to/kmers_sigValue_sorted\t\t# Kmers weight file. Generated with kweight or kmerge\n";
+    cerr << "weight\t/path-to/kmers_sigValue_sorted\t\t# Gzip Kmers weight file. Generated with kweight or kmerge\n";
     cerr << "neighbors\t100\t\t\t\t# Pb to be added before and after the SNP position. Default 100\n";
     cerr << "model\t/path-to/svm.model\t\t\t# SVM Model\n";
     cerr << "probability\t1\t\t\t\t# 1 if the model use probability estimates\n";

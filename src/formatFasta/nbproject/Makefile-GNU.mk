@@ -62,7 +62,7 @@ LDLIBSOPTIONS=-L../libkm/build
 	${MKDIR} -p ../../bin
 	${LINK.cc} -o ../../bin/formatFasta ${OBJECTFILES} ${LDLIBSOPTIONS} -lkm -lm
 
-${OBJECTDIR}/src/main.o: src/main.cpp 
+${OBJECTDIR}/src/main.o: src/main.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -I../libkm/includes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
@@ -73,7 +73,6 @@ ${OBJECTDIR}/src/main.o: src/main.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ../../bin/formatFasta
 
 # Subprojects
 .clean-subprojects:

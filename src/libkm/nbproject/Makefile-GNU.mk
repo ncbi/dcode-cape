@@ -105,92 +105,92 @@ LDLIBSOPTIONS=
 	${AR} -rv ./build/libkm.a ${OBJECTFILES} 
 	$(RANLIB) ./build/libkm.a
 
-${OBJECTDIR}/src/BedFactory.o: src/BedFactory.cpp 
+${OBJECTDIR}/src/BedFactory.o: src/BedFactory.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/BedFactory.o src/BedFactory.cpp
 
-${OBJECTDIR}/src/FastaFactory.o: src/FastaFactory.cpp 
+${OBJECTDIR}/src/FastaFactory.o: src/FastaFactory.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FastaFactory.o src/FastaFactory.cpp
 
-${OBJECTDIR}/src/FileParserFactory.o: src/FileParserFactory.cpp 
+${OBJECTDIR}/src/FileParserFactory.o: src/FileParserFactory.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FileParserFactory.o src/FileParserFactory.cpp
 
-${OBJECTDIR}/src/FimoFactory.o: src/FimoFactory.cpp 
+${OBJECTDIR}/src/FimoFactory.o: src/FimoFactory.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/FimoFactory.o src/FimoFactory.cpp
 
-${OBJECTDIR}/src/KmersFactory.o: src/KmersFactory.cpp 
+${OBJECTDIR}/src/KmersFactory.o: src/KmersFactory.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/KmersFactory.o src/KmersFactory.cpp
 
-${OBJECTDIR}/src/SNPFactory.o: src/SNPFactory.cpp 
+${OBJECTDIR}/src/SNPFactory.o: src/SNPFactory.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SNPFactory.o src/SNPFactory.cpp
 
-${OBJECTDIR}/src/SVMPredict.o: src/SVMPredict.cpp 
+${OBJECTDIR}/src/SVMPredict.o: src/SVMPredict.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/SVMPredict.o src/SVMPredict.cpp
 
-${OBJECTDIR}/src/TFBSFactory.o: src/TFBSFactory.cpp 
+${OBJECTDIR}/src/TFBSFactory.o: src/TFBSFactory.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/TFBSFactory.o src/TFBSFactory.cpp
 
-${OBJECTDIR}/src/berror.o: src/berror.cpp 
+${OBJECTDIR}/src/berror.o: src/berror.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/berror.o src/berror.cpp
 
-${OBJECTDIR}/src/bmemory.o: src/bmemory.cpp 
+${OBJECTDIR}/src/bmemory.o: src/bmemory.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/bmemory.o src/bmemory.cpp
 
-${OBJECTDIR}/src/chebyshev.o: src/chebyshev.c 
+${OBJECTDIR}/src/chebyshev.o: src/chebyshev.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/chebyshev.o src/chebyshev.c
 
-${OBJECTDIR}/src/cstring.o: src/cstring.cpp 
+${OBJECTDIR}/src/cstring.o: src/cstring.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/cstring.o src/cstring.cpp
 
-${OBJECTDIR}/src/gamma.o: src/gamma.c 
+${OBJECTDIR}/src/gamma.o: src/gamma.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/gamma.o src/gamma.c
 
-${OBJECTDIR}/src/lgamma.o: src/lgamma.c 
+${OBJECTDIR}/src/lgamma.o: src/lgamma.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/lgamma.o src/lgamma.c
 
-${OBJECTDIR}/src/lgammacor.o: src/lgammacor.c 
+${OBJECTDIR}/src/lgammacor.o: src/lgammacor.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/lgammacor.o src/lgammacor.c
 
-${OBJECTDIR}/src/phyper.o: src/phyper.c 
+${OBJECTDIR}/src/phyper.o: src/phyper.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/phyper.o src/phyper.c
 
-${OBJECTDIR}/src/stirlerr.o: src/stirlerr.c 
+${OBJECTDIR}/src/stirlerr.o: src/stirlerr.c
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -Iincludes -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/stirlerr.o src/stirlerr.c
 
-${OBJECTDIR}/src/svm.o: src/svm.cpp 
+${OBJECTDIR}/src/svm.o: src/svm.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/svm.o src/svm.cpp
@@ -204,35 +204,35 @@ ${OBJECTDIR}/src/svm.o: src/svm.cpp
 
 ${TESTDIR}/TestFiles/bedFactoryTest: ${TESTDIR}/tests/BedFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/bedFactoryTest -Wl,-S $^ ${LDLIBSOPTIONS} 
+	${LINK.cc} -o ${TESTDIR}/TestFiles/bedFactoryTest -Wl,-S $^ ${LDLIBSOPTIONS}   
 
 ${TESTDIR}/TestFiles/fastaFactoryTest: ${TESTDIR}/tests/FastaFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/fastaFactoryTest $^ ${LDLIBSOPTIONS} 
+	${LINK.cc} -o ${TESTDIR}/TestFiles/fastaFactoryTest $^ ${LDLIBSOPTIONS}   
 
 ${TESTDIR}/TestFiles/fileParserFactoryTest: ${TESTDIR}/tests/FileParserFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/fileParserFactoryTest $^ ${LDLIBSOPTIONS} 
+	${LINK.cc} -o ${TESTDIR}/TestFiles/fileParserFactoryTest $^ ${LDLIBSOPTIONS}   
 
 ${TESTDIR}/TestFiles/fimoFactoryTest: ${TESTDIR}/tests/FimoFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/fimoFactoryTest $^ ${LDLIBSOPTIONS} 
+	${LINK.cc} -o ${TESTDIR}/TestFiles/fimoFactoryTest $^ ${LDLIBSOPTIONS}   
 
 ${TESTDIR}/TestFiles/kmerFactoryTest: ${TESTDIR}/tests/KmerFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/kmerFactoryTest $^ ${LDLIBSOPTIONS} 
+	${LINK.cc} -o ${TESTDIR}/TestFiles/kmerFactoryTest $^ ${LDLIBSOPTIONS}   
 
 ${TESTDIR}/TestFiles/peakTest: ${TESTDIR}/tests/PeakTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/peakTest $^ ${LDLIBSOPTIONS} 
+	${LINK.cc} -o ${TESTDIR}/TestFiles/peakTest $^ ${LDLIBSOPTIONS}   
 
 ${TESTDIR}/TestFiles/phyperTest: ${TESTDIR}/tests/PhyperTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/phyperTest $^ ${LDLIBSOPTIONS} 
+	${LINK.cc} -o ${TESTDIR}/TestFiles/phyperTest $^ ${LDLIBSOPTIONS}   
 
 ${TESTDIR}/TestFiles/tFBSFactoryTest: ${TESTDIR}/tests/TFBSFactoryTest.o ${OBJECTFILES:%.o=%_nomain.o}
 	${MKDIR} -p ${TESTDIR}/TestFiles
-	${LINK.cc}   -o ${TESTDIR}/TestFiles/tFBSFactoryTest $^ ${LDLIBSOPTIONS} 
+	${LINK.cc} -o ${TESTDIR}/TestFiles/tFBSFactoryTest $^ ${LDLIBSOPTIONS}   
 
 
 ${TESTDIR}/tests/BedFactoryTest.o: tests/BedFactoryTest.cpp 
@@ -536,7 +536,6 @@ ${OBJECTDIR}/src/svm_nomain.o: ${OBJECTDIR}/src/svm.o src/svm.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ./build/libkm.a
 
 # Subprojects
 .clean-subprojects:

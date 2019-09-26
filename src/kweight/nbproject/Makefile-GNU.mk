@@ -60,9 +60,9 @@ LDLIBSOPTIONS=-L../libkm/build
 
 ../../bin/kweight: ${OBJECTFILES}
 	${MKDIR} -p ../../bin
-	${LINK.cc} -o ../../bin/kweight ${OBJECTFILES} ${LDLIBSOPTIONS} -lm -lkm
+	${LINK.cc} -o ../../bin/kweight ${OBJECTFILES} ${LDLIBSOPTIONS} -lz -lboost_iostreams -lm -lkm
 
-${OBJECTDIR}/src/main.o: src/main.cpp 
+${OBJECTDIR}/src/main.o: src/main.cpp
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -Iincludes -I../libkm/includes -std=c++14 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/main.o src/main.cpp
@@ -73,7 +73,6 @@ ${OBJECTDIR}/src/main.o: src/main.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r ${CND_BUILDDIR}/${CND_CONF}
-	${RM} ../../bin/kweight
 
 # Subprojects
 .clean-subprojects:

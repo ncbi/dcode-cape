@@ -21,5 +21,12 @@
             <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/cstring.cpp</file>
             <file>file:/Users/veraalva/Work/Developer/C/ncbi/cape/src/libkm/src/BedFactory.cpp</file>
         </group>
+        <group>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/dcode-cape/src/libkm/src/KmersFactory.cpp</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/dcode-cape/src/libkm/src/cstring.cpp</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/dcode-cape/src/libkm/includes/FileParserFactory.h</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/dcode-cape/src/libkm/src/FileParserFactory.cpp</file>
+            <file>file:/Users/veraalva/Work/Developer/C/ncbi/dcode-cape/src/libkm/includes/KmersFactory.h</file>
+        </group>
     </open-files>
 </project-private>
