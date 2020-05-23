@@ -574,6 +574,12 @@ int SNPFactory::createSVMModelFromSNPFile(std::string snpFileName, unsigned long
                                 overlapValue = neighborSum = 0;
                                 try {
                                     tFBSFactory.extractTFBSFromFile(startPos, endPos, f);
+                                    if (Global::instance()->isDebug3()) {
+                                        cerr << "startPos: " << startPos << "\tendPos: " << endPos << endl;
+                                        cerr << "TBSF: " << tFBSFactory.getTfbs().size() << endl;
+                                        cerr << "ID: " << f->getId() << endl;
+                                        cerr << "Seq: " << f->getSeq() << endl;
+                                    }
                                     for (auto it = tFBSFactory.getTfbs().begin(); it != tFBSFactory.getTfbs().end(); ++it) {
                                         shared_ptr<TFBS> t = *it;
                                         cPair = fimoFactory.getTissueValue(tFBSFactory.getPwmIndex()[t->getIndex() - 1]->getName(), expressionCode);
